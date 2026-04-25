@@ -7,6 +7,8 @@ Created on Tue Apr 21 10:19:41 2026
 
 #%%
 
+from classes.company import Company
+
 # Class Car
 from classes.gclass import Gclass
 class Car(Gclass):
