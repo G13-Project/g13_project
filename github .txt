@@ -1,0 +1,10 @@
+cd C:\Users\Ivo\OneDrive - Universidade do Porto\Ambiente de Trabalho\2º semestre\PCII\Repositórios\Ivo\trabalho
+
+git pull main origin
+
+git add .
+
+git commit -m "mensagem"
+
+git push
+
