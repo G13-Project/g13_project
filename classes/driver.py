@@ -1,4 +1,5 @@
-from classes.gclass import Gclass
+
+from gclass import Gclass
 import datetime
 class Driver(Gclass):
     obj = dict()
@@ -6,24 +7,24 @@ class Driver(Gclass):
     pos = 0
     sortkey = ''
     # Attribute names list, identifier attribute must be the first one and callled 'id'
-    att = ['_id','_nickname','_type']
+    att = ['_id','_nickname','_driver_type']
     # Class header title
     header = 'Driver'
     # field description for use in, for example, input form
-    des = ['Id','Nickname','Type']
+    des = ['Id','Nickname','Drivertype']
     # Constructor: Called when an object is instantiated
-    def __init__(self, id, nickname, type):
+    def __init__(self, id, nickname, driver_type):
         super().__init__()
         # Object attributes
         id = Driver.get_id(id)
         self._id = id
         self._nickname = nickname
-        self._type = type
+        self._driver_type = driver_type
         
         # Add the new object to the dictionary of objects
-        Driver.obj[id] = self
+        Driver.obj[self._id] = self
         # Add the id to the list of object ids
-        Driver.lst.append(id)
+        Driver.lst.append(self._id)
     # id property getter method
     @property
     def id(self):
@@ -41,10 +42,10 @@ class Driver(Gclass):
 
     # type property getter method
     @property
-    def type(self):
-        return self._type
+    def driver_type(self):
+        return self._driver_type
     # type property setter method
-    @type.setter
-    def type(self, type):
-        self._type = type
+    @driver_type.setter
+    def driver_type(self, type):
+        self._driver_type = type
 

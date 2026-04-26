@@ -1,18 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Apr 25 13:47:35 2026
-
-@author: Tomás Stockler
-"""
-
 import os
 import sys
 
-# Define o caminho para a pasta raiz e para a pasta classes
+#define the path to "classes"
 diretorio_atual = os.path.dirname(os.path.abspath(__file__))
 pasta_classes = os.path.join(diretorio_atual, 'classes')
 
-#evita o ModuleNotFoundError
+#avoid ModuleNotFoundError
 sys.path.append(diretorio_atual)
 sys.path.append(pasta_classes)
 
@@ -24,14 +17,14 @@ from classes.car import Car
 from classes.contract import Contract
 from classes.ride import Ride
 
-# Define o caminho para a base de dados na pasta 'data'
+#define the path do db in 'data'
 caminho_base = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(caminho_base, 'data', 'g13_ridesharing.db')
 
 def iniciar():
     print("--- A carregar base de dados ---")
     try:
-        # Ordem de leitura para evitar erros de IDs não encontrados
+        # Reading order to avoid IDs not found errors
         Company.read(db_path)
         
         Driver.read(db_path)
