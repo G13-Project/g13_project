@@ -7,8 +7,6 @@ Created on Tue Apr 21 10:19:41 2026
 
 #%%
 
-from classes.company import Company
-
 # Class Car
 from classes.gclass import Gclass
 class Car(Gclass):
@@ -17,13 +15,13 @@ class Car(Gclass):
     pos = 0
     sortkey = ''
     # Attribute names list, identifier attribute must be the first one and callled 'id'
-    att = ['_id','_description','_company_id']
+    att = ['_id','_description','_company_id','_car_type']
     # Class header title
     header = 'Cars'
     # field description for use in, for example, input form
-    des = ['Id','Description','Company_id']
+    des = ['Id','Description','Company_id','Car_type']
     # Constructor: Called when an object is instantiated
-    def __init__(self, id, company_id, description):
+    def __init__(self, id, company_id, description, car_type):
         super().__init__()
         # Check the company referencial integrity
         company_id = int(company_id)
@@ -33,6 +31,7 @@ class Car(Gclass):
             self._id = id
             self._description = description
             self._company_id = company_id
+            self._car_type = car_type
             # Add the new object to the Car List
             Car.obj[id] = self
             # Add the id to the list of object ids
@@ -41,7 +40,7 @@ class Car(Gclass):
             print(f"Company {company_id} not found")
 
     #Object properties
-    # id property getter and setter method
+    # id property getter method
     @property
     def id(self):
         return self._id
@@ -52,6 +51,17 @@ class Car(Gclass):
     @description.setter
     def description(self, new):
         self._description = new
+    # car_type property getter and setter method
+    @property
+    def car_type(self):
+        if self._car_type == 1:
+            return "Veículo da empresa"
+        elif self._car_type == 2:
+            return "Veículo pessoal"
+    @car_type.setter
+    def car_type(self, new):
+        if new == 1 or new == 2:
+            self._car_type = new
     # id_company property getter and setter method
     @property
     def company_id(self):
