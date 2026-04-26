@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 
-(2021)
 #objective: Test classes based on generic class Gclass
 
 """""
