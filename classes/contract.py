@@ -19,7 +19,7 @@ class Contract(Gclass):
         
         try:
             self._contract_start = datetime.date.fromisoformat(contract_start[:10])
-            self._contract_end = (datetime.date.fromisoformat(contract_end[:10]) if contract_end else None)
+            self._contract_end = (datetime.date.fromisoformat(contract_end[:10]) if contract_end else "Vitalício")
         except Exception as e:
             #in case the format is strange
             print(f"Erro na data do contrato {id}: {e}")
