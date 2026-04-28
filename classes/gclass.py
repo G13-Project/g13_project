@@ -7,9 +7,7 @@
 
 # -*- coding: utf-8 -*-
 """
-@author: António Brito / Carlos Bragança
-Ficheiro: gclass.py
-Objetivo: Classe genérica para gestão de objetos e persistência em SQLite
+
 """
 
 import sqlite3
