@@ -18,7 +18,7 @@ class Ride(Gclass):
 
     Tecnologia = {'Avançada': ['Tech-Obsessed Pilot'], 'Fiel': ['GPS Purist'], 'Instintivo': ['Efficiency Expert', 'Shortcut Sorcerer']}
     
-    ambiente = {'Silêncio': [' Silent Cruiser'], 'Calmo': [ 'Zen Driver', 'Chill Navigator', 'Road Philosopher', 'Snack Provided'], 'Animado': [ 'Vibe setter', 'Playist Maestro', ' Snack Provider ']}
+    ambiente = {'Silêncio': ['Silent Cruiser'], 'Calmo': ['Zen Driver', 'Chill Navigator', 'Road Philosopher', 'Snack Provider'], 'Animado': ['Vibe setter', 'Playist Maestro', 'Snack Provider']}
 
     iteracao = {'Reduzida': ['Silent Cruiser'],'Moderada': ['Conversation Curator', 'Snack Provider', 'Friendly Neighbour'],'Elevada': ['Road Philosopher', 'Storyteller', 'Snack Provider']}
 
