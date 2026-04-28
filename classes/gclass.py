@@ -42,26 +42,42 @@ class Gclass:
         return int(id)
 
     @classmethod
+    @classmethod
     def read(cls, db_path):
-        """Lê os dados da tabela correspondente na base de dados SQLite"""
-        # Limpa as listas atuais para evitar duplicados ao reler
-        cls.obj = dict()
-        cls.lst = list()
-        
-        try:
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            # O nome da tabela é o 'header' definido na classe filha
-            cursor.execute(f"SELECT * FROM {cls.header}")
-            rows = cursor.fetchall()
-            
-            for row in rows:
-                # Instancia um novo objeto usando os dados da linha
+    
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+    
+        cur.execute(f"SELECT * FROM {cls.__name__}")
+        rows = cur.fetchall()
+        conn.close()
+    
+        for row in rows:
+            try:
                 cls(*row)
+            except Exception as e:
+                print(f"{cls.__name__} ignorado: {e}")
+
+    # def read(cls, db_path):
+    #     """Lê os dados da tabela correspondente na base de dados SQLite"""
+    #     # Limpa as listas atuais para evitar duplicados ao reler
+    #     cls.obj = dict()
+    #     cls.lst = list()
+        
+    #     try:
+    #         conn = sqlite3.connect(db_path)
+    #         cursor = conn.cursor()
+    #         # O nome da tabela é o 'header' definido na classe filha
+    #         cursor.execute(f"SELECT * FROM {cls.header}")
+    #         rows = cursor.fetchall()
+            
+    #         for row in rows:
+    #             # Instancia um novo objeto usando os dados da linha
+    #             cls(*row)
                 
-            conn.close()
-        except Exception as e:
-            print(f"Erro ao ler tabela {cls.header}: {e}")
+    #         conn.close()
+    #     except Exception as e:
+    #         print(f"Erro ao ler tabela {cls.header}: {e}")
 
     @classmethod
     def first(cls):

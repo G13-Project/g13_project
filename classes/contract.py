@@ -1,4 +1,6 @@
 import datetime
+from classes.company import Company
+from classes.driver import Driver
 from gclass import Gclass
 class Contract(Gclass):
     obj = dict()
@@ -14,6 +16,10 @@ class Contract(Gclass):
     # Constructor: Called when an object is instantiated
     def __init__(self, id, contract_start, contract_end, id_company, id_driver):
         super().__init__()
+        if id_company not in Company.lst:
+            raise ValueError(f"Company {id_company} not found")
+        if id_driver not in Driver.lst:
+            raise ValueError(f"Driver {id_driver} not found") 
         
         self._id = Contract.get_id(id) 
         
@@ -25,6 +31,7 @@ class Contract(Gclass):
             print(f"Erro na data do contrato {id}: {e}")
             self._contract_start = datetime.date.today() 
             self._contract_end = None
+
             
         # saving the IDs in memory
         self._id_company = id_company

@@ -4,6 +4,11 @@ Created on Mon Apr 20 14:39:11 2026
 
 @author: up202507606
 """
+from classes.company import Company
+from classes.driver import Driver
+from classes.customer import Customer
+from classes.car import Car
+
 
 import datetime
 # Class Ride - generic version with inheritance
@@ -51,6 +56,14 @@ class Ride(Gclass):
             self._ride_date = datetime.date.fromisoformat(str(ride_date)[:10])
         except:
             self._ride_date = datetime.date.today()
+        if id_company not in Company.lst:
+            raise ValueError(f"Company {id_company} not found")
+        if id_driver not in Driver.lst:
+            raise ValueError(f"Driver {id_driver} not found")
+        if id_customer not in Customer.lst:
+            raise ValueError(f"Customer {id_customer} not found")
+        if id_car not in Car.lst:
+            raise ValueError(f"Car {id_car} not found")
 
         self._id_company = id_company
         self._id_driver = id_driver
