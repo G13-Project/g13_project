@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 20 14:39:11 2026
-
-@author: up202507606
-"""
 from classes.company import Company
 from classes.driver import Driver
 from classes.customer import Customer
@@ -11,7 +5,6 @@ from classes.car import Car
 
 
 import datetime
-# Class Ride - generic version with inheritance
 from gclass import Gclass
 
 class Ride(Gclass):
@@ -74,7 +67,7 @@ class Ride(Gclass):
         self._amount = amount
 
     
-       #For memory
+       
         Ride.obj[self._id] = self
         Ride.lst.append(self._id)
         

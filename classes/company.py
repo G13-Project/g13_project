@@ -1,8 +1,3 @@
-"""
-@author: Inês Braga
-(2025) objective: class Company
-"""
-# Class Company - generic version with inheritance
 from gclass import Gclass
 import datetime as dt
 

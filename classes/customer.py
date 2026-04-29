@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Apr 20 14:21:09 2026
-
-@author: up202507606
-"""
 import datetime
 # Class Customer - generic version with inheritance
 from gclass import Gclass

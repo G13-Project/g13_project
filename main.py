@@ -2,7 +2,7 @@ import os
 import sys
 import sqlite3
 
-# ---------------- PATHS ---------------- #
+#Paths
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CLASSES_DIR = os.path.join(BASE_DIR, 'classes')
@@ -19,7 +19,7 @@ from classes.ride import Ride
 
 DB_PATH = os.path.join(BASE_DIR, 'data', 'g13_ridesharing.db')
 
-# ---------------- DB ---------------- #
+#Db
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH, timeout=5)
@@ -34,7 +34,7 @@ def get_columns(table):
     conn.close()
     return cols
 
-# ---------------- LOAD ---------------- #
+#Load
 
 def iniciar():
     print('--- A carregar base de dados ---')
@@ -51,7 +51,7 @@ def iniciar():
         print(f'Erro ao carregar: {e}')
         return False
 
-# ---------------- MENU ---------------- #
+#Menu
 
 def menu_teste(test_class):
 
@@ -78,19 +78,19 @@ q - Sair
 
         op = input('Opção: ').lower().strip()
 
-        # LISTAR
+        #Listar
         if op == 'l':
             for k in test_class.lst:
                 print(test_class.obj[k])
 
-        # NAVEGAÇÃO
+        #Navegação
         elif op == 'n':
             test_class.nextrec()
 
         elif op == 'p':
             test_class.previous()
 
-        # BUSCAR
+        #Buscar
         elif op == 'b':
             try:
                 bid = int(input('ID a procurar: '))
@@ -104,7 +104,7 @@ q - Sair
             else:
                 print('ID não existe!')
 
-        # ACRESCENTAR
+        #Acrescentar
         elif op == 'a':
             try:
                 new_id = int(input('Novo ID: '))
@@ -134,15 +134,18 @@ q - Sair
                 conn.close()
 
                 test_class(new_id, *values)
-                print('Registo acrescentado (DB + memória).')
+                print('Registo acrescentado com sucesso.')
 
             except sqlite3.IntegrityError:
-                print('Erro de integridade (ID duplicado ou FK inválida).')
+                print('Erro de integridade (ID duplicado ou chave estrangeira inválida).')
 
             except sqlite3.OperationalError:
-                print('Base de dados ocupada. Fecha o DB Browser.')
+                print('Base de dados ocupada.')
 
-        # ALTERAR
+            except ValueError as e:
+                print(f'Erro ao criar registo: {e}')
+
+        #Alterar
         elif op == 'u':
             try:
                 uid = int(input('ID a alterar: '))
@@ -158,7 +161,7 @@ q - Sair
             novos = []
 
             for col in columns:
-                atual_val = getattr(obj, col)
+                atual_val = getattr(obj, "_" + col)
                 val = input(f'{col} [{atual_val}] (ENTER mantém): ').strip()
                 novos.append(atual_val if val == '' else val)
 
@@ -174,18 +177,22 @@ q - Sair
                 conn.commit()
                 conn.close()
 
+                
                 for col, val in zip(columns, novos):
-                    setattr(obj, col, val)
+                    setattr(obj, "_" + col, val)
 
-                print('Registo atualizado (DB + memória).')
+                print('Registo atualizado com sucesso.')
 
             except sqlite3.IntegrityError:
-                print('Erro de integridade.')
+                print('Não é possível alterar: chave estrangeira inválida.')
 
             except sqlite3.OperationalError:
                 print('Base de dados ocupada.')
 
-        # ELIMINAR
+            except ValueError as e:
+                print(f'Erro ao alterar registo: {e}')
+
+        #Eliminar
         elif op == 'e':
             try:
                 did = int(input('ID a eliminar: '))
@@ -210,12 +217,12 @@ q - Sair
                 del test_class.obj[did]
                 test_class.lst.remove(did)
 
-                print('Registo eliminado (DB + memória).')
+                print('Registo eliminado com sucesso.')
 
             except sqlite3.IntegrityError:
                 print('Não é possível eliminar: registo em uso.')
 
-# ---------------- MAIN ---------------- #
+#Main
 
 if iniciar():
 
