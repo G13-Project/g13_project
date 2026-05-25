@@ -41,6 +41,7 @@ class Company(Gclass):
     @begin_date.setter
     def begin_date(self, begin_date):
         self._begin_date = dt.date.fromisoformat(begin_date)
+        
 
 
 
