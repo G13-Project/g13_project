@@ -82,7 +82,7 @@ class Ride(Gclass):
     
     ambiente = {'Silêncio': ['Silent Cruiser'], 'Calmo': ['Zen Driver', 'Chill Navigator', 'Road Philosopher', 'Snack Provider'], 'Animado': ['Vibe setter', 'Playist Maestro', 'Snack Provider']}
 
-    iteracao = {'Reduzida': ['Silent Cruiser'],'Moderada': ['Conversation Curator', 'Snack Provider', 'Friendly Neighbour'],'Elevada': ['Road Philosopher', 'Storyteller', 'Snack Provider']}
+    interacao = {'Reduzida': ['Silent Cruiser'],'Moderada': ['Conversation Curator', 'Snack Provider', 'Friendly Neighbour'],'Elevada': ['Road Philosopher', 'Storyteller', 'Snack Provider']}
 
     obj = dict()
     lst = list()
