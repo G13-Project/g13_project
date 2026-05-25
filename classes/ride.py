@@ -175,7 +175,7 @@ class Ride(Gclass):
     @amount.setter
     def amount(self, amount):
         self._amount = amount
-<<<<<<< HEAD
+
     @property
     def distance(self):
         return self._distance
@@ -183,6 +183,18 @@ class Ride(Gclass):
     @property
     def duration(self):
         return self._duration
+ 
+ 
+    def estado_da_viagem(self):
+        hoje=datetime.datetime.now().date()
+        if self._ride_date<hoje:
+            estado="Concluída"
+        else:
+            estado="Por concluir"
+        self._estado=estado
+        return self._estado
+    
+       
     def calcular_estimativa(self):
         """
         Calcula a estimativa de distância e tempo para o trajeto.
@@ -191,29 +203,14 @@ class Ride(Gclass):
         if not self._origin or not self._destination:
             print("Erro: Origem e destino são obrigatórios para calcular estimativa")
             return None, None
-        
+            
         distancia, tempo = get_distance_and_time(self._origin, self._destination)
-        
+            
         if distancia is None or tempo is None:
             print(f"Aviso: Não foi possível calcular estimativa para {self._origin} -> {self._destination}")
             return None, None
-        
+            
         self._distance = distancia
         self._duration = tempo
         return distancia, tempo
-=======
->>>>>>> c0ce4cdcc81bb2fc945db578c1cf45771455d2b5
-    def estado_da_viagem(self):
-        hoje=datetime.datetime.now().date()
-        if self._ride_date<hoje:
-            estado="Concluída"
-        else:
-            estado="Por concluir"
-        self._estado=estado
-<<<<<<< HEAD
-        return self._estado
-=======
-        return self._estado
-    
-    
->>>>>>> c0ce4cdcc81bb2fc945db578c1cf45771455d2b5
+
