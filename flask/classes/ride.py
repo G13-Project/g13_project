@@ -1,76 +1,12 @@
-from classes.company import Company
-from classes.driver import Driver
-from classes.customer import Customer
-from classes.car import Car
+from .company import Company
+from .driver import Driver
+from .customer import Customer
+from .car import Car
+
 
 import datetime
-from gclass import Gclass
-import requests
+from .gclass import Gclass
 
-def geocode(address):
-    url = "https://nominatim.openstreetmap.org/search"
-    params = {
-        "q": address,
-        "format": "json",
-        "limit": 1
-    }
-    try:
-        response = requests.get(url, params=params, headers={"User-Agent": "PC2-Project"}, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-
-        if not data:
-            return None
-
-        lat = data[0]["lat"]
-        lon = data[0]["lon"]
-        return f"{lon},{lat}"
-    except requests.RequestException as e:
-        print(f"Erro ao geocodificar '{address}': {e}")
-        return None   
-def get_distance_and_time(origin_str, destination_str):
-    if not origin_str or not destination_str:
-        print("Erro: Origem e destino são obrigatórios")
-        return None, None
-    
-    origin = geocode(origin_str)
-    destination = geocode(destination_str)
-
-    if origin is None or destination is None:
-        print(f"Erro: Não foi possível geocodificar os endereços")
-        return None, None
-
-    try:
-        url = f"http://router.project-osrm.org/route/v1/driving/{origin};{destination}?overview=false"
-        response = requests.get(url, timeout=5)
-        response.raise_for_status()
-        data = response.json()
-
-        if "routes" not in data or not data["routes"]:
-            print("Erro: Nenhuma rota encontrada")
-            return None, None
-
-        route = data["routes"][0]
-
-        distance_km = route["distance"] / 1000
-        duration_sec = route["duration"]
-
-        total_min = int(duration_sec // 60)
-        hours = total_min // 60
-        minutes = total_min % 60
-
-        if hours > 0:
-            tempo = f"{hours}h {minutes:02d}min"
-        else:
-            tempo = f"{minutes}min"
-
-        return f"{distance_km:.1f} km", tempo
-    except requests.RequestException as e:
-        print(f"Erro ao calcular rota: {e}")
-        return None, None
-    except (KeyError, ValueError) as e:
-        print(f"Erro ao processar dados da rota: {e}")
-        return None, None
 class Ride(Gclass):
     velocidade = {'Rápido': ["Speed Enthusiast", "Shortcut Sorcerer"], 'Calmo':['Silent Cruiser','Chill Navigator'], 'Fluído': ['Smooth Operator','Efficiency Expert'] }
 
@@ -129,8 +65,7 @@ class Ride(Gclass):
         self._origin = origin
         self._destination = destination
         self._amount = amount
-        self._distance = None
-        self._duration = None
+
     
        
         Ride.obj[self._id] = self
@@ -175,34 +110,6 @@ class Ride(Gclass):
     @amount.setter
     def amount(self, amount):
         self._amount = amount
-<<<<<<< HEAD
-    @property
-    def distance(self):
-        return self._distance
-
-    @property
-    def duration(self):
-        return self._duration
-    def calcular_estimativa(self):
-        """
-        Calcula a estimativa de distância e tempo para o trajeto.
-        Retorna: tupla (distancia, tempo) ou (None, None) se falhar
-        """
-        if not self._origin or not self._destination:
-            print("Erro: Origem e destino são obrigatórios para calcular estimativa")
-            return None, None
-        
-        distancia, tempo = get_distance_and_time(self._origin, self._destination)
-        
-        if distancia is None or tempo is None:
-            print(f"Aviso: Não foi possível calcular estimativa para {self._origin} -> {self._destination}")
-            return None, None
-        
-        self._distance = distancia
-        self._duration = tempo
-        return distancia, tempo
-=======
->>>>>>> c0ce4cdcc81bb2fc945db578c1cf45771455d2b5
     def estado_da_viagem(self):
         hoje=datetime.datetime.now().date()
         if self._ride_date<hoje:
@@ -210,10 +117,4 @@ class Ride(Gclass):
         else:
             estado="Por concluir"
         self._estado=estado
-<<<<<<< HEAD
         return self._estado
-=======
-        return self._estado
-    
-    
->>>>>>> c0ce4cdcc81bb2fc945db578c1cf45771455d2b5
