@@ -200,3 +200,11 @@ class Ride(Gclass):
         self._distance = distancia
         self._duration = tempo
         return distancia, tempo
+    def estado_da_viagem(self):
+        hoje=datetime.datetime.now().date()
+        if self._ride_date<hoje:
+            estado="Concluída"
+        else:
+            estado="Por concluir"
+        self._estado=estado
+        return self._estado
