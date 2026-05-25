@@ -110,3 +110,11 @@ class Ride(Gclass):
     @amount.setter
     def amount(self, amount):
         self._amount = amount
+    def estado_da_viagem(self):
+        hoje=datetime.datetime.now().date()
+        if self._ride_date<hoje:
+            estado="Concluída"
+        else:
+            estado="Por concluir"
+        self._estado=estado
+        return self._estado
