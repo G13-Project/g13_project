@@ -21,7 +21,8 @@ class Company(Gclass):
         id = Company.get_id(id)
         self._id = id
         self._name = name
-        self._begin_date = dt.date.fromisoformat(begin_date)
+        self._begin_date = dt.datetime.strptime(begin_date, "%d/%m/%Y").date()
+
         Company.obj[id] = self
         Company.lst.append(id)
         
@@ -29,18 +30,21 @@ class Company(Gclass):
     @property
     def id(self):
         return self._id
+    
     @property
     def name(self):
         return self._name
     @name.setter
     def name(self, name):
         self._name = name
+        
     @property
     def begin_date(self):
-        return self._begin_date
+        return self._begin_date.strftime("%d/%m/%Y")
     @begin_date.setter
     def begin_date(self, begin_date):
-        self._begin_date = dt.date.fromisoformat(begin_date)
+        self._begin_date = dt.datetime.strptime(begin_date, "%d/%m/%Y").date()
+
         
 
 

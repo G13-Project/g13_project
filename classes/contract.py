@@ -2,6 +2,7 @@ import datetime
 from classes.company import Company
 from classes.driver import Driver
 from classes.gclass import Gclass
+
 class Contract(Gclass):
     obj = dict()
     lst = list()
@@ -28,11 +29,10 @@ class Contract(Gclass):
         self._id = Contract.get_id(id)
 
         try:
-            # Converter string "DD-MM-YYYY"
-            self._contract_start = datetime.datetime.strptime(contract_start, "%d-%m-%Y").date()
+            self._contract_start = datetime.datetime.strptime(contract_start, "%d/%m/%Y %H:%M:%S")
 
             if contract_end:
-                self._contract_end = datetime.datetime.strptime(contract_end, "%d-%m-%Y").date()
+                self._contract_end = datetime.datetime.strptime(contract_end, "%d/%m/%Y %H:%M:%S")
             else:
                 self._contract_end = None
 
@@ -58,7 +58,7 @@ class Contract(Gclass):
     
     @property
     def contract_start(self):
-        return self._contract_start
+        return self._contract_start.strftime("%d/%m/%Y %H:%M:%S")
     # Contract_start não tem setter porque não faz sentido o início de um contrato mudar
     
     # Assume-se que contract_end = None é um contrato vitalício
@@ -67,7 +67,7 @@ class Contract(Gclass):
         if self._contract_end is None:
             return "Vitalício"
         else:
-            return self._contract_end
+            return self._contract_end.strftime("%d/%m/%Y %H:%M:%S")
 
     # Aceita formatos datetime, string e None
     @contract_end.setter
@@ -76,9 +76,10 @@ class Contract(Gclass):
         # string -> converter
         if isinstance(contract_end, str):
             try:
-                contract_end = datetime.datetime.strptime(contract_end, "%d-%m-%Y").date()
+                contract_end = datetime.datetime.strptime(contract_end, "%d/%m/%Y %H:%M:%S")
+
             except ValueError:
-                raise ValueError("Formato inválido. Use DD-MM-YYYY")
+                raise ValueError("Formato inválido. Use DD/MM/YYYY H:M:S")
 
         # Se não vier num formato válido (data, string ou None) dá erro
         elif not(isinstance(contract_end, datetime.date)) and not(contract_end is None):
@@ -102,16 +103,22 @@ class Contract(Gclass):
     # Serve para despedir um trabalhador na data fornecida (assumida como a de hoje se for omitida)
     def terminate(self, data_fim = None):
         if data_fim is None:
-            data_fim = datetime.date.today()
+            data_fim = datetime.datetime.now()
 
         self.contract_end = data_fim
         
     # Determina se um contrato está ativo (retorna True ou False)
-    @property 
+    @property
     def is_active(self):
-        if self._contract_end is None or self._contract_end >= datetime.date.today():
-            return True
-        else:
+        today = datetime.datetime.now()
+    
+        if self._contract_start > today:
             return False
+    
+        if self._contract_end is None:
+            return True
+    
+        return self._contract_start <= today <= self._contract_end
 
+    
 
