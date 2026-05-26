@@ -45,15 +45,10 @@ class Contract(Gclass):
     @property
     def id(self):
         return self._id
-    @id.setter
-    def id(self, id):
-        self._id = id
     @property
     def contract_start(self):
         return self._contract_start
-    @contract_start.setter
-    def contract_start(self, contract_start):
-        self._contract_start = contract_start
+
     @property
     def contract_end(self):
         return self._contract_end
