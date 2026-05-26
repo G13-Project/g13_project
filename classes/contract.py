@@ -111,14 +111,12 @@ class Contract(Gclass):
     @property
     def is_active(self):
         today = datetime.datetime.now()
-    
-        if self._contract_start > today:
-            return False
-    
-        if self._contract_end is None:
+        
+        if (self._contract_end is None or today >= self._contract_end) and today >= self._contract_start:
             return True
-    
-        return self._contract_start <= today <= self._contract_end
+        
+        else:
+            return False
 
     
 
