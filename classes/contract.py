@@ -1,7 +1,7 @@
 import datetime
 from classes.company import Company
 from classes.driver import Driver
-from classes.gclass import Gclass
+from gclass import Gclass
 class Contract(Gclass):
     obj = dict()
     lst = list()
@@ -14,50 +14,104 @@ class Contract(Gclass):
     # field description for use in, for example, input form
     des = ['Id', 'Contract_Start', 'Contract_End', 'Id_Company', 'Id_Driver']
     # Constructor: Called when an object is instantiated
+    
+    
     def __init__(self, id, contract_start, contract_end, id_company, id_driver):
         super().__init__()
+
         if id_company not in Company.lst:
             raise ValueError(f"Company {id_company} not found")
-        if id_driver not in Driver.lst:
-            raise ValueError(f"Driver {id_driver} not found") 
-        
-        self._id = Contract.get_id(id) 
-        
-        try:
-            self._contract_start = datetime.date.fromisoformat(contract_start[:10])
-            self._contract_end = (datetime.date.fromisoformat(contract_end[:10]) if contract_end else "Vitalício")
-        except Exception as e:
-            #in case the format is strange
-            print(f"Erro na data do contrato {id}: {e}")
-            self._contract_start = datetime.date.today() 
-            self._contract_end = None
 
-            
-        # saving the IDs in memory
+        if id_driver not in Driver.lst:
+            raise ValueError(f"Driver {id_driver} not found")
+
+        self._id = Contract.get_id(id)
+
+        try:
+            # Converter string "DD-MM-YYYY"
+            self._contract_start = datetime.datetime.strptime(contract_start, "%d-%m-%Y").date()
+
+            if contract_end:
+                self._contract_end = datetime.datetime.strptime(contract_end, "%d-%m-%Y").date()
+            else:
+                self._contract_end = None
+
+            # Validação lógica
+            if self._contract_end is not None and self._contract_end < self._contract_start:
+                raise ValueError("A data final não pode ser anterior à data inicial")
+
+        except ValueError as e:
+            raise ValueError(f"Erro no contrato {id}: {e}")
+
+        # Guardar IDs
         self._id_company = id_company
         self._id_driver = id_driver
-        
-        # add to list
+
+        # Guardar em memória
         Contract.obj[self._id] = self
         Contract.lst.append(self._id)
-        
         
     @property
     def id(self):
         return self._id
+    # Id não tem setter porque a sua mudança causaria problemas para encontrar o objeto
+    
     @property
     def contract_start(self):
         return self._contract_start
-
+    # Contract_start não tem setter porque não faz sentido o início de um contrato mudar
+    
+    # Assume-se que contract_end = None é um contrato vitalício
     @property
     def contract_end(self):
-        return self._contract_end
+        if self._contract_end is None:
+            return "Vitalício"
+        else:
+            return self._contract_end
+
+    # Aceita formatos datetime, string e None
     @contract_end.setter
     def contract_end(self, contract_end):
+
+        # string -> converter
+        if isinstance(contract_end, str):
+            try:
+                contract_end = datetime.datetime.strptime(contract_end, "%d-%m-%Y").date()
+            except ValueError:
+                raise ValueError("Formato inválido. Use DD-MM-YYYY")
+
+        # Se não vier num formato válido (data, string ou None) dá erro
+        elif not(isinstance(contract_end, datetime.date)) and not(contract_end is None):
+            raise TypeError("contract_end deve ser str, datetime.date ou None")
+
+        # Validação lógica
+        if contract_end is not None and contract_end < self._contract_start:
+            raise ValueError("A data final não pode ser anterior à data inicial")
+
+        # Guardar
         self._contract_end = contract_end
+
+
     @property
     def id_company(self):
         return self._id_company
     @property
     def id_driver(self):
         return self._id_driver
+    
+    # Serve para despedir um trabalhador na data fornecida (assumida como a de hoje se for omitida)
+    def terminate(self, data_fim = None):
+        if data_fim is None:
+            data_fim = datetime.date.today()
+
+        self.contract_end = data_fim
+        
+    # Determina se um contrato está ativo (retorna True ou False)
+    @property 
+    def is_active(self):
+        if self._contract_end is None or self._contract_end >= datetime.date.today():
+            return True
+        else:
+            return False
+
+
