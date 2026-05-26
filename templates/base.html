@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RideShare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">RideShare</div>
+
+    <div class="nav-right">
+
+        {% if user %}
+            <span class="user">{{ user }}</span>
+
+            <a href="{{ url_for('main') }}">Home</a>
+            <a href="{{ url_for('index', table='customer') }}">Profile</a>
+
+            <!-- ✅ LOGOUT FUNCIONA -->
+            <a href="{{ url_for('logoff') }}" class="logout">Logout</a>
+
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('signup') }}">Signup</a>
+        {% endif %}
+
+    </div>
+
+</nav>
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

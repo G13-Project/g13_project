@@ -5,7 +5,7 @@ from classes.car import Car
 from classes.gclass import Gclass
 
 import datetime
-import requests
+#import requests
 
 
 def geocode(address):

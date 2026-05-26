@@ -1,85 +1,248 @@
-body{
+/* ---------- RESET ---------- */
+* {
     margin: 0;
-    min-height: 300px;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
-nav{
+/* ---------- NAVBAR ---------- */
+.navbar {
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(10px);
+    color: white;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 15px 30px;
+}
+
+.navbar a {
+    color: #00ff88;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+.logo {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* ---------- BACKGROUND ---------- */
+.bg {
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background:
+        linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.85)),
+        url('/static/images/map.png');
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ---------- BOX (LOGIN / SIGNUP) ---------- */
+.box {
+    width: 320px;
+
+    background: rgba(255,255,255,0.1);
+    padding: 25px;
+    border-radius: 12px;
+
+    color: white;
+    text-align: center;
+
+    backdrop-filter: blur(10px);
+}
+
+.box h1 {
+    margin-bottom: 15px;
+}
+
+/* ---------- FORM ---------- */
+input, select {
     width: 100%;
-    float: left;
+    padding: 10px;
+    margin: 8px 0;
+
+    border-radius: 6px;
+    border: none;
 }
 
-.menu{
-    margin: 0;
-    padding: 8px;
-    height: 100%;
-    background-color: #334a94;
+/* ---------- BUTTON ---------- */
+.btn {
+    width: 100%;
+    padding: 10px;
 
+    background: #00ff88;
+    border: none;
+    border-radius: 6px;
+
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.menu li{
-    display: inline;
+.btn:hover {
+    filter: brightness(1.1);
 }
 
-.button{
-    font-family: Arial;
-    font-size: 1em;
-    font-style: none;
-    color: #ffffff;
-    padding: 8px;
+/* ---------- LINKS ---------- */
+p a, a {
+    color: #00ff88;
     text-decoration: none;
 }
 
-.button:link{
-    background-color: #334a94;
-    color: #ffffff;
+/* ---------- ERROR ---------- */
+.error {
+    color: red;
+    margin-top: 10px;
 }
 
-.button:hover{
-    background-color: lightblue;
+/* ---------- CRUD PAGE (dados) ---------- */
+.dados {
+    padding: 30px;
 }
 
-.dados{
-        text-align: center;
-        font-size: 1em;
+/* ---------- CRUD BUTTONS ---------- */
+button {
+    padding: 8px 12px;
+    margin: 5px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
 }
 
-.button1{
-    font-family: Arial;
-    background-color: #334a94;
-    font-size: 1em;
-    font-style: none;
+/* botão normal */
+button:not(:disabled) {
+    background: #00ff88;
+}
+
+/* botão desativado */
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* hover */
+button:not(:disabled):hover {
+    filter: brightness(1.1);
+}
+
+/* ---------- LABELS ---------- */
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+/* ---------- INPUTS CRUD ---------- */
+.dados input {
+    width: 300px;
+    padding: 8px;
+}
+
+/* ---------- TABELAS LINKS ---------- */
+.dados a {
+    display: block;
+    margin-top: 5px;
+}
+/* ---------- HOME PAGE ---------- */
+.home {
+    height: 100vh;
+
+    position: relative;
+
+    background:
+        url('/static/images/map.png') center/cover no-repeat;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9));
+}
+
+.home-content {
+    position: relative;
     color: white;
-    padding: 4px;
-    border-radius: 5px}
-
-
-.button1:link{
-    background-color: #334a94;
-    color: #ffffff;
+    text-align: center;
 }
 
-.button1:hover{
-    background-color: lightblue;
+.home-content h1 {
+    font-size: 45px;
 }
 
-.button1:disabled{
-    background-color: lightgray;
+.home-content p {
+    margin-top: 10px;
+    color: #ccc;
 }
 
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 50%;
-  margin-left: auto; 
-  margin-right: auto;
+/* ---------- BOTÕES ---------- */
+.buttons {
+    margin-top: 25px;
 }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
+.btn {
+    background: #00ff88;
+    color: black;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 6px;
+    margin: 5px;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-tr:nth-child(even) {
-  background-color: #dddddd;
+.btn-outline {
+    background: transparent;
+    border: 2px solid #00ff88;
+    color: #00ff88;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+/* NAVBAR RIGHT */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user {
+    color: white;
+    margin-right: 10px;
+}
+
+/* ---------- RIDE BOX ---------- */
+.ride-box {
+    margin-top: 30px;
+    background: rgba(255,255,255,0.15);
+    padding: 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
+
+.ride-box input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: none;
+}
+
+.ride-box .btn {
+    width: 100%;
+    margin-top: 10px;
 }

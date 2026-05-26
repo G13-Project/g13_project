@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="bg">
+
+    <div class="box">
+
+        <h1>User Profile</h1>
+
+        <!-- botão para entrar em modo edit -->
+        <a href="/Userlogin?option=edit" class="btn">Edit</a>
+
+        <form method="post" action="/Userlogin?option=save">
+
+            <label>Id:</label>
+            <input type="text" value="{{ id }}" disabled>
+
+            <label>Username:</label>
+            <input type="text" value="{{ user }}" disabled>
+            <input type="hidden" name="user" value="{{ user }}">
+
+            <label>Role:</label>
+            <input type="text" value="{{ usergroup }}" disabled>
+            <input type="hidden" name="usergroup" value="{{ usergroup }}">
+
+            <label>New Password:</label>
+            <input type="password" name="password" placeholder="New password">
+
+            <button class="btn">Save</button>
+
+        </form>
+
+        <br>
+
+        <a href="/" class="btn-back">Back</a>
+
+        {% if msg %}
+            <p class="error">{{ msg }}</p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}
