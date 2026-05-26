@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil do Cliente</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+    <script src="{{ url_for('static', filename='js/perfil.js') }}"></script>
+</head>
+
+<body>
+
+    <!-- PERFIL DO CLIENTE -->
+    <div class="profile-container">
+        <div class="photo-box">
+            <img src="{{ foto_url }}" alt="Foto do Cliente">
+
+            <form action="/upload_foto" method="post" enctype="multipart/form-data">
+                <input type="file" name="foto" accept="image/*">
+                <button type="submit">Alterar Foto</button>
+            </form>
+        </div>
+
+        <div class="info-box">
+            <h2>{{ nome }}</h2>
+            <p><strong>ID:</strong> {{ id }}</p>
+            <p><strong>Telemóvel:</strong> {{ telemovel }}</p>
+            <p><strong>Email:</strong> {{ email }}</p>
+            <p><strong>Data de nascimento:</strong> {{ dob }}</p>
+
+            <a href="/editar" class="edit-button">Editar</a>
+        </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="menu">
+        <button onclick="window.location='/?option=pedir'">Pedir Viagem</button>
+        <button onclick="window.location='/?option=historico'">Histórico</button>
+    </div>
+
+    <!-- ETAPA A — PREFERÊNCIAS -->
+    {% if option == 'pedir' and not prefs_escolhidas %}
+    <div class="preferences">
+        <h3>Escolhe até 3 preferências</h3>
+
+        <form method="post" action="/guardar_prefs">
+            {% for pref in lista_prefs %}
+                <label>
+                    <input type="checkbox" name="prefs" value="{{ pref }}" onclick="limitCheckboxes(this)">
+                    {{ pref }}
+                </label>
+            {% endfor %}
+            <button type="submit">Continuar</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- ETAPA B — CONDUTOR RECOMENDADO -->
+    {% if option == 'pedir' and prefs_escolhidas %}
+    <div class="recommended-driver">
+        <h3>Condutor Recomendado</h3>
+
+        <p><strong>Nome:</strong> {{ condutor.nome }}</p>
+        <p><strong>Tipo:</strong> {{ condutor.driver_type }}</p>
+
+        <button onclick="window.location='/confirmar_pedido'">Confirmar Pedido</button>
+        <button onclick="window.location='/?option=outro'">Outro Condutor</button>
+    </div>
+    {% endif %}
+
+</body>
+</html>
+

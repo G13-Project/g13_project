@@ -1,6 +1,6 @@
 import datetime
 # Class Customer - generic version with inheritance
-from gclass import Gclass
+from classes.gclass import Gclass
 class Customer(Gclass):
     obj = dict()
     lst = list()

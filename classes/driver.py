@@ -1,4 +1,4 @@
-from gclass import Gclass
+from classes.gclass import Gclass
 
 class Driver(Gclass):
     obj = dict()

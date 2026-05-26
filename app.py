@@ -6,6 +6,8 @@ from classes.car import Car
 from classes.contract import Contract
 from classes.ride import Ride
 from data.datafile import filename
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -128,6 +130,74 @@ def index(table):
                     header=attrs['header'],
                     attributes=attrs['des'],
                     form_values=form_values)
+@app.route("/perfil_cliente", methods=["GET"])
+def perfil_cliente():
+    # Aqui assumo que o "cliente atual" já está definido de alguma forma
+    # Se tiveres login, podes ir buscar o id à session
+    cliente = Customer.current()   # adapta se tiveres outro método
+
+    option = request.args.get("option")
+    prefs_escolhidas = hasattr(cliente, "prefs") and len(cliente.prefs) == 3
+
+    condutor = None
+    if option == "pedir" and prefs_escolhidas:
+        condutor = Driver.recommend(cliente.prefs)
+
+    return render_template(
+        "perfil_cliente.html",
+        option=option,
+        prefs_escolhidas=prefs_escolhidas,
+        lista_prefs=["Ambiente", "Interação", "Horário", "Segurança", "Gentileza", "Velocidade"],
+        condutor=condutor,
+        nome=cliente.name,
+        id=cliente.id,
+        telemovel=cliente.phone,
+        email=cliente.email,
+        dob=cliente.birthdate if hasattr(cliente, "birthdate") else "",
+        foto_url=getattr(cliente, "photo_url", "/static/images/default_user.png")
+    )
+
+
+@app.route("/guardar_prefs", methods=["POST"])
+def guardar_prefs():
+    cliente = Customer.current()
+    prefs = request.form.getlist("prefs")
+    cliente.prefs = prefs
+    Customer.update(cliente.id)
+    return redirect(url_for("perfil_cliente", option="pedir"))
+
+
+@app.route("/editar_cliente", methods=["GET", "POST"])
+def editar_cliente():
+    cliente = Customer.current()
+
+    if request.method == "POST":
+        cliente.name = request.form["name"]
+        cliente.email = request.form["email"]
+        cliente.phone = request.form["phone"]
+        cliente.birthdate = request.form["dob"]
+        Customer.update(cliente.id)
+        return redirect(url_for("perfil_cliente"))
+
+    return render_template("editar_cliente.html", cliente=cliente)
+
+
+@app.route("/upload_foto", methods=["POST"])
+def upload_foto():
+    file = request.files["foto"]
+    if not file:
+        return redirect(url_for("perfil_cliente"))
+
+    filename = secure_filename(file.filename)
+    path = os.path.join("static", "images", filename)
+    file.save(path)
+
+    cliente = Customer.current()
+    cliente.photo_url = "/static/images/" + filename
+    Customer.update(cliente.id)
+
+    return redirect(url_for("perfil_cliente"))
+
         
 if __name__ == '__main__':
     app.run(debug=True)
