@@ -236,3 +236,57 @@ class Ride(Gclass):
         hoje = datetime.date.today()
         return "Concluída" if self._ride_date < hoje else "Por concluir"
 
+    @staticmethod
+    def selecionar_drivers(preferencias: dict, id_company=None):
+
+        categorias = {
+            "Velocidade": Ride.Velocidade,
+            "Segurança": Ride.Segurança,
+            "Horário": Ride.Horário,
+            "Tecnologia": Ride.Tecnologia,
+            "Ambiente": Ride.Ambiente,
+            "Interacao": Ride.Interacao
+            }
+
+        # 1. Converter preferências → driver types
+        driver_types_desejados = []
+
+        for categoria, escolha in preferencias.items():
+            if categoria in categorias and escolha in categorias:
+                driver_types_desejados.extend(categorias[categoria][escolha])
+
+        resultados = []
+
+        # 2. Percorrer contratos ativos
+        for contract_id in Contract.lst:
+            contract = Contract.obj[contract_id]
+
+            if not contract.is_active:
+                continue
+
+            if id_company is not None and contract.id_company != id_company:
+                continue
+
+            driver = Driver.obj[contract.id_driver]
+
+            # 3. Score de preferências
+            driver_type = driver.driver_type
+            score = driver_types_desejados.count(driver_type)
+
+            if score > 0:
+                # 4. Rating médio
+                rating = driver.average_ratings()
+
+                # 5. Pontuação ponderada (2/3 para score e 1/3 para rating)
+                score_norm = score / 3
+                rating_norm = rating / 5
+
+                pontuacao = (2 * score_norm + rating_norm) / 3
+
+                resultados.append((driver, pontuacao))
+
+        # 6. Ordenar pela pontuação final
+        resultados.sort(key=lambda x: x[1], reverse=True)
+
+        return [driver for driver, _ in resultados]
+
