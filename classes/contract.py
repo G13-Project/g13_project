@@ -1,7 +1,7 @@
 import datetime
 from classes.company import Company
 from classes.driver import Driver
-from gclass import Gclass
+from classes.gclass import Gclass
 class Contract(Gclass):
     obj = dict()
     lst = list()
