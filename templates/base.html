@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>RideShare</title>
+    <title>Itiji</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 
@@ -9,7 +9,11 @@
 
 <nav class="navbar">
 
-    <div class="logo">RideShare</div>
+    <div class="logo">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
+    Itiji
+</div>
+
 
     <div class="nav-right">
 
@@ -24,7 +28,7 @@
 
         {% else %}
             <a href="{{ url_for('login') }}">Login</a>
-            <a href="{{ url_for('signup') }}">Signup</a>
+            <a href="{{ url_for('signup') }}">Sign up</a>
         {% endif %}
 
     </div>
