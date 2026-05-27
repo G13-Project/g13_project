@@ -238,7 +238,7 @@ class Ride(Gclass):
 
     @staticmethod
     def selecionar_drivers(preferencias: dict, id_company=None):
-
+        from classes.contract import Contract
         categorias = {
             "Velocidade": Ride.Velocidade,
             "Segurança": Ride.Segurança,

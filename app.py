@@ -168,6 +168,9 @@ def index(table):
         butedit=butedit,
         form_values=form_values
     )
+@app.route("/perfil_cliente")
+def perfil_cliente():
+        return render_template("perfil_cliente.html")
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
