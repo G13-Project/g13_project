@@ -194,25 +194,20 @@ label {
 }
 
 .btn {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+
     background: #00ff88;
     color: black;
-    padding: 12px 18px;
+
     border: none;
     border-radius: 6px;
-    margin: 5px;
-    cursor: pointer;
+
     font-weight: bold;
+    cursor: pointer;
 }
 
-.btn-outline {
-    background: transparent;
-    border: 2px solid #00ff88;
-    color: #00ff88;
-}
-
-.btn:hover {
-    transform: scale(1.05);
-}
 /* NAVBAR RIGHT */
 .nav-right {
     display: flex;
@@ -245,4 +240,17 @@ label {
 .ride-box .btn {
     width: 100%;
     margin-top: 10px;
+}
+
+.box input,
+.box button {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+}
+.box {
+    display: flex;
+    flex-direction: column;
 }

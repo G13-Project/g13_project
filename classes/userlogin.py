@@ -139,6 +139,17 @@ class Userlogin(Gclass):
     @classmethod
     def set_password(cls, password):
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    
+    @classmethod #Para saber a que grupo pertence
+    def get_role(cls, user):
+        user_id = cls.get_user_id(user)
+
+        if user_id == 0:
+            return None
+
+        obj = cls.obj[user_id]
+        return obj.usergroup
+
 
     # -------- PRINT --------
     def __str__(self):

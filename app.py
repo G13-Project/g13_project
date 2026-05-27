@@ -31,19 +31,28 @@ def login():
     return render_template("login.html", resul="")
 
 @app.route("/chklogin", methods=["POST"])
+@app.route("/chklogin", methods=["POST"])
 def chklogin():
     user = request.form["user"]
     password = request.form["password"]
-    role = request.form["role"]
 
     resul = Userlogin.chk_password(user, password)
 
     if resul == "Valid":
+        role = Userlogin.get_role(user)
+
         session["user"] = user
         session["role"] = role
-        return redirect(url_for("main"))
+
+        if role == "company":
+            return redirect(url_for("index", table="company"))
+        elif role == "driver":
+            return redirect(url_for("index", table="driver"))
+        elif role == "customer":
+            return redirect(url_for("index", table="customer"))
 
     return render_template("login.html", resul=resul)
+
 
 # ---------------- SIGNUP ----------------
 @app.route("/signup")
