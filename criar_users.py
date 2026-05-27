@@ -44,11 +44,12 @@ def criar_users():
         uid = Userlogin.get_user_id(username)
 
         if uid == 0:
-            u = Userlogin(0, username, "customer", hashed)
+            u = Userlogin(0, username, "customer", hashed, c.id)
             Userlogin.insert(u.id)
         else:
             obj = Userlogin.obj[uid]
             obj.password = hashed
+            obj._id_usergroup = c.id   
             Userlogin.update(uid)
 
         passwords_c[username] = pwd
@@ -73,11 +74,12 @@ def criar_users():
         uid = Userlogin.get_user_id(username)
 
         if uid == 0:
-            u = Userlogin(0, username, "company", hashed)
+            u = Userlogin(0, username, "company", hashed, comp.id)
             Userlogin.insert(u.id)
         else:
             obj = Userlogin.obj[uid]
             obj.password = hashed
+            obj._id_usergroup = comp.id
             Userlogin.update(uid)
 
         passwords_comp[username] = pwd
@@ -100,11 +102,12 @@ def criar_users():
         uid = Userlogin.get_user_id(username)
 
         if uid == 0:
-            u = Userlogin(0, username, "driver", hashed)
+            u = Userlogin(0, username, "driver", hashed, d.id)
             Userlogin.insert(u.id)
         else:
             obj = Userlogin.obj[uid]
             obj.password = hashed
+            obj._id_usergroup = d.id
             Userlogin.update(uid)
 
         passwords_d[username] = pwd
@@ -122,15 +125,15 @@ def criar_users():
     uid = Userlogin.get_user_id(admin_user)
 
     if uid == 0:
-        u = Userlogin(0, admin_user, "admin", hashed)
+        u = Userlogin(0, admin_user, "admin", hashed, None) 
         Userlogin.insert(u.id)
         print(f"Admin criado: {admin_user} -> {pwd}")
     else:
         obj = Userlogin.obj[uid]
         obj.password = hashed
+        obj._id_usergroup = None
         Userlogin.update(uid)
         print(f"Admin atualizado: {admin_user} -> {pwd}")
-
 
     print("Tudo feito!")
 
