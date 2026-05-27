@@ -44,7 +44,19 @@ class Company(Gclass):
     @begin_date.setter
     def begin_date(self, begin_date):
         self._begin_date = dt.datetime.strptime(begin_date, "%d/%m/%Y").date()
+    def lucro(self):
+        total = 0
+        for ride_id in Ride.lst:
+            ride = Ride.obj[ride_id]
 
+            
+            if ride.id_company == self.id:
+                try:
+                    total += float(ride.amount)
+                except:
+                    pass
+
+        return round(0.20 * total,2)
         
 
 
