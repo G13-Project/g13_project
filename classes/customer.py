@@ -28,6 +28,26 @@ class Customer(Gclass):
         Customer.obj[self._id] = self
         # Add the id to the list of object ids
         Customer.lst.append(id)
+    @classmethod
+    def insert(cls, code):
+        obj = cls.obj[code]
+
+        import sqlite3
+        from data.datafile import filename   # ✅ IMPORTANTE
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')  # ✅ direto
+        cursor = conn.cursor()
+
+        cursor.execute(
+    "INSERT INTO Customer (id, name, email, phone, date_of_birth) VALUES (?, ?, ?, ?, ?)",
+    (obj.id, obj.name, obj.email, obj.phone, obj.date_of_birth)
+)
+
+
+        conn.commit()
+        conn.close()
+
+
     @property
     def id(self):
         return self._id

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg">
+    <div class="box">
+
+        <h2>Bem-vindo!</h2>
+        <p>Por favor insira os seus dados para concluir o registo.</p>
+
+        <form method="post" action="/save_customer">
+
+            <input name="name" placeholder="Name" required>
+            <input name="email" placeholder="Email" required>
+            <input name="phone" placeholder="Phone" required>
+            <input type="date" name="date_of_birth" required>
+
+            <button class="btn">Create Account</button>
+
+        </form>
+
+    </div>
+</div>
+{% endblock %}

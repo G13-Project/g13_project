@@ -7,6 +7,7 @@ from classes.contract import Contract
 from classes.ride import Ride
 from classes.userlogin import Userlogin
 from data.datafile import filename
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'BAD_SECRET_KEY'
@@ -17,7 +18,7 @@ Driver.read(filename + 'g13_ridesharing.db')
 Customer.read(filename + 'g13_ridesharing.db')
 Car.read(filename + 'g13_ridesharing.db')
 Contract.read(filename + 'g13_ridesharing.db')
-Ride.read(filename + 'g13_ridesharing.db')
+#Ride.read(filename + 'g13_ridesharing.db')
 Userlogin.read(filename + 'g13_ridesharing.db')
 
 # ---------------- USER IN TEMPLATES ----------------
@@ -31,7 +32,6 @@ def login():
     return render_template("login.html", resul="")
 
 @app.route("/chklogin", methods=["POST"])
-@app.route("/chklogin", methods=["POST"])
 def chklogin():
     user = request.form["user"]
     password = request.form["password"]
@@ -44,19 +44,29 @@ def chklogin():
         session["user"] = user
         session["role"] = role
 
-        if role == "company":
-            return redirect(url_for("index", table="company"))
-        elif role == "driver":
-            return redirect(url_for("index", table="driver"))
-        elif role == "customer":
-            return redirect(url_for("index", table="customer"))
+        session["profile_done"] = False  # 🔴 IMPORTANTE
+
+        return redirect(url_for("create_profile"))
 
     return render_template("login.html", resul=resul)
+
+@app.route("/create_profile")
+def create_profile():
+    role = session.get("role")
+
+    if role == "company":
+        return render_template("create_company.html")
+    elif role == "driver":
+        return render_template("create_driver.html")
+    elif role == "customer":
+        return render_template("create_customer.html")
+
 
 
 # ---------------- SIGNUP ----------------
 @app.route("/signup")
 def signup():
+    session["profile_done"] = False
     return render_template("signup.html", resul="")
 
 @app.route("/chksignup", methods=["POST"])
@@ -65,17 +75,130 @@ def chksignup():
     password = request.form["password"]
     role = request.form["role"]
 
-    # verificar se já existe
     if len(Userlogin.find(user, 'user')) > 0:
         return render_template("signup.html", resul="User already exists")
 
-    # criar user
     obj = Userlogin(0, user, role, Userlogin.set_password(password))
-
-    # guardar na BD
     Userlogin.insert(obj.id)
 
-    return redirect(url_for("login"))
+    # ✅ LOGIN AUTOMÁTICO
+    session["user"] = user
+    session["role"] = role
+
+    # ✅ vai direto para formulário
+    return redirect(url_for("create_profile"))
+
+
+
+
+@app.route("/save_customer", methods=["POST"])
+def save_customer():
+    name = request.form["name"]
+    email = request.form["email"]
+    phone = request.form["phone"]
+    dob_str = request.form["date_of_birth"]
+
+    # ✅ validar campos vazios
+    if not name or not email or not phone or not dob_str:
+        return render_template(
+            "create_customer.html",
+            resul="Preencha todos os campos."
+        )
+
+    # ✅ converter data
+    from datetime import datetime
+    try:
+        dob = datetime.strptime(dob_str, "%Y-%m-%d").strftime("%d/%m/%Y")
+    except:
+        return render_template(
+            "create_customer.html",
+            resul="Data inválida."
+        )
+
+    # ✅ GERAR ID SEGURO (IMPORTANTE 🔥)
+    if len(Customer.lst) == 0:
+        new_id = 1
+    else:
+        new_id = max(Customer.lst) + 1
+
+    try:
+        obj = Customer(new_id, name, email, phone, dob)
+        Customer.insert(obj.id)
+    except Exception as e:
+        print("ERRO CUSTOMER:", e)
+        return render_template(
+            "create_customer.html",
+            resul="Erro ao criar conta."
+        )
+
+    session["profile_done"] = True
+    return redirect(url_for("main", success=1))
+
+
+
+@app.route("/save_driver", methods=["POST"])
+def save_driver():
+    nickname = request.form["nickname"]
+    driver_type = request.form["driver_type"]
+
+    # ✅ valida campos vazios
+    if not nickname or not driver_type:
+        return render_template(
+            "create_driver.html",
+            resul="Preencha todos os campos."
+        )
+
+    # ✅ calcular ID seguro
+    if len(Driver.lst) == 0:
+        new_id = 1
+    else:
+        new_id = max(Driver.lst) + 1
+
+    try:
+        obj = Driver(new_id, nickname, driver_type, 0)
+        Driver.insert(obj.id)
+    except Exception as e:
+        print("ERRO DRIVER:", e)
+        return render_template(
+            "create_driver.html",
+            resul="Erro ao criar conta."
+        )
+
+    session["profile_done"] = True
+    return redirect(url_for("main", success=1))
+
+@app.route("/save_company", methods=["POST"])
+def save_company():
+    name = request.form["name"]
+    begin_date = request.form["begin_date"]
+
+
+    if not name or not begin_date:
+        return render_template(
+            "create_company.html",
+            resul="Preencha todos os campos."
+        )
+
+    try:
+        # ✅ converter de YYYY-MM-DD → DD/MM/YYYY
+        begin_date = datetime.strptime(begin_date, "%Y-%m-%d").strftime("%d/%m/%Y")
+    except:
+        return render_template(
+            "create_company.html",
+            resul="Data inválida!"
+        )
+
+
+    obj = Company(0, name, begin_date)
+
+    
+
+
+
+    session["profile_done"] = True
+    return redirect(url_for("main", success=1))
+
+
 
 # ---------------- LOGOUT ----------------
 @app.route("/logoff")
@@ -89,7 +212,13 @@ def main():
     if session.get("user") is None:
         return redirect(url_for("login"))
 
-    return redirect(url_for("index", table="company"))
+    # 🔴 NOVO — impedir voltar ao form depois de completar
+    if session.get("profile_done") != True:
+        return redirect(url_for("create_profile"))
+
+    success = request.args.get("success")
+
+    return render_template("index.html", success=success)
 
 # ---------------- TABLES ----------------
 CLASSES = {
@@ -109,6 +238,12 @@ def index(table):
 
     if session.get("user") is None:
         return redirect(url_for("login"))
+    
+
+    # obrigar a preencher perfil primeiro
+    if session.get("profile_done") != True:
+        return redirect(url_for("create_profile"))
+
 
     if table not in CLASSES:
         return "<h1>Invalid table</h1>"

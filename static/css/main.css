@@ -266,3 +266,16 @@ label {
     border-radius: 50%;   
     object-fit: cover;    
 }
+.success-msg {
+    background: #00ff88;
+    color: black;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 20px auto;
+    width: fit-content;
+    font-weight: bold;
+}
+.success-msg {
+    transition: opacity 0.5s;
+}
+

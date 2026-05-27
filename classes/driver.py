@@ -32,7 +32,23 @@ class Driver(Gclass):
     
         Driver.obj[self._id] = self
         Driver.lst.append(self._id)
+    @classmethod
+    def insert(cls, code):
+        obj = cls.obj[code]
 
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        cursor.execute(
+    "INSERT INTO Driver VALUES (?, ?, ?, ?)",
+    (obj.id, obj.nickname, obj.driver_type, obj.ratings)
+)
+
+        conn.commit()
+        conn.close()
     # id property getter method 
     @property 
     def id(self): 

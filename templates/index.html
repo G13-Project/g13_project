@@ -2,31 +2,34 @@
 
 {% block content %}
 
-<div class="home">
+{% if success %}
+    <div class="success-msg">
+        ✅ Registo concluído com sucesso! Bem-vindo!
+    </div>
+{% endif %}
 
+<div class="home">
     <div class="overlay"></div>
 
     <div class="home-content">
-
         <h1>Go anywhere, anytime 🚗</h1>
         <p>Fast, safe and effortless rides</p>
 
-        <!-- ✅ FORM VIAGEM -->
         <div class="ride-box">
-
             <form>
-
                 <input type="text" placeholder="📍 Pickup location" required>
                 <input type="text" placeholder="🏁 Destination" required>
-
                 <button class="btn">Request Ride</button>
-
             </form>
-
         </div>
-
     </div>
-
 </div>
+
+<script>
+    setTimeout(() => {
+        const msg = document.querySelector(".success-msg");
+        if (msg) msg.style.display = "none";
+    }, 3000);
+</script>
 
 {% endblock %}
