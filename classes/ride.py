@@ -222,16 +222,24 @@ class Ride(Gclass):
     def ride_date(self, ride_date):
         self._ride_date = datetime.datetime.strptime(ride_date, "%d/%m/%Y").date()
         
+    
     @property
     def distance(self):
+        if self._distance is None:
+            self.calcular_viagem()
         return self._distance
 
     @property
     def duration(self):
+        if self._duration is None:
+            self.calcular_viagem()
         return self._duration
+
 
     @property
     def amount(self):
+        if self._amount is None:
+            self.calcular_viagem()
         return self._amount
 
     
@@ -261,7 +269,7 @@ class Ride(Gclass):
         driver_types_desejados = []
 
         for categoria, escolha in preferencias.items():
-            if categoria in categorias and escolha in categorias:
+            if categoria in categorias and escolha in categorias[categoria]:
                 driver_types_desejados.extend(categorias[categoria][escolha])
 
         resultados = []
