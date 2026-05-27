@@ -1,5 +1,4 @@
 from classes.gclass import Gclass
-from classes.ride import Ride
 import datetime as dt
 
 
@@ -46,6 +45,7 @@ class Company(Gclass):
     def begin_date(self, begin_date):
         self._begin_date = dt.datetime.strptime(begin_date, "%d/%m/%Y").date()
     def lucro(self):
+        from classes.ride import Ride
         total = 0
         for ride_id in Ride.lst:
             ride = Ride.obj[ride_id]

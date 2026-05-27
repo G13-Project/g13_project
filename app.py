@@ -17,7 +17,7 @@ Driver.read(filename + 'g13_ridesharing.db')
 Customer.read(filename + 'g13_ridesharing.db')
 Car.read(filename + 'g13_ridesharing.db')
 Contract.read(filename + 'g13_ridesharing.db')
-Ride.read(filename + 'g13_ridesharing.db')
+#Ride.read(filename + 'g13_ridesharing.db')
 Userlogin.read(filename + 'g13_ridesharing.db')
 
 # ---------------- USER IN TEMPLATES ----------------
