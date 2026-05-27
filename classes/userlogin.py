@@ -2,17 +2,18 @@ import sqlite3
 import bcrypt
 from classes.gclass import Gclass
 
+
 class Userlogin(Gclass):
     obj = {}
     lst = []
     pos = 0
     db_path = None
 
-    att = ['_id', '_user', '_usergroup', '_password']
+    att = ['_id', '_user', '_usergroup', '_password', '_id_usergroup']
     header = 'Users'
 
     # -------- CONSTRUCTOR --------
-    def __init__(self, id, user, usergroup, password):
+    def __init__(self, id, user, usergroup, password, id_usergroup=None):
         super().__init__()
 
         if id == 0:
@@ -22,6 +23,7 @@ class Userlogin(Gclass):
         self._user = user
         self._usergroup = usergroup
         self._password = password
+        self._id_usergroup = id_usergroup  
 
         Userlogin.obj[id] = self
         Userlogin.lst.append(id)
@@ -47,6 +49,10 @@ class Userlogin(Gclass):
     def password(self, value):
         self._password = value
 
+    @property
+    def id_usergroup(self):
+        return self._id_usergroup
+
     # -------- DATABASE --------
     @classmethod
     def read(cls, db_path):
@@ -57,20 +63,31 @@ class Userlogin(Gclass):
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
+        
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS Users(
             id INTEGER PRIMARY KEY,
             user TEXT UNIQUE,
             usergroup TEXT,
-            password TEXT
+            password TEXT,
+            id_usergroup INTEGER
         )
         """)
+
+        
+        try:
+            cursor.execute("ALTER TABLE Users ADD COLUMN id_usergroup INTEGER")
+        except:
+            pass
 
         cursor.execute("SELECT * FROM Users")
         rows = cursor.fetchall()
 
         for row in rows:
-            cls(*row)
+            if len(row) == 4:
+                cls(row[0], row[1], row[2], row[3], None)
+            else:
+                cls(*row)
 
         conn.close()
 
@@ -82,8 +99,8 @@ class Userlogin(Gclass):
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO Users (id, user, usergroup, password) VALUES (?, ?, ?, ?)",
-            (obj.id, obj.user, obj.usergroup, obj.password)
+            "INSERT INTO Users (id, user, usergroup, password, id_usergroup) VALUES (?, ?, ?, ?, ?)",
+            (obj.id, obj.user, obj.usergroup, obj.password, obj.id_usergroup)
         )
 
         conn.commit()
@@ -97,8 +114,8 @@ class Userlogin(Gclass):
         cursor = conn.cursor()
 
         cursor.execute(
-            "UPDATE Users SET user=?, usergroup=?, password=? WHERE id=?",
-            (obj.user, obj.usergroup, obj.password, obj.id)
+            "UPDATE Users SET user=?, usergroup=?, password=?, id_usergroup=? WHERE id=?",
+            (obj.user, obj.usergroup, obj.password, obj.id_usergroup, obj.id)
         )
 
         conn.commit()
@@ -139,8 +156,8 @@ class Userlogin(Gclass):
     @classmethod
     def set_password(cls, password):
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-    
-    @classmethod #Para saber a que grupo pertence
+
+    @classmethod
     def get_role(cls, user):
         user_id = cls.get_user_id(user)
 
@@ -150,13 +167,15 @@ class Userlogin(Gclass):
         obj = cls.obj[user_id]
         return obj.usergroup
 
+    @classmethod
+    def get_group_id(cls, user):
+        user_id = cls.get_user_id(user)
+
+        if user_id == 0:
+            return None
+
+        return cls.obj[user_id].id_usergroup
 
     # -------- PRINT --------
     def __str__(self):
-        return f"ID:{self.id}, User:{self.user}, Group:{self.usergroup}"
-    @staticmethod
-    def get_id_from_username(username):
-        for obj in Userlogin.obj.values():
-            if obj.user == username:
-                return obj.id
-        return None
+        return f"ID:{self.id}, User:{self.user}, Group:{self.usergroup}, RefID:{self.id_usergroup}"
