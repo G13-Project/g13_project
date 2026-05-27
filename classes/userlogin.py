@@ -154,3 +154,9 @@ class Userlogin(Gclass):
     # -------- PRINT --------
     def __str__(self):
         return f"ID:{self.id}, User:{self.user}, Group:{self.usergroup}"
+    @staticmethod
+    def get_id_from_username(username):
+        for obj in Userlogin.obj.values():
+            if obj.user == username:
+                return obj.id
+        return None

@@ -128,11 +128,11 @@ class Ride(Gclass):
     pos = 0
     sortkey = ''
 
-    att = ['_id', '_id_company', '_id_driver', '_id_customer', '_id_car', '_origin', '_destination', '_ride_date', '_distance', '_duration', '_amount']
+    att = ['_id', '_id_company', '_id_driver', '_id_customer', '_id_car', '_origin', '_destination', '_ride_date', '_distance', '_duration', '_amount','_status']
 
     header = 'Ride'
 
-    des = ['Id', 'Id Company', 'Id Driver', 'Id Customer','Id Car', 'Origin', 'Destination','Ride Date','Distance', 'Duration', 'Amount']
+    des = ['Id', 'Id Company', 'Id Driver', 'Id Customer','Id Car', 'Origin', 'Destination','Ride Date','Distance', 'Duration', 'Amount', 'Status']
     
 
     def __init__(self, id, id_company, id_driver, id_customer, id_car, origin, destination, ride_date):
@@ -172,6 +172,8 @@ class Ride(Gclass):
         self._distance = None
         self._duration = None
         self._amount = None
+        self._status = "pendente"
+
 
         
         Ride.obj[self._id] = self
@@ -241,6 +243,14 @@ class Ride(Gclass):
         if self._amount is None:
             self.calcular_viagem()
         return self._amount
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
+
 
     
     def calcular_viagem(self):
@@ -306,4 +316,44 @@ class Ride(Gclass):
         resultados.sort(key=lambda x: x[1], reverse=True)
 
         return [driver for driver, _ in resultados]
+    @staticmethod
+    def get_rides_by_customer(id_customer):
+        return [r for r in Ride.obj.values() if r.id_customer == id_customer]
+    @staticmethod
+    def get_rides_by_driver(id_driver):
+        return [r for r in Ride.obj.values() if r.id_driver == id_driver]
 
+    @staticmethod
+    def get_active_ride_customer(id_customer):
+        for r in Ride.obj.values():
+            if r.id_customer == id_customer and r.status in ("pendente", "aceite"):
+                return r
+        return None
+    @staticmethod
+    def get_active_ride_driver(id_driver):
+        for r in Ride.obj.values():
+            if r.id_driver == id_driver and r.status == "aceite":
+                return r
+        return None
+    @staticmethod
+    def get_pending_rides():
+        return [r for r in Ride.obj.values()
+                if r.id_driver == 0 and r.status == "pendente"]
+
+    def accept(self, id_driver):
+        self._id_driver = id_driver
+        self._status = "aceite"
+
+    def refuse(self, id_driver):
+        if not hasattr(self, "_refused_by"):
+            self._refused_by = set()
+        self._refused_by.add(id_driver)
+
+    @staticmethod
+    def get_pending_for_driver(id_driver):
+        rides = Ride.get_pending_rides()
+        result = []
+        for r in rides:
+            if not hasattr(r, "_refused_by") or id_driver not in r._refused_by:
+                result.append(r)
+        return result
