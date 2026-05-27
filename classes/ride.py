@@ -167,8 +167,11 @@ class Ride(Gclass):
         
         self._origin = origin
         self._destination = destination
-        self._distance, self._duration = get_distance_and_time(self._origin, self._destination)
-        self._amount = self.calculate_amount()
+        
+        
+        self._distance = None
+        self._duration = None
+        self._amount = None
 
         
         Ride.obj[self._id] = self
@@ -230,6 +233,12 @@ class Ride(Gclass):
     @property
     def amount(self):
         return self._amount
+
+    
+    def calcular_viagem(self):
+        if self._distance is None or self._duration is None:
+            self._distance, self._duration = get_distance_and_time(self._origin, self._destination)
+            self._amount = self.calculate_amount()
 
     
     def estado_da_viagem(self):
