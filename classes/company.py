@@ -1,4 +1,5 @@
 from classes.gclass import Gclass
+from classes.ride import Ride
 import datetime as dt
 
 
