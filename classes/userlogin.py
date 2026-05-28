@@ -134,7 +134,7 @@ class Userlogin(Gclass):
     # -------- LOGIN --------
     @classmethod
     def get_user_id(cls, user):
-        users = cls.find(user, 'user')
+        users = cls.find(user, '_user')
         if len(users) == 1:
             return users[0].id
         return 0

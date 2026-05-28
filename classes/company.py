@@ -44,6 +44,23 @@ class Company(Gclass):
     @begin_date.setter
     def begin_date(self, begin_date):
         self._begin_date = dt.datetime.strptime(begin_date, "%d/%m/%Y").date()
+    @classmethod
+    def insert(cls, code):
+        obj = cls.obj[code]
+
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        cursor.execute(
+            "INSERT INTO Company (id, name, begin_date) VALUES (?, ?, ?)",
+            (obj.id, obj.name, obj.begin_date)
+        )
+
+        conn.commit()
+        conn.close()
     def lucro(self):
         from classes.ride import Ride
         total = 0

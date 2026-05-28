@@ -15,6 +15,8 @@ Customer.read(filename + 'g13_ridesharing.db')
 Userlogin.read(filename + 'g13_ridesharing.db')
 
 
+
+
 # ---------------- PASSWORD GENERATOR ----------------
 def gerar_password(tamanho=8):
     caracteres = string.ascii_letters + string.digits

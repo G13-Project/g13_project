@@ -31,6 +31,7 @@ def inject_user():
 def login():
     return render_template("login.html", resul="")
 
+
 @app.route("/chklogin", methods=["POST"])
 def chklogin():
     user = request.form["user"]
@@ -44,15 +45,27 @@ def chklogin():
         session["user"] = user
         session["role"] = role
 
-        session["profile_done"] = False  # 🔴 IMPORTANTE
+        # ✅ verificar se já tem perfil
+        group_id = Userlogin.get_group_id(user)
 
-        return redirect(url_for("create_profile"))
+        if group_id is None:
+            session["profile_done"] = False
+            return redirect(url_for("create_profile"))
+        else:
+            session["profile_done"] = True
+            return redirect(url_for("main"))
 
     return render_template("login.html", resul=resul)
 
+
 @app.route("/create_profile")
 def create_profile():
+    # 🔴 tenta primeiro role normal
     role = session.get("role")
+
+    # 🔴 se não existir, usa temporário (signup)
+    if role is None:
+        role = session.get("temp_role")
 
     if role == "company":
         return render_template("create_company.html")
@@ -60,6 +73,9 @@ def create_profile():
         return render_template("create_driver.html")
     elif role == "customer":
         return render_template("create_customer.html")
+
+    return redirect(url_for("login"))
+
 
 
 
@@ -75,17 +91,14 @@ def chksignup():
     password = request.form["password"]
     role = request.form["role"]
 
-    if len(Userlogin.find(user, 'user')) > 0:
+    if len(Userlogin.find(user, '_user')) > 0:
         return render_template("signup.html", resul="User already exists")
 
-    obj = Userlogin(0, user, role, Userlogin.set_password(password))
-    Userlogin.insert(obj.id)
 
-    # ✅ LOGIN AUTOMÁTICO
-    session["user"] = user
-    session["role"] = role
+    session["temp_user"] = user
+    session["temp_password"] = Userlogin.set_password(password)
+    session["temp_role"] = role
 
-    # ✅ vai direto para formulário
     return redirect(url_for("create_profile"))
 
 
@@ -98,42 +111,54 @@ def save_customer():
     phone = request.form["phone"]
     dob_str = request.form["date_of_birth"]
 
-    # ✅ validar campos vazios
+    # ✅ validar campos
     if not name or not email or not phone or not dob_str:
-        return render_template(
-            "create_customer.html",
-            resul="Preencha todos os campos."
-        )
+        return render_template("create_customer.html", resul="Preencha todos os campos.")
 
-    # ✅ converter data
-    from datetime import datetime
     try:
         dob = datetime.strptime(dob_str, "%Y-%m-%d").strftime("%d/%m/%Y")
     except:
-        return render_template(
-            "create_customer.html",
-            resul="Data inválida."
-        )
+        return render_template("create_customer.html", resul="Data inválida.")
 
-    # ✅ GERAR ID SEGURO (IMPORTANTE 🔥)
-    if len(Customer.lst) == 0:
-        new_id = 1
-    else:
-        new_id = max(Customer.lst) + 1
+    import sqlite3
+    conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+    cursor = conn.cursor()
+
+    # ✅ obter próximo ID seguro
+    cursor.execute("SELECT MAX(id) FROM Customer")
+    result = cursor.fetchone()[0]
+    new_id = 1 if result is None else result + 1
+
+    conn.close()
 
     try:
+        # ✅ criar customer
         obj = Customer(new_id, name, email, phone, dob)
         Customer.insert(obj.id)
+
+        # 🔴 criar user APENAS AGORA
+        user = session["temp_user"]
+        password = session["temp_password"]
+        role = session["temp_role"]
+
+        obj_user = Userlogin(0, user, role, password, obj.id)
+        Userlogin.insert(obj_user.id)
+
+        # ✅ login automático
+        session["user"] = user
+        session["role"] = role
+
+        # ✅ limpar sessão temporária
+        session.pop("temp_user", None)
+        session.pop("temp_password", None)
+        session.pop("temp_role", None)
+
     except Exception as e:
         print("ERRO CUSTOMER:", e)
-        return render_template(
-            "create_customer.html",
-            resul="Erro ao criar conta."
-        )
+        return render_template("create_customer.html", resul="Erro ao criar conta.")
 
     session["profile_done"] = True
     return redirect(url_for("main", success=1))
-
 
 
 @app.route("/save_driver", methods=["POST"])
@@ -141,63 +166,105 @@ def save_driver():
     nickname = request.form["nickname"]
     driver_type = request.form["driver_type"]
 
-    # ✅ valida campos vazios
+    # ✅ validar campos
     if not nickname or not driver_type:
-        return render_template(
-            "create_driver.html",
-            resul="Preencha todos os campos."
-        )
+        return render_template("create_driver.html", resul="Preencha todos os campos.")
 
-    # ✅ calcular ID seguro
-    if len(Driver.lst) == 0:
-        new_id = 1
-    else:
-        new_id = max(Driver.lst) + 1
+    import sqlite3
+    conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+    cursor = conn.cursor()
+
+    # ✅ obter próximo ID seguro
+    cursor.execute("SELECT MAX(id) FROM Driver")
+    result = cursor.fetchone()[0]
+    new_id = 1 if result is None else result + 1
+
+    conn.close()
 
     try:
+        # ✅ criar driver
         obj = Driver(new_id, nickname, driver_type, 0)
         Driver.insert(obj.id)
+
+        # 🔴 criar user APENAS AGORA
+        user = session["temp_user"]
+        password = session["temp_password"]
+        role = session["temp_role"]
+
+        obj_user = Userlogin(0, user, role, password, obj.id)
+        Userlogin.insert(obj_user.id)
+
+        # ✅ login automático
+        session["user"] = user
+        session["role"] = role
+
+        # ✅ limpar sessão temporária
+        session.pop("temp_user", None)
+        session.pop("temp_password", None)
+        session.pop("temp_role", None)
+
     except Exception as e:
         print("ERRO DRIVER:", e)
-        return render_template(
-            "create_driver.html",
-            resul="Erro ao criar conta."
-        )
+        return render_template("create_driver.html", resul="Erro ao criar conta.")
 
     session["profile_done"] = True
     return redirect(url_for("main", success=1))
+
+
 
 @app.route("/save_company", methods=["POST"])
 def save_company():
     name = request.form["name"]
     begin_date = request.form["begin_date"]
 
-
+    # ✅ validar campos
     if not name or not begin_date:
-        return render_template(
-            "create_company.html",
-            resul="Preencha todos os campos."
-        )
+        return render_template("create_company.html", resul="Preencha todos os campos.")
 
     try:
-        # ✅ converter de YYYY-MM-DD → DD/MM/YYYY
         begin_date = datetime.strptime(begin_date, "%Y-%m-%d").strftime("%d/%m/%Y")
     except:
-        return render_template(
-            "create_company.html",
-            resul="Data inválida!"
-        )
+        return render_template("create_company.html", resul="Data inválida!")
 
+    import sqlite3
+    conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+    cursor = conn.cursor()
 
-    obj = Company(0, name, begin_date)
+    # ✅ obter próximo ID seguro
+    cursor.execute("SELECT MAX(id) FROM Company")
+    result = cursor.fetchone()[0]
+    new_id = 1 if result is None else result + 1
 
-    
+    conn.close()
 
+    try:
+        # ✅ criar company
+        obj = Company(new_id, name, begin_date)
+        Company.insert(obj.id)
 
+        # 🔴 criar user APENAS AGORA
+        user = session["temp_user"]
+        password = session["temp_password"]
+        role = session["temp_role"]
+
+        obj_user = Userlogin(0, user, role, password, obj.id)
+        Userlogin.insert(obj_user.id)
+
+        # ✅ login automático
+        session["user"] = user
+        session["role"] = role
+
+        # ✅ limpar sessão temporária
+        session.pop("temp_user", None)
+        session.pop("temp_password", None)
+        session.pop("temp_role", None)
+
+    except Exception as e:
+        print("ERRO COMPANY:", e)
+        return render_template("create_company.html", resul="Erro ao criar conta.")
 
     session["profile_done"] = True
     return redirect(url_for("main", success=1))
-
 
 
 # ---------------- LOGOUT ----------------
