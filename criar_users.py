@@ -6,6 +6,20 @@ from data.datafile import filename
 
 import random
 import string
+import sqlite3
+
+def limpar_users():
+    conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM Users") 
+    conn.commit()
+    conn.close()
+    
+    Userlogin.obj = {}
+    Userlogin.lst = []
+
+    print("Users antigos apagados")
 
 
 # ---------------- LOAD DATABASE ----------------
@@ -141,9 +155,20 @@ def criar_users():
 
 
 # ---------------- RUN ----------------
+#Este código demora cerca de 5 minutos a correr devido ao 
+#elevado número de objetos na base de dados, sendo que foi
+#apenas necessário corrê-lo uma vez no inicio para a criação
+#de uma conta para todos os dados iniciais.
+
+#Para simular essa primeira vez que foi preciso correr,
+# o método limpar_users() limpa da base de dados os users existentes
+#para ser depois possivel gerar users para todos os objetos sem se
+#correr em erros de "sqlite3.IntegrityError: UNIQUE constraint failed: Users.id"
+
 if __name__ == '__main__':
 
     # limpar ficheiro sempre
     open("passwords.txt", "w").close()
 
+    limpar_users()
     criar_users()
