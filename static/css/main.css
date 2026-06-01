@@ -278,5 +278,46 @@ label {
 .success-msg {
     transition: opacity 0.5s;
 }
+.nav-right a {
+    color: #00ff88;
+    text-decoration: none;
+    margin-left: 15px;
+    transition: all 0.2s ease;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+.nav-right a:hover {
+    transform: translateY(-3px);   /* sobe */
+    background: rgba(0,255,136,0.15); /* luz de fundo */
+    box-shadow: 0px 6px 15px rgba(0, 255, 136, 0.3); /* relevo */
+}
 
 
+.home-content {
+    position: relative;
+    color: white;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* ✅ CENTRA horizontalmente */
+}
+.ride-box {
+    margin: 30px auto;   /* ✅ centra automaticamente */
+}
+.ride-box {
+    margin: 30px auto;
+    background: rgba(255,255,255,0.15);
+    padding: 20px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;   /* ✅ animação suave */
+}
+
+/* 🔥 HOVER (RELEVO + LUZ) */
+.ride-box:hover {
+    transform: translateY(-6px) scale(1.03);  /* levanta + ligeiro zoom */
+    box-shadow: 0px 10px 25px rgba(0,255,136,0.3);  /* sombra verde */
+    background: rgba(255,255,255,0.2);  /* mais luminoso */
+}

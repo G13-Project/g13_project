@@ -284,13 +284,18 @@ def main():
 
     role = session.get("role")
 
-    # 🔥 REDIRECIONAR PARA DASHBOARD CERTO
-
-    if role == "company":
-        return redirect(url_for("company_dashboard"))
-
     
+    if role == "company":
+            return redirect(url_for("company_dashboard"))
+
+    elif role == "customer":
+        return render_template("index.html") 
+
+    elif role == "driver":
+        return render_template("index.html")  
+
     return redirect(url_for("login"))
+
 
 # ---------------- TABLES ----------------
 CLASSES = {
