@@ -3,6 +3,7 @@ from classes.driver import Driver
 from classes.customer import Customer
 from classes.car import Car
 from classes.gclass import Gclass
+from geocoding_db import find_geocoding, insert_geocoding
 
 import datetime
 import requests
@@ -47,46 +48,75 @@ def fallback_distance_time(origin, destination):
     return estimativas.get((origin, destination), (50, 60))
 
 def get_distance_and_time(origin_str, destination_str):
+
+    # ✅ evitar erros básicos
     if not origin_str or not destination_str:
-        raise ValueError("Origem e destino são obrigatórios")
+        return 0, 0
 
-    origin = geocode(origin_str)
-    destination = geocode(destination_str)
+    key = (origin_str, destination_str)
 
-    if origin is None or destination is None:
-        raise ValueError("Erro ao geocodificar endereços")
+    # ✅ 1. verificar cache
+    if key in Ride.distance_cache:
+        return Ride.distance_cache[key]
 
     try:
+        origin = geocode(origin_str)
+        destination = geocode(destination_str)
+
+        # ✅ geocode falhou → fallback
+        if origin is None or destination is None:
+            print("⚠️ Geocode falhou:", origin_str, "→", destination_str)
+            result = fallback_distance_time(origin_str, destination_str)
+
+            Ride.distance_cache[key] = result
+            Ride.distance_cache[(destination_str, origin_str)] = result
+
+            return result
+
         url = f"http://router.project-osrm.org/route/v1/driving/{origin};{destination}?overview=false"
         response = requests.get(url, timeout=5)
         response.raise_for_status()
         data = response.json()
 
         if "routes" not in data or not data["routes"]:
-            raise ValueError("Nenhuma rota encontrada")
+            result = fallback_distance_time(origin_str, destination_str)
+
+            Ride.distance_cache[key] = result
+            Ride.distance_cache[(destination_str, origin_str)] = result
+
+            return result
 
         route = data["routes"][0]
 
         distance_km = route["distance"] / 1000
         duration_min = route["duration"] / 60
 
-      
-        if distance_km <= 0 or duration_min <= 0:
-            raise ValueError("Valores inválidos")
+        # ✅ validar valores
+        if distance_km <= 0 or duration_min <= 0 or distance_km > 1000:
+            result = fallback_distance_time(origin_str, destination_str)
+        else:
+            result = (round(distance_km, 2), round(duration_min, 2))
 
-        if distance_km > 1000 or duration_min > 1000:
-            raise ValueError("Rota irrealista")
+        # ✅ guardar no cache
+        Ride.distance_cache[key] = result
+        Ride.distance_cache[(destination_str, origin_str)] = result
 
-        return round(distance_km, 2), round(duration_min, 2)
+        return result
 
-    except (requests.RequestException, KeyError, ValueError) as e:
-        print("Erro na API:", e)
+    except Exception as e:
+        print("⚠️ Erro na API:", e)
 
-        return fallback_distance_time(origin_str, destination_str)
+        result = fallback_distance_time(origin_str, destination_str)
+
+        Ride.distance_cache[key] = result
+        Ride.distance_cache[(destination_str, origin_str)] = result
+
+        return result
 
 
 
 class Ride(Gclass):
+    distance_cache = {}
  
     Velocidade = {
         'Rápido': ["Speed Enthusiast", "Shortcut Sorcerer"],
@@ -254,10 +284,38 @@ class Ride(Gclass):
 
     
     def calcular_viagem(self):
+
         if self._distance is None or self._duration is None:
-            self._distance, self._duration = get_distance_and_time(self._origin, self._destination)
+
+            #1. procurar na BD
+            result = find_geocoding(self._origin, self._destination)
+
+            if result:
+                print("✅ Usou BD:", self._origin, "→", self._destination)
+
+                self._distance, self._duration, self._amount = result
+                return
+
+            #2. se não existir → calcular
+            print("⚠️ A calcular:", self._origin, "→", self._destination)
+
+            self._distance, self._duration = get_distance_and_time(
+                self._origin, self._destination
+            )
+
             self._amount = self.calculate_amount()
 
+            #3. guardar na tabela Geocoding
+            insert_geocoding(
+                self._origin,
+                self._destination,
+                self._distance,
+                self._duration,
+                self._amount
+            )
+
+            #4. guardar também na Ride
+            Ride.update(self.id)
     
     def estado_da_viagem(self):
         hoje = datetime.date.today()

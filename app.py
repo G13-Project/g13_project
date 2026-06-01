@@ -418,6 +418,88 @@ def company_dashboard():
         rides=rides
     )
 
+# ---------------- COMPANY DRIVERS ----------------
+@app.route("/company/drivers")
+def company_drivers():
+
+    if session.get("role") != "company":
+        return redirect(url_for("login"))
+
+    company_id = Userlogin.get_group_id(session["user"])
+
+    active_contracts = [
+        c for c in Contract.obj.values()
+        if c.id_company == company_id and c.is_active
+    ]
+
+    active_drivers = [Driver.obj[c.id_driver] for c in active_contracts]
+
+    all_drivers = list(Driver.obj.values())
+
+    available_drivers = [
+        d for d in all_drivers
+        if not any(
+            c.id_driver == d.id and c.id_company == company_id and c.is_active
+            for c in Contract.obj.values()
+        )
+    ]
+
+    return render_template(
+        "company_drivers.html",
+        active_drivers=active_drivers,
+        available_drivers=available_drivers
+    )
+
+# ---------------- DRIVER ACTIONS ----------------
+@app.route("/hire_driver/<int:driver_id>")
+def hire_driver(driver_id):
+
+    if session.get("role") != "company":
+        return redirect(url_for("login"))
+
+    company_id = Userlogin.get_group_id(session["user"])
+
+    already_hired = any(
+        c.id_driver == driver_id and c.id_company == company_id and c.is_active
+        for c in Contract.obj.values()
+    )
+
+    if not already_hired:
+        today = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        contract = Contract(0, today, None, company_id, driver_id)
+        Contract.insert(contract.id)
+
+    return redirect(url_for("company_drivers"))
+
+@app.route("/fire_driver/<int:driver_id>")
+def fire_driver(driver_id):
+
+    if session.get("role") != "company":
+        return redirect(url_for("login"))
+
+    company_id = Userlogin.get_group_id(session["user"])
+
+    for c in Contract.obj.values():
+        if c.id_company == company_id and c.id_driver == driver_id and c.is_active:
+            c.terminate()
+            Contract.update(c.id)
+            break
+
+    return redirect(url_for("company_drivers"))
+
+@app.route("/renew_driver/<int:driver_id>")
+def renew_driver(driver_id):
+
+    if session.get("role") != "company":
+        return redirect(url_for("login"))
+
+    company_id = Userlogin.get_group_id(session["user"])
+
+    today = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    contract = Contract(0, today, None, company_id, driver_id)
+    Contract.insert(contract.id)
+
+    return redirect(url_for("company_drivers"))
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
