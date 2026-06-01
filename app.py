@@ -279,13 +279,18 @@ def main():
     if session.get("user") is None:
         return redirect(url_for("login"))
 
-    # 🔴 NOVO — impedir voltar ao form depois de completar
     if session.get("profile_done") != True:
         return redirect(url_for("create_profile"))
 
-    success = request.args.get("success")
+    role = session.get("role")
 
-    return render_template("index.html", success=success)
+    # 🔥 REDIRECIONAR PARA DASHBOARD CERTO
+
+    if role == "company":
+        return redirect(url_for("company_dashboard"))
+
+    
+    return redirect(url_for("login"))
 
 # ---------------- TABLES ----------------
 CLASSES = {
@@ -373,6 +378,46 @@ def index(table):
 @app.route("/perfil_cliente")
 def perfil_cliente():
         return render_template("perfil_cliente.html")
+@app.route("/company_dashboard")
+def company_dashboard():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "company":
+        return redirect(url_for("main"))
+
+    user = session["user"]
+    company_id = Userlogin.get_group_id(user)
+    company = Company.obj.get(company_id)
+
+    # 📊 métricas
+    from classes.ride import Ride
+
+    all_rides = [r for r in Ride.obj.values() if r.id_company == company_id]
+
+    # total REAL
+    total_rides = len(all_rides)
+
+    #receita REAL (usar all_rides, não rides)
+    total_revenue = sum([float(r.amount) for r in all_rides if r.amount])
+
+    # ordenar todas
+    all_rides.sort(key=lambda r: r._ride_date, reverse=True)
+
+    #só últimas 5 para a tabela
+    rides = all_rides[:5]
+
+    profit = company.lucro()
+
+    return render_template(
+        "company_dashboard.html",
+        company=company,
+        total_rides=total_rides,
+        total_revenue=round(total_revenue,2),
+        profit=profit,
+        rides=rides
+    )
+
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
