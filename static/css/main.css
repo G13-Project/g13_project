@@ -17,7 +17,16 @@
     align-items: center;
 
     padding: 15px 30px;
+
+    position: fixed;   
+    top: 0;            
+    width: 100%;      
+    z-index: 1000;   
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);  
 }
+
 
 .navbar a {
     color: #00ff88;
@@ -45,7 +54,10 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+
+    padding-top: 80px; /* 🔥 altura da navbar */
 }
+
 
 /* ---------- BOX (LOGIN / SIGNUP) ---------- */
 .box {
@@ -153,7 +165,8 @@ label {
 }
 /* ---------- HOME PAGE ---------- */
 .home {
-    height: 100vh;
+    min-height: 100vh; /* deixa crescer para baixo */
+    width: 100%;
 
     position: relative;
 
@@ -162,8 +175,11 @@ label {
 
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* 🔥 conteúdo começa no topo */
+    padding-top: 0;      /* espaço para navbar fixa */
+    padding-bottom: 40px;    /* espaço no fundo */
 }
+
 
 .overlay {
     position: absolute;
@@ -177,6 +193,8 @@ label {
     position: relative;
     color: white;
     text-align: center;
+    align-items: stretch;
+
 }
 
 .home-content h1 {
@@ -241,6 +259,10 @@ label {
     width: 100%;
     margin-top: 10px;
 }
+.bg .ride-box {
+    margin-top: 80px;
+}
+
 
 .box input,
 .box button {
@@ -301,8 +323,9 @@ label {
 
     display: flex;
     flex-direction: column;
-    align-items: center;   /* ✅ CENTRA horizontalmente */
+    align-items: stretch;   
 }
+
 .ride-box {
     margin: 30px auto;   /* ✅ centra automaticamente */
 }
@@ -680,6 +703,46 @@ label {
     width: auto;
     padding: 8px 18px;
 }
+/* Caixa fixa para viagens pendentes do driver */
+.rides-container {
+    max-height: 350px;      /* altura fixa */
+    overflow-y: auto;       /* scroll vertical */
+    padding-right: 10px;    /* espaço para o scroll */
+    margin-top: 15px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;              /* espaço entre cards */
+}
+
+/* Estilo dos cards */
+.ride-card {
+    background: rgba(0,0,0,0.75);
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+#recommended-section {
+    margin-bottom: 30px;
+}
+.recommended-ride {
+    background: rgba(0,0,0,0.85);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.ride-section {
+    width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
 
 /* ---------- ANIMATIONS ---------- */
 @keyframes fadeIn {
@@ -712,3 +775,5 @@ label {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+

@@ -4,29 +4,29 @@
 <div class="bg">
     <div class="box profile-page">
 
-        <h1>Editar Perfil</h1>
+        <h1>Edit Profile</h1>
 
         <form method="POST" enctype="multipart/form-data">
 
-            <label>Nome:</label>
+            <label>Name:</label>
             <input type="text" name="name" value="{{ cliente.name }}" required>
 
             <label>Email:</label>
             <input type="email" name="email" value="{{ cliente.email }}" required>
 
-            <label>Telemóvel:</label>
+            <label>Phone Number:</label>
             <input type="text" name="phone" value="{{ cliente.phone }}" required>
 
-            <label>Data de nascimento:</label>
+            <label>Date of Birth:</label>
             <input type="date" name="dob" value="{{ cliente.dob }}" required>
 
-            <label>Foto:</label>
+            <label>Photo:</label>
             <input type="file" name="photo" accept="image/*">
 
-            <button type="submit" class="btn">Guardar</button>
+            <button type="submit" class="btn">Save Changes</button>
         </form>
 
-        <a href="{{ url_for('customer_profile') }}" class="btn btn-voltar">Voltar</a>
+        <a href="{{ url_for('customer_profile') }}" class="btn btn-voltar">Back</a>
 
 
     </div>

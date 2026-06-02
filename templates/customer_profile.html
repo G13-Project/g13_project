@@ -26,28 +26,28 @@
                     <h1>{{ cliente.name }}</h1>
 
                     <p><strong>ID:</strong> {{ cliente.id }}</p>
-                    <p><strong>Telemóvel:</strong> {{ cliente.phone }}</p>
+                    <p><strong>Phone Number:</strong> {{ cliente.phone }}</p>
                     <p><strong>Email:</strong> {{ cliente.email }}</p>
-                    <p><strong>Data de nascimento:</strong> {{ cliente.dob }}</p>
+                    <p><strong>Date of Birth:</strong> {{ cliente.dob }}</p>
                 </div>
             </div>
 
-            <a href="/customer/edit" class="btn edit-btn">Editar dados</a>
+            <a href="/customer/edit" class="btn edit-btn">Edit Profile</a>
         </div>
         <!--   HISTÓRICO DE VIAGENS   -->
     
         <div class="section-rect">
-            <h2>Histórico de Viagens</h2>
+            <h2>History of Rides</h2>
 
             <div class="history-box">
                 {% if historico %}
                     <table class="history-table">
                         <tr>
                             <th>ID</th>
-                            <th>Origem</th>
-                            <th>Destino</th>
-                            <th>Data</th>
-                            <th>Preço</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Date</th>
+                            <th>Price</th>
                         </tr>
 
                         {% for r in historico %}
@@ -61,7 +61,7 @@
                         {% endfor %}
                     </table>
                 {% else %}
-                    <p class="no-history">Sem viagens registadas.</p>
+                    <p class="no-history">No rides registered.</p>
                 {% endif %}
             </div>
         </div>
