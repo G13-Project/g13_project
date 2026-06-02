@@ -1,0 +1,166 @@
+/* ========== RIDE SECTIONS ========== */
+.ride-section {
+    margin: 30px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 255, 136, 0.2);
+    border-radius: 12px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.ride-section h2 {
+    color: #00ff88;
+    font-size: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ========== RIDE CARD ========== */
+.ride-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 255, 136, 0.15);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.ride-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 20px rgba(0, 255, 136, 0.2);
+}
+
+.ride-card.recommended-ride {
+    border: 2px solid rgba(255, 215, 0, 0.4);
+    background: rgba(255, 215, 0, 0.05);
+}
+
+.ride-header {
+    margin-bottom: 15px;
+}
+
+.customer-name {
+    color: #aaa;
+    font-size: 14px;
+    margin: 0;
+}
+
+.customer-name strong {
+    color: #00ff88;
+    font-size: 16px;
+}
+
+/* ========== RIDE ROUTE ========== */
+.ride-route {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    border-radius: 8px;
+    margin: 12px 0;
+    text-align: center;
+    color: #ddd;
+    font-size: 14px;
+}
+
+.ride-route p {
+    margin: 6px 0;
+}
+
+.ride-route strong {
+    color: #00ff88;
+}
+
+/* ========== RIDE DETAILS ========== */
+.ride-details {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(0, 255, 136, 0.08);
+    padding: 12px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: #ccc;
+}
+
+.ride-details strong {
+    color: #00ff88;
+    font-size: 15px;
+}
+
+/* ========== RIDE ACTIONS ========== */
+.ride-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-accept,
+.btn-reject {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 13px;
+}
+
+.btn-accept {
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    color: #000;
+}
+
+.btn-accept:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 255, 136, 0.4);
+}
+
+.btn-reject {
+    background: linear-gradient(135deg, #ff6b6b, #ff4444);
+    color: #fff;
+}
+
+.btn-reject:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 107, 107, 0.3);
+}
+
+/* ========== RIDES CONTAINER ========== */
+.rides-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.empty-message {
+    color: #aaa;
+    text-align: center;
+    padding: 30px 20px;
+    font-style: italic;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 600px) {
+    .ride-section {
+        padding: 15px;
+    }
+
+    .ride-card {
+        padding: 15px;
+    }
+
+    .ride-details {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ride-actions {
+        flex-direction: column;
+    }
+
+    .btn-accept,
+    .btn-reject {
+        width: 100%;
+    }
+}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from classes.company import Company
 from classes.driver import Driver
 from classes.customer import Customer
@@ -283,18 +283,342 @@ def main():
         return redirect(url_for("create_profile"))
 
     role = session.get("role")
+    success = request.args.get("success")
 
-    
     if role == "company":
-            return redirect(url_for("company_dashboard"))
+        return redirect(url_for("company_dashboard"))
 
     elif role == "customer":
-        return render_template("index.html") 
+        return render_template("customer_home.html", success=success)
 
     elif role == "driver":
-        return render_template("index.html")  
+        return render_template("driver_home.html")
 
     return redirect(url_for("login"))
+
+
+# ---------------- PROFILE REDIRECT ----------------
+@app.route("/profile")
+def profile():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+
+    role = session.get("role")
+
+    if role == "customer":
+        return redirect(url_for("perfil_cliente"))
+    elif role == "driver":
+        return redirect(url_for("perfil_condutor"))
+    elif role == "company":
+        return redirect(url_for("company_dashboard"))
+
+    return redirect(url_for("main"))
+
+
+# ---------------- ESTIMATE (AJAX) ----------------
+@app.route("/estimate", methods=["POST"])
+def estimate():
+    data = request.get_json()
+    origin = data.get("origin", "")
+    destination = data.get("destination", "")
+
+    if not origin or not destination:
+        return jsonify({"success": False, "error": "Missing fields"})
+
+    try:
+        from classes.ride import get_distance_and_time
+        distance, duration = get_distance_and_time(origin, destination)
+        amount = round(0.8 * distance + 0.2 * duration + 1, 2)
+
+        return jsonify({
+            "success": True,
+            "distance": round(distance, 2),
+            "duration": round(duration, 2),
+            "amount": amount
+        })
+    except Exception as e:
+        print("ERRO ESTIMATE:", e)
+        return jsonify({"success": False, "error": str(e)})
+
+
+# ---------------- RECOMMEND DRIVER ----------------
+@app.route("/recommend_driver", methods=["POST"])
+def recommend_driver():
+    if session.get("user") is None:
+        return jsonify({"success": False, "error": "Not logged in"})
+
+    data = request.get_json()
+    preferences = data.get("preferences", {})
+
+    try:
+        # Obter drivers recomendados baseado nas preferências
+        recommended_drivers = Ride.selecionar_drivers(preferences)
+
+        if not recommended_drivers:
+            return jsonify({"success": False, "error": "No drivers available"})
+
+        # Retornar o melhor driver
+        best_driver = recommended_drivers[0]
+        
+        return jsonify({
+            "success": True,
+            "driver": {
+                "id": best_driver.id,
+                "name": best_driver._name if hasattr(best_driver, '_name') else f"Driver {best_driver.id}",
+                "driver_type": best_driver.driver_type if hasattr(best_driver, 'driver_type') else "Unknown",
+                "rating": round(best_driver.average_ratings(), 1) if hasattr(best_driver, 'average_ratings') else 5.0
+            }
+        })
+    except Exception as e:
+        print("ERRO RECOMMEND DRIVER:", e)
+        return jsonify({"success": False, "error": str(e)})
+
+
+# ========== DRIVER RIDES ========== 
+@app.route("/get_driver_rides", methods=["GET"])
+def get_driver_rides():
+    if session.get("user") is None:
+        return jsonify({"success": False, "error": "Not logged in"})
+
+    driver_id = Userlogin.get_group_id(session["user"])
+    
+    if driver_id is None:
+        return jsonify({"success": False, "error": "Driver not found"})
+
+    try:
+        # Recarregar viagens da BD para garantir que tem dados atualizados
+        Ride.read(filename + 'g13_ridesharing.db')
+        
+        # Viagem recomendada (se o driver foi recomendado)
+        recommended_ride = None
+        for ride in Ride.obj.values():
+            if ride.id_driver == driver_id and ride.status == "pendente":
+                customer_name = "Unknown"
+                try:
+                    if ride.id_customer in Customer.obj:
+                        customer_name = Customer.obj[ride.id_customer]._nickname
+                except:
+                    customer_name = "Unknown"
+                
+                recommended_ride = {
+                    "id": ride.id,
+                    "origin": ride.origin,
+                    "destination": ride.destination,
+                    "distance": ride.distance or 0,
+                    "duration": ride.duration or 0,
+                    "amount": ride.amount or 0,
+                    "customer_name": customer_name
+                }
+                break
+
+        # Viagens por aceitar (driver_id = 0)
+        pending_rides = []
+        for ride in Ride.get_pending_rides():
+            if driver_id not in getattr(ride, '_refused_by', set()):
+                customer_name = "Unknown"
+                try:
+                    if ride.id_customer in Customer.obj:
+                        customer_name = Customer.obj[ride.id_customer]._nickname
+                except:
+                    customer_name = "Unknown"
+                
+                pending_rides.append({
+                    "id": ride.id,
+                    "origin": ride.origin,
+                    "destination": ride.destination,
+                    "distance": ride.distance or 0,
+                    "duration": ride.duration or 0,
+                    "amount": ride.amount or 0,
+                    "customer_name": customer_name
+                })
+
+        return jsonify({
+            "success": True,
+            "recommended_ride": recommended_ride,
+            "pending_rides": pending_rides
+        })
+    except Exception as e:
+        print("ERRO GET DRIVER RIDES:", e)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)})
+
+
+@app.route("/accept_ride", methods=["POST"])
+def accept_ride():
+    if session.get("user") is None:
+        return jsonify({"success": False, "error": "Not logged in"})
+
+    # Recarregar para garantir que tem dados atualizados
+    Ride.read(filename + 'g13_ridesharing.db')
+
+    data = request.get_json()
+    ride_id = data.get("ride_id")
+
+    driver_id = Userlogin.get_group_id(session["user"])
+
+    if driver_id is None or ride_id not in Ride.obj:
+        return jsonify({"success": False, "error": "Invalid data"})
+
+    try:
+        ride = Ride.obj[ride_id]
+        ride.accept(driver_id)
+        Ride.update(ride_id)
+
+        return jsonify({"success": True, "message": "Ride accepted"})
+    except Exception as e:
+        print("ERRO ACCEPT RIDE:", e)
+        return jsonify({"success": False, "error": str(e)})
+
+
+@app.route("/reject_ride", methods=["POST"])
+def reject_ride():
+    if session.get("user") is None:
+        return jsonify({"success": False, "error": "Not logged in"})
+
+    # Recarregar para garantir que tem dados atualizados
+    Ride.read(filename + 'g13_ridesharing.db')
+
+    data = request.get_json()
+    ride_id = data.get("ride_id")
+
+    driver_id = Userlogin.get_group_id(session["user"])
+
+    if driver_id is None or ride_id not in Ride.obj:
+        return jsonify({"success": False, "error": "Invalid data"})
+
+    try:
+        ride = Ride.obj[ride_id]
+        ride.refuse(driver_id)
+        Ride.update(ride_id)
+
+        return jsonify({"success": True, "message": "Ride rejected"})
+    except Exception as e:
+        print("ERRO REJECT RIDE:", e)
+        return jsonify({"success": False, "error": str(e)})
+
+
+# ========== GET RIDE STATUS ==========
+@app.route("/get_ride_status/<int:ride_id>", methods=["GET"])
+def get_ride_status(ride_id):
+    if session.get("user") is None:
+        return jsonify({"success": False, "error": "Not logged in"})
+
+    # Recarregar para garantir dados atualizados
+    try:
+        Ride.read(filename + 'g13_ridesharing.db')
+    except Exception as e:
+        print(f"ERRO ao recarregar viagens: {e}")
+        return jsonify({"success": False, "error": f"Error loading rides: {str(e)}"})
+
+    if ride_id not in Ride.obj:
+        print(f"Viagem {ride_id} não encontrada em Ride.obj. IDs disponíveis: {list(Ride.obj.keys())}")
+        return jsonify({"success": False, "error": "Ride not found"})
+
+    try:
+        ride = Ride.obj[ride_id]
+        print(f"✅ Viagem {ride_id}: status={ride.status}, driver_id={ride.id_driver}")
+        
+        return jsonify({
+            "success": True,
+            "ride": {
+                "id": ride.id,
+                "status": ride.status,
+                "driver_id": ride.id_driver
+            }
+        })
+    except Exception as e:
+        print("ERRO GET RIDE STATUS:", e)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)})
+
+
+# -------- TABLES --------
+@app.route("/confirm_ride", methods=["POST"])
+def confirm_ride():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+
+    origin = request.form.get("origin")
+    destination = request.form.get("destination")
+    phone = request.form.get("phone")
+    distance = request.form.get("distance")
+    duration = request.form.get("duration")
+    amount = request.form.get("amount")
+    recommended_driver_id = request.form.get("recommended_driver_id")
+
+    customer_id = Userlogin.get_group_id(session["user"])
+    if not customer_id:
+        return jsonify({"success": False, "error": "Customer not found"})
+    if phone and customer_id in Customer.obj:
+        Customer.obj[customer_id]._phone = phone
+
+    # Encontrar uma empresa com contratos ativos
+    company_id = None
+    for c in Contract.obj.values():
+        if c.is_active:
+            company_id = c.id_company
+            break
+
+    if company_id is None and len(Company.lst) > 0:
+        company_id = Company.lst[0]
+
+    if not company_id:
+        return jsonify({"success": False, "error": "No company found"})
+
+    today = datetime.now().strftime("%d/%m/%Y")
+
+    # Se há driver recomendado e aceito, usar esse driver_id
+    try:
+        driver_id = int(recommended_driver_id) if recommended_driver_id and recommended_driver_id != "" else 0
+    except (ValueError, TypeError):
+        driver_id = 0
+
+    try:
+        import sqlite3
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT MAX(id) FROM Ride")
+        row = cursor.fetchone()
+        new_id = 1 if row is None or row[0] is None else row[0] + 1
+
+        # Validar todos os IDs antes de inserir
+        new_id = int(new_id)
+        company_id_val = int(company_id)
+        driver_id_val = int(driver_id)
+        customer_id_val = int(customer_id)
+        car_id_val = 0  # Carro não atribuído ainda
+
+        cursor.execute(
+            "INSERT INTO Ride (id, id_company, id_driver, id_customer, id_car, origin, destination, ride_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (new_id, company_id_val, driver_id_val, customer_id_val, car_id_val, origin, destination, today)
+        )
+
+        conn.commit()
+        conn.close()
+
+        # Criar objeto Ride em memória
+        new_ride = Ride(new_id, company_id_val, driver_id_val, customer_id_val, 0, origin, destination, today)
+        new_ride._distance = float(distance) if distance else 0
+        new_ride._duration = float(duration) if duration else 0
+        new_ride._amount = float(amount) if amount else 0
+        
+        print(f"✅ Viagem criada: ID={new_id}, origin={origin}, destination={destination}, driver_id={driver_id_val}, customer_id={customer_id_val}")
+
+        return jsonify({
+            "success": True,
+            "ride_id": new_id,
+            "message": "Ride created successfully"
+        })
+
+    except Exception as e:
+        print("ERRO CONFIRM RIDE:", e)
+        import traceback
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)})
 
 
 # ---------------- TABLES ----------------
@@ -382,7 +706,15 @@ def index(table):
     )
 @app.route("/perfil_cliente")
 def perfil_cliente():
-        return render_template("perfil_cliente.html")
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+    return render_template("perfil_cliente.html")
+
+@app.route("/perfil_condutor")
+def perfil_condutor():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+    return render_template("perfil_condutor.html")
 @app.route("/company_dashboard")
 def company_dashboard():
     if session.get("user") is None:

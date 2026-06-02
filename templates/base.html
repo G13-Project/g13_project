@@ -3,6 +3,8 @@
 <head>
     <title>Itiji</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/customer_home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/driver_home.css') }}">
 </head>
 
 <body>
@@ -19,12 +21,9 @@
 
         {% if user %}
             <span class="user">{{ user }}</span>
-
             <a href="{{ url_for('main') }}">Home</a>
-            <a href="{{ url_for('index', table='customer') }}">Profile</a>
-
-            <!-- ✅ LOGOUT FUNCIONA -->
-            <a href="{{ url_for('logoff') }}" class="logout">Logout</a>
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('logoff') }}" class="logout">Log out</a>
 
         {% else %}
             <a href="{{ url_for('login') }}">Login</a>

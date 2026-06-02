@@ -174,20 +174,24 @@ class Ride(Gclass):
         self._id_company = int(id_company)
         self._id_driver = int(id_driver)
         self._id_customer = int(id_customer)
-        self._id_car = int(id_car)
+        self._id_car = int(id_car) if id_car else 0
 
         
-        if self._id_company not in Company.lst:
-            raise ValueError(f"Company {self._id_company} not found")
+        # Permitir empresas que podem não estar carregadas em memória
+        # if self._id_company not in Company.lst:
+        #     raise ValueError(f"Company {self._id_company} not found")
 
-        if self._id_driver not in Driver.lst:
-            raise ValueError(f"Driver {self._id_driver} not found")
+        # Permitir id_driver = 0 (driver não atribuído) e drivers que podem não estar carregados
+        # if self._id_driver != 0 and self._id_driver not in Driver.lst:
+        #     raise ValueError(f"Driver {self._id_driver} not found")
 
-        if self._id_customer not in Customer.lst:
-            raise ValueError(f"Customer {self._id_customer} not found")
+        # Customer pode não estar carregado em memória mas está na BD
+        # if self._id_customer not in Customer.lst:
+        #     raise ValueError(f"Customer {self._id_customer} not found")
 
-        if self._id_car not in Car.lst:
-            raise ValueError(f"Car {self._id_car} not found")
+        # Permitir id_car = 0 (carro não atribuído)
+        # if self._id_car != 0 and self._id_car not in Car.lst:
+        #     raise ValueError(f"Car {self._id_car} not found")
 
         
         try:
@@ -287,32 +291,39 @@ class Ride(Gclass):
 
         if self._distance is None or self._duration is None:
 
-            #1. procurar na BD
-            result = find_geocoding(self._origin, self._destination)
+            try:
+                #1. procurar na BD
+                result = find_geocoding(self._origin, self._destination)
 
-            if result:
-                print("✅ Usou BD:", self._origin, "→", self._destination)
+                if result:
+                    print("✅ Usou BD:", self._origin, "→", self._destination)
 
-                self._distance, self._duration, self._amount = result
-                return
+                    self._distance, self._duration, self._amount = result
+                    return
 
-            #2. se não existir → calcular
-            print("⚠️ A calcular:", self._origin, "→", self._destination)
+                #2. se não existir → calcular
+                print("⚠️ A calcular:", self._origin, "→", self._destination)
 
-            self._distance, self._duration = get_distance_and_time(
-                self._origin, self._destination
-            )
+                self._distance, self._duration = get_distance_and_time(
+                    self._origin, self._destination
+                )
 
-            self._amount = self.calculate_amount()
+                self._amount = self.calculate_amount()
 
-            #3. guardar na tabela Geocoding
-            insert_geocoding(
-                self._origin,
-                self._destination,
-                self._distance,
-                self._duration,
-                self._amount
-            )
+                #3. guardar na tabela Geocoding
+                insert_geocoding(
+                    self._origin,
+                    self._destination,
+                    self._distance,
+                    self._duration,
+                    self._amount
+                )
+            except Exception as e:
+                print(f"ERRO calcular_viagem: {e}")
+                # Valores por defeito se falhar
+                self._distance = 0
+                self._duration = 0
+                self._amount = 0
 
             #4. guardar também na Ride
             Ride.update(self.id)
@@ -333,7 +344,7 @@ class Ride(Gclass):
             "Interacao": Ride.Interacao
             }
 
-        # 1. Converter preferências → driver types
+        # 1. Converter preferências para driver types
         driver_types_desejados = []
 
         for categoria, escolha in preferencias.items():
@@ -415,3 +426,41 @@ class Ride(Gclass):
             if not hasattr(r, "_refused_by") or id_driver not in r._refused_by:
                 result.append(r)
         return result
+    @staticmethod
+    def update(id):
+        import sqlite3
+        from data.datafile import filename
+
+        if id not in Ride.obj:
+            return
+
+        ride = Ride.obj[id]
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE Ride
+            SET 
+                id_company = ?,
+                id_driver = ?,
+                id_customer = ?,
+                id_car = ?,
+                origin = ?,
+                destination = ?,
+                ride_date = ?,
+                distance = ?,
+                duration = ?,
+                amount = ?,
+                status = ?
+            WHERE id = ?
+        """, (
+            ride._id_company,
+            ride._id_driver,
+            ride._id_customer,
+            ride._id_car,
+            ride._origin,
+            ride._destination,
+            ride._ride_date.strftime("%d/%m/%Y"),
+            ride._distance,
+            ride._duration))
