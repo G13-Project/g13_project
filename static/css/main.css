@@ -174,7 +174,7 @@ label {
 }
 /* ---------- HOME PAGE ---------- */
 .home {
-    min-height: 100vh; /* deixa crescer para baixo */
+    min-height: 100vh; 
     width: 100%;
 
     position: relative;
@@ -184,9 +184,9 @@ label {
 
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* 🔥 conteúdo começa no topo */
-    padding-top: 0;      /* espaço para navbar fixa */
-    padding-bottom: 40px;    /* espaço no fundo */
+    align-items: flex-start; 
+    padding-top: 0;     
+    padding-bottom: 40px;  
 }
 
 
@@ -336,7 +336,7 @@ label {
 }
 
 .ride-box {
-    margin: 30px auto;   /* ✅ centra automaticamente */
+    margin: 30px auto;   
 }
 .ride-box {
     margin: 30px auto;
@@ -344,7 +344,7 @@ label {
     padding: 20px;
     border-radius: 10px;
     backdrop-filter: blur(10px);
-    transition: all 0.3s ease;   /* ✅ animação suave */
+    transition: all 0.3s ease;   
 }
 
 /* 🔥 HOVER (RELEVO + LUZ) */
@@ -566,9 +566,8 @@ label {
     filter: brightness(1.1);
 }
 
-/* ========================================= */
+
 /*      ESTILO EXCLUSIVO PARA PERFIS         */
-/* ========================================= */
 
 .profile-page .section-rect {
     width: 100%;
@@ -580,7 +579,7 @@ label {
     display: block;
 }
 
-/* Layout horizontal */
+
 .profile-page .profile-header {
     display: flex;
     align-items: flex-start;
@@ -588,7 +587,7 @@ label {
     width: 100%;
 }
 
-/* FOTO GRANDE */
+
 .profile-page .profile-photo-wrapper {
     width: 160px;
     height: 160px;
@@ -603,7 +602,7 @@ label {
     box-shadow: 0 0 12px #00ffcc88;
 }
 
-/* QUANDO NÃO HÁ FOTO */
+
 .profile-page .no-photo {
     width: 160px;
     height: 160px;
@@ -617,7 +616,7 @@ label {
     font-size: 16px;
 }
 
-/* INFO ESPAÇADA */
+
 .profile-page .profile-info {
     flex: 1;
 }
@@ -631,12 +630,12 @@ label {
     font-size: 16px;
 }
 
-/* BOTÃO EDITAR */
+
 .profile-page .edit-btn {
     margin-top: 20px;
 }
 
-/* HISTÓRICO */
+
 .profile-page .history-box {
     margin-top: 15px;
     height: 260px;
@@ -647,7 +646,7 @@ label {
     border: 1px solid rgba(255,255,255,0.1);
 }
 
-/* Scroll */
+
 .profile-page .history-box::-webkit-scrollbar {
     width: 6px;
 }
@@ -657,7 +656,7 @@ label {
     border-radius: 10px;
 }
 
-/* Tabela */
+
 .profile-page .history-table {
     width: 100%;
     border-collapse: collapse;
@@ -688,16 +687,16 @@ label {
     padding: 30px !important;
 }
 
-/* Botão no canto inferior direito do retângulo superior */
+
 .profile-page .section-rect {
-    position: relative; /* necessário para posicionar o botão dentro */
+    position: relative; 
 }
 
 .profile-page .edit-btn {
     position: absolute;
-    bottom: 20px;   /* distância do fundo */
-    right: 20px;    /* distância da direita */
-    width: auto;    /* deixa o botão no tamanho normal */
+    bottom: 20px;   
+    right: 20px;    
+    width: auto;    
     padding: 10px 20px;
 }
 
@@ -712,19 +711,18 @@ label {
     width: auto;
     padding: 8px 18px;
 }
-/* Caixa fixa para viagens pendentes do driver */
+
 .rides-container {
-    max-height: 350px;      /* altura fixa */
-    overflow-y: auto;       /* scroll vertical */
-    padding-right: 10px;    /* espaço para o scroll */
+    max-height: 350px;      
+    overflow-y: auto;       
+    padding-right: 10px;    
     margin-top: 15px;
 
     display: flex;
     flex-direction: column;
-    gap: 15px;              /* espaço entre cards */
+    gap: 15px;              
 }
 
-/* Estilo dos cards */
 .ride-card {
     background: rgba(0,0,0,0.75);
     padding: 20px;
