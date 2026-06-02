@@ -18,10 +18,10 @@
         <span class="user">{{ user }}</span>
 
         <a href="/company_dashboard">Home</a>
-        <a href="/car">Cars</a>
+        <a href="/company/cars">Cars</a>
         <a href="/company/drivers">Drivers</a>
-        <a href="/estatisticas">Statistics</a>
-        <a href="/perfil_empresa">Profile</a>
+        <a href="/company/estatisticas">Statistics</a>
+        <a href="/company/perfil_empresa">Profile</a>
         <a href="/logoff">Logout</a>
     </div>
 </div>
@@ -40,17 +40,17 @@
 
             <div class="ride-box" style="width:200px;">
                 <h2>{{ total_rides }}</h2>
-                <p>Viagens</p>
+                <p>Rides</p>
             </div>
 
             <div class="ride-box" style="width:200px;">
                 <h2>{{ total_revenue }} €</h2>
-                <p>Receita</p>
+                <p>Revenue</p>
             </div>
 
             <div class="ride-box" style="width:200px;">
                 <h2>{{ profit }} €</h2>
-                <p>Lucro</p>
+                <p>Profit</p>
             </div>
 
         </div>
@@ -59,16 +59,16 @@
         <div class="ride-box" style="margin-top:30px; width:800px;">
 
             <h3 style="margin-bottom:15px; text-align:center;">
-                Últimas viagens
+                Latest Rides
             </h3>
 
             <table style="width:100%; border-collapse: collapse; color: white;">
 
                 <tr style="background-color: rgba(0, 255, 136, 0.2);">
                     <th style="padding:12px;">ID</th>
-                    <th style="padding:12px;">Origem</th>
-                    <th style="padding:12px;">Destino</th>
-                    <th style="padding:12px;">Data</th>
+                    <th style="padding:12px;">Origin</th>
+                    <th style="padding:12px;">Destination</th>
+                    <th style="padding:12px;">Date</th>
                 </tr>
 
                 {% for r in rides %}

@@ -976,7 +976,119 @@ def customer_edit():
 
     return render_template("customer_edit.html", cliente=cliente)
 
+@app.route("/company/cars", methods=["GET", "POST"])
+def company_cars():
+    add = request.args.get("add")
+    if session.get("role") != "company":
+        return redirect(url_for("login"))
 
+    from classes.car import Car
+
+    company_id = Userlogin.get_group_id(session["user"])
+
+    action = request.args.get("action")
+    car_id = request.args.get("id")
+    edit_id = request.args.get("edit")
+    show_id = request.args.get("show")
+
+    # ✅ DELETE
+    if action == "delete" and car_id:
+        car_id = int(car_id)
+
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        # ✅ apagar da BD
+        cursor.execute("DELETE FROM Car WHERE id = ?", (car_id,))
+
+        conn.commit()
+        conn.close()
+
+        # ✅ apagar da memória (opcional mas recomendado)
+        if car_id in Car.obj:
+            del Car.obj[car_id]
+            Car.lst.remove(car_id)
+
+        return redirect(url_for("company_cars"))
+
+    # ✅ EDIT SAVE
+    if request.method == "POST":
+        car_id = int(request.form["id"])
+        description = request.form["description"]
+        car_type = int(request.form["car_type"])
+
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        # ✅ atualizar na BD
+        cursor.execute(
+            "UPDATE Car SET description = ?, car_type = ? WHERE id = ?",
+            (description, car_type, car_id)
+        )
+
+        conn.commit()
+        conn.close()
+
+        # ✅ atualizar em memória (opcional mas recomendado)
+        car = Car.obj.get(car_id)
+        if car:
+            car.description = description
+            car.car_type = car_type
+
+        return redirect(url_for("company_cars"))
+    cars = [c for c in Car.obj.values() if c.id_company == company_id]
+
+    return render_template(
+    "company_cars.html",
+    cars=cars,
+    edit_id=edit_id,
+    show_id=show_id,
+    add=add
+)
+@app.route("/add_car", methods=["POST"])
+def add_car():
+
+    if session.get("role") != "company":
+        return redirect(url_for("login"))
+
+    import sqlite3
+    from data.datafile import filename
+    from classes.car import Car
+
+    company_id = Userlogin.get_group_id(session["user"])
+
+    description = request.form["description"]
+    car_type = int(request.form["car_type"])
+
+    # ✅ gerar ID a partir da BD
+    conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT MAX(id) FROM Car")
+    result = cursor.fetchone()[0]
+    new_id = 1 if result is None else result + 1
+
+    # ✅ inserir diretamente na BD
+    cursor.execute(
+        "INSERT INTO Car (id, description, id_company, car_type) VALUES (?, ?, ?, ?)",
+        (new_id, description, company_id, car_type)
+    )
+
+    conn.commit()
+    conn.close()
+
+    # ✅ opcional: adicionar à memória
+    new_car = Car(new_id, description, company_id, car_type)
+    Car.obj[new_car.id] = new_car
+    Car.lst.append(new_car.id)
+
+    return redirect(url_for("company_cars"))
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':

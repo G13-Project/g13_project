@@ -30,7 +30,6 @@ class Car(Gclass):
 
         Car.obj[self._id] = self
         Car.lst.append(self._id)
-
     # Properties
     @property
     def id(self):
@@ -46,10 +45,11 @@ class Car(Gclass):
 
     @property
     def car_type(self):
-         if self._car_type == 1:
-             return "Veículo da empresa"
-         elif self._car_type == 2:
-             return "Veículo pessoal"
+        if self._car_type == 1:
+            return "Company's vehicle"
+        elif self._car_type == 2:
+            return "Personal vehicle"
+        return "Unknown"
     @car_type.setter
     def car_type(self, new):
          if new == 1 or new == 2:
@@ -64,4 +64,3 @@ class Car(Gclass):
         if value not in Company.lst:
             raise ValueError(f"Company {value} not found")
         self._id_company = value
-
