@@ -77,6 +77,27 @@ class Company(Gclass):
         return round(0.20 * total,2)
         
 
+    @classmethod
+    def update(cls, code):
+        obj = cls.obj[code]
 
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE Company
+            SET name = ?, begin_date = ?
+            WHERE id = ?
+        """, (
+            obj.name,
+            obj.begin_date,
+            obj.id
+        ))
+
+        conn.commit()
+        conn.close()
 
 

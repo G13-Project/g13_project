@@ -713,7 +713,7 @@ def index(table):
         form_values=form_values
     )
 
-@app.route("/company_dashboard")
+@app.route("/company/dashboard")
 def company_dashboard():
     if session.get("user") is None:
         return redirect(url_for("login"))
@@ -914,6 +914,7 @@ def renew_driver(driver_id):
 
 @app.route("/customer/profile")
 def customer_profile():
+
     if session.get("user") is None:
         return redirect(url_for("login"))
 
@@ -922,17 +923,36 @@ def customer_profile():
 
     cliente = Customer.obj.get(customer_id)
 
-    # histórico de viagens ACEITES
+    # ✅ página atual
+    page = request.args.get("page", 1, type=int)
+    per_page = 5
+
+    # ✅ filtrar concluídas
     historico = [
         r for r in Ride.obj.values()
-        if r._id_customer == customer_id and r._status == "aceite"
+        if r.id_customer == customer_id and r.status == "Concluded"
     ]
+
+    # ✅ ordenar mais recentes primeiro
+    historico = sorted(historico, key=lambda r: r._ride_date, reverse=True)
+
+    # ✅ paginação
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    historico_paginated = historico[start:end]
+
+    total = len(historico)
+    total_pages = (total + per_page - 1) // per_page
 
     return render_template(
         "customer_profile.html",
         cliente=cliente,
-        historico=historico
+        historico=historico_paginated,
+        page=page,
+        total_pages=total_pages
     )
+
 
 @app.route("/customer/edit", methods=["GET", "POST"])
 def customer_edit():
@@ -950,25 +970,7 @@ def customer_edit():
         cliente._phone = request.form["phone"]
         cliente._dob = request.form["dob"]
 
-        # verificar se foi enviada foto
-        if "photo" in request.files:
-            file = request.files["photo"]
-
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-
-                # garantir que a pasta existe
-                os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-                # caminho final
-                filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-
-                # guardar ficheiro
-                file.save(filepath)
-
-                # guardar caminho no cliente
-                cliente._photo = "/" + filepath
-
+       
         # guardar alterações na BD
         Customer.update(cliente.id)
 
@@ -1089,6 +1091,58 @@ def add_car():
     Car.lst.append(new_car.id)
 
     return redirect(url_for("company_cars"))
+
+@app.route("/company/profile")
+def company_profile():
+
+    if session.get("role") != "company":
+        return redirect(url_for("login"))
+
+    company_id = Userlogin.get_group_id(session["user"])
+    company = Company.obj.get(company_id)   # ✅ usa get para evitar crash
+
+    return render_template(
+        "company_profile.html",
+        user=session["user"],
+        company=company
+    )
+
+@app.route("/company/edit", methods=["GET", "POST"])
+def edit_company():
+
+    if session.get("role") != "company":
+        return redirect(url_for("login"))
+
+    import datetime as dt
+
+    company_id = Userlogin.get_group_id(session["user"])
+    company = Company.obj.get(company_id)
+
+    if request.method == "POST":
+
+        new_name = request.form.get("name")
+        new_begin_date = request.form.get("begin_date")
+        photo = request.files.get("photo")
+
+        if new_name:
+            company._name = new_name
+
+        if new_begin_date:
+            date = dt.datetime.strptime(new_begin_date, "%Y-%m-%d")
+            company.begin_date = date.strftime("%d/%m/%Y")
+
+        
+        Company.update(company._id)
+
+        return redirect(url_for("company_profile"))  # ✅ TEM DE ESTAR AQUI
+
+    # ✅ GET SEMPRE TEM RETURN
+    return render_template(
+        "company_edit.html",
+        user=session["user"],
+        company=company
+    )
+
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':

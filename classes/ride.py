@@ -206,7 +206,7 @@ class Ride(Gclass):
         self._distance = None
         self._duration = None
         self._amount = None
-        self._status = "pendente"
+        self._status = None
 
 
         
@@ -279,7 +279,7 @@ class Ride(Gclass):
         return self._amount
     @property
     def status(self):
-        return self._status
+        return self.estado_da_viagem()
 
     @status.setter
     def status(self, value):
@@ -330,7 +330,7 @@ class Ride(Gclass):
     
     def estado_da_viagem(self):
         hoje = datetime.date.today()
-        return "Concluída" if self._ride_date < hoje else "Por concluir"
+        return "Concluded" if self._ride_date < hoje else "To be concluded"
 
     @staticmethod
     def selecionar_drivers(preferencias: dict, id_company=None):

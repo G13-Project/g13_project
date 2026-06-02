@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drivers Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+
+
+<div class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
+        Itiji
+    </div>
+
+    <div class="nav-right">
+        <span class="user">{{ user }}</span>        
+
+        <a href="/company/dashboard">Home</a>
+        <a href="/company/cars">Cars</a>
+        <a href="/company/drivers">Drivers</a>
+        <a href="/company/statistics">Statistics</a>
+        <a href="/company/profile">Profile</a>
+        <a href="/logoff">Logout</a>
+    </div>
+</div>
+
+<!-- ✅ CONTENT -->
+<div class="bg">
+    <div class="box profile-page">
+
+        <div class="section-rect">
+
+            <div class="profile-header">
+
+                <!-- ✅ FOTO -->
+                <div class="profile-photo-wrapper">
+
+                    {% if company.photo %}
+                        <img src="{{ company.photo }}" class="profile-photo">
+
+                    {% elif company.name and company.name|length > 0 %}
+                        <img src="{{ url_for('static', filename='images/company/' ~ (company.name[0]|upper) ~ '.png') }}"
+                             class="profile-photo">
+
+                    {% else %}
+                        <div class="no-photo">No picture</div>
+                    {% endif %}
+
+                </div>
+
+                <!-- ✅ INFO -->
+                <div class="profile-info">
+                    <h1>{{ company.name }}</h1>
+
+                    <p><strong>ID:</strong> {{ company.id }}</p>
+                    <p><strong>Name:</strong> {{ company.name }}</p>
+                    <p><strong>Begin Date:</strong> {{ company.begin_date }}</p>
+
+                </div>
+
+            </div>
+
+            <!-- ✅ BOTÃO EDIT -->
+            <a href="/company/edit" class="btn edit-btn">
+                Edit Profile
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
