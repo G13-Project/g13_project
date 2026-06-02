@@ -767,31 +767,79 @@ def company_drivers():
 
     company_id = Userlogin.get_group_id(session["user"])
 
+    # ✅ páginas separadas
+    page_active = request.args.get("page_active", 1, type=int)
+    page_available = request.args.get("page", 1, type=int)
+
+    per_page_active = 5
+    per_page_available = 5
+
+    # contratos ativos
     active_contracts = [
         c for c in Contract.obj.values()
         if c.id_company == company_id and c.is_active
     ]
 
-    active_drivers = [Driver.obj[c.id_driver] for c in active_contracts]
+    # contratos ativos
+    active_contracts = [
+        c for c in Contract.obj.values()
+        if c.id_company == company_id and c.is_active
+    ]
 
-    all_drivers = list(Driver.obj.values())
+    # ✅ agora usar
+    active_drivers = [] 
+
+    for c in active_contracts:
+        d = Driver.obj[c.id_driver]
+
+        d.contract_end = c.contract_end
+
+        active_drivers.append(d)
+
+    # ordenar
+    active_drivers = sorted(active_drivers, key=lambda d: d.id)
+
+
+    # ✅ paginação ativos
+    start_a = (page_active - 1) * per_page_active
+    end_a = start_a + per_page_active
+    active_paginated = active_drivers[start_a:end_a]
+
+    total_active = len(active_drivers)
+    total_pages_active = (total_active + per_page_active - 1) // per_page_active
+
+    # disponíveis (igual ao teu)
+    all_drivers = sorted(Driver.obj.values(), key=lambda d: d.id)
 
     available_drivers = [
         d for d in all_drivers
         if not any(
             c.id_driver == d.id and c.id_company == company_id and c.is_active
-            for c in Contract.obj.values()
+            for c in Contract.obj.values()  
         )
     ]
 
+    start = (page_available - 1) * per_page_available
+    end = start + per_page_available
+
+    available_paginated = available_drivers[start:end]
+
+    total_available = len(available_drivers)
+    total_pages = (total_available + per_page_available - 1) // per_page_available
+
     return render_template(
         "company_drivers.html",
-        active_drivers=active_drivers,
-        available_drivers=available_drivers
+        active_drivers=active_paginated,
+        available_drivers=available_paginated,
+        page=page_available,
+        total_pages=total_pages,
+        page_active=page_active,
+        total_pages_active=total_pages_active
     )
 
+
 # ---------------- DRIVER ACTIONS ----------------
-@app.route("/hire_driver/<int:driver_id>")
+@app.route("/hire_driver/<int:driver_id>", methods=["POST"])
 def hire_driver(driver_id):
 
     if session.get("role") != "company":
@@ -799,15 +847,23 @@ def hire_driver(driver_id):
 
     company_id = Userlogin.get_group_id(session["user"])
 
-    already_hired = any(
-        c.id_driver == driver_id and c.id_company == company_id and c.is_active
-        for c in Contract.obj.values()
-    )
+    start = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-    if not already_hired:
-        today = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-        contract = Contract(0, today, None, company_id, driver_id)
-        Contract.insert(contract.id)
+    permanent = request.form.get("permanent")
+
+    if permanent == "true":
+        end = None
+    else:
+        new_date_str = request.form.get("contract_end")
+
+        if new_date_str:
+            end = datetime.strptime(new_date_str, "%Y-%m-%dT%H:%M").strftime("%d/%m/%Y %H:%M:%S")
+        else:
+            end = None
+
+    contract = Contract(0, start, end, company_id, driver_id)
+
+    Contract.insert(contract.id)
 
     return redirect(url_for("company_drivers"))
 
@@ -821,13 +877,15 @@ def fire_driver(driver_id):
 
     for c in Contract.obj.values():
         if c.id_company == company_id and c.id_driver == driver_id and c.is_active:
-            c.terminate()
-            Contract.update(c.id)
+            c.terminate()                # ✅ chama método da classe
+            Contract.update(c.id)        # ✅ guarda na BD
             break
 
     return redirect(url_for("company_drivers"))
 
-@app.route("/renew_driver/<int:driver_id>")
+
+
+@app.route("/renew_driver/<int:driver_id>", methods=["POST"])
 def renew_driver(driver_id):
 
     if session.get("role") != "company":
@@ -835,9 +893,28 @@ def renew_driver(driver_id):
 
     company_id = Userlogin.get_group_id(session["user"])
 
-    today = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    contract = Contract(0, today, None, company_id, driver_id)
-    Contract.insert(contract.id)
+    # ✅ ver se clicou "permanent"
+    permanent = request.form.get("permanent")
+
+    for c in Contract.obj.values():
+        if c.id_company == company_id and c.id_driver == driver_id and c.is_active:
+
+            if permanent == "true":
+                # ✅ contrato vitalício
+                c.contract_end = None
+            else:
+                # ✅ usar data normal
+                new_date_str = request.form.get("new_date")
+
+                try:
+                    new_date = datetime.strptime(new_date_str, "%Y-%m-%dT%H:%M")
+                except:
+                    return "Invalid date format"
+
+                c.contract_end = new_date
+
+            Contract.update(c.id)
+            break
 
     return redirect(url_for("company_drivers"))
 

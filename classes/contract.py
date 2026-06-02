@@ -65,7 +65,7 @@ class Contract(Gclass):
     @property
     def contract_end(self):
         if self._contract_end is None:
-            return "Vitalício"
+            return "Permanent"
         else:
             return self._contract_end.strftime("%d/%m/%Y %H:%M:%S")
 
@@ -111,12 +111,78 @@ class Contract(Gclass):
     @property
     def is_active(self):
         today = datetime.datetime.now()
-        
-        if (self._contract_end is None or today >= self._contract_end) and today >= self._contract_start:
-            return True
-        
-        else:
-            return False
 
+        return self._contract_start <= today and \
+            (self._contract_end is None or today < self._contract_end)
+
+
+    
+
+    @staticmethod
+    def update(id):
+
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cur = conn.cursor()
+
+        c = Contract.obj[id]
+
+        cur.execute("""
+            UPDATE Contract
+            SET contract_start = ?, contract_end = ?, id_company = ?, id_driver = ?
+            WHERE id = ?
+        """, (
+            c.contract_start,
+            None if c._contract_end is None else c.contract_end,
+            c.id_company,
+            c.id_driver,
+            id
+        ))
+
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def insert(id):
+
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cur = conn.cursor()
+
+        c = Contract.obj[id]
+
+        # gerar ID único diretamente com base na BD
+        cur.execute("SELECT MAX(id) FROM Contract")
+        max_id = cur.fetchone()[0]
+
+        new_id = (max_id + 1) if max_id else 1
+
+        c._id = new_id  # ✅ força novo ID
+
+        c._id = new_id
+
+        # atualizar dicionário
+        if id in Contract.obj:
+            del Contract.obj[id]
+
+        Contract.obj[c.id] = c
+
+        cur.execute("""
+            INSERT INTO Contract (id, contract_start, contract_end, id_company, id_driver)
+            VALUES (?, ?, ?, ?, ?)
+        """, (
+            c.id,
+            c.contract_start,
+            None if c._contract_end is None else c.contract_end,
+            c.id_company,
+            c.id_driver
+        ))
+
+        conn.commit()
+        conn.close()
     
 
