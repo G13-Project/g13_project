@@ -9,16 +9,16 @@
         <form method="POST" enctype="multipart/form-data">
 
             <label>Name:</label>
-            <input type="text" name="name" value="{{ cliente.name }}" required>
+            <input type="text" name="name" value="{{ cliente._name }}" required>
 
             <label>Email:</label>
-            <input type="email" name="email" value="{{ cliente.email }}" required>
+            <input type="email" name="email" value="{{ cliente._email }}" required>
 
             <label>Phone Number:</label>
-            <input type="text" name="phone" value="{{ cliente.phone }}" required>
+            <input type="text" name="phone" value="{{ cliente._phone }}" required>
 
             <label>Date of Birth:</label>
-            <input type="date" name="dob" value="{{ cliente.dob }}" required>
+            <input type="date" name="dob" value="{{ cliente._dob }}" required>
 
             <label>Photo:</label>
             <input type="file" name="photo" accept="image/*">

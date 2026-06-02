@@ -13,8 +13,8 @@
 
                 <!-- FOTO do CLIENTE -->
         <div class="profile-photo-wrapper">
-            {% if cliente.photo %}
-                <img src="{{ cliente.photo }}" class="profile-photo">
+            {% if cliente._photo %}
+                <img src="{{ cliente._photo }}" class="profile-photo">
             {% else %}
                 <div class="no-photo">No picture</div>
             {% endif %}
@@ -23,12 +23,12 @@
 
                 <!-- INFO DO CLIENTE -->
                 <div class="profile-info">
-                    <h1>{{ cliente.name }}</h1>
+                    <h1>{{ cliente._name }}</h1>
 
                     <p><strong>ID:</strong> {{ cliente.id }}</p>
-                    <p><strong>Phone Number:</strong> {{ cliente.phone }}</p>
-                    <p><strong>Email:</strong> {{ cliente.email }}</p>
-                    <p><strong>Date of Birth:</strong> {{ cliente.dob }}</p>
+                    <p><strong>Phone Number:</strong> {{ cliente._phone }}</p>
+                    <p><strong>Email:</strong> {{ cliente._email }}</p>
+                    <p><strong>Date of Birth:</strong> {{ cliente._dob }}</p>
                 </div>
             </div>
 
@@ -52,11 +52,11 @@
 
                         {% for r in historico %}
                         <tr>
-                            <td>{{ r.id }}</td>
-                            <td>{{ r.origin }}</td>
-                            <td>{{ r.destination }}</td>
-                            <td>{{ r.ride_date }}</td>
-                            <td>{{ r.amount }} €</td>
+                            <td>{{ r._id }}</td>
+                            <td>{{ r._origin }}</td>
+                            <td>{{ r._destination }}</td>
+                            <td>{{ r._ride_date }}</td>
+                            <td>{{ r._amount }} €</td>
                         </tr>
                         {% endfor %}
                     </table>
