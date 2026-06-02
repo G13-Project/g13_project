@@ -399,8 +399,7 @@ def get_driver_rides():
         return jsonify({"success": False, "error": "Driver not found"})
 
     try:
-        # Recarregar viagens da BD para garantir que tem dados atualizados
-        Ride.read(filename + 'g13_ridesharing.db')
+     
         
         # Viagem recomendada (se o driver foi recomendado)
         recommended_ride = None
@@ -462,8 +461,6 @@ def accept_ride():
     if session.get("user") is None:
         return jsonify({"success": False, "error": "Not logged in"})
 
-    # Recarregar para garantir que tem dados atualizados
-    Ride.read(filename + 'g13_ridesharing.db')
 
     data = request.get_json()
     ride_id = data.get("ride_id")
@@ -489,8 +486,7 @@ def reject_ride():
     if session.get("user") is None:
         return jsonify({"success": False, "error": "Not logged in"})
 
-    # Recarregar para garantir que tem dados atualizados
-    Ride.read(filename + 'g13_ridesharing.db')
+
 
     data = request.get_json()
     ride_id = data.get("ride_id")
@@ -531,34 +527,19 @@ def get_ride_status(ride_id):
     if session.get("user") is None:
         return jsonify({"success": False, "error": "Not logged in"})
 
-    # Recarregar para garantir dados atualizados
-    try:
-        Ride.read(filename + 'g13_ridesharing.db')
-    except Exception as e:
-        print(f"ERRO ao recarregar viagens: {e}")
-        return jsonify({"success": False, "error": f"Error loading rides: {str(e)}"})
-
     if ride_id not in Ride.obj:
-        print(f"Viagem {ride_id} não encontrada em Ride.obj. IDs disponíveis: {list(Ride.obj.keys())}")
         return jsonify({"success": False, "error": "Ride not found"})
 
-    try:
-        ride = Ride.obj[ride_id]
-        print(f"✅ Viagem {ride_id}: status={ride.status}, driver_id={ride.id_driver}")
-        
-        return jsonify({
-            "success": True,
-            "ride": {
-                "id": ride.id,
-                "status": ride.status,
-                "driver_id": ride.id_driver
-            }
-        })
-    except Exception as e:
-        print("ERRO GET RIDE STATUS:", e)
-        import traceback
-        traceback.print_exc()
-        return jsonify({"success": False, "error": str(e)})
+    ride = Ride.obj[ride_id]
+
+    return jsonify({
+        "success": True,
+        "ride": {
+            "id": ride.id,
+            "status": ride.status,
+            "driver_id": ride.id_driver
+        }
+    })
 
 
 # -------- TABLES --------

@@ -449,11 +449,7 @@ class Ride(Gclass):
                 id_car = ?,
                 origin = ?,
                 destination = ?,
-                ride_date = ?,
-                distance = ?,
-                duration = ?,
-                amount = ?,
-                status = ?
+                ride_date = ?
             WHERE id = ?
         """, (
             ride._id_company,
@@ -463,13 +459,8 @@ class Ride(Gclass):
             ride._origin,
             ride._destination,
             ride._ride_date.strftime("%d/%m/%Y"),
-            ride._distance,
-            ride._duration,
-            ride._amount,
-            ride._status,
             ride._id
         ))
 
         conn.commit()
         conn.close()
-
