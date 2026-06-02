@@ -408,7 +408,7 @@ def get_driver_rides():
                 customer_name = "Unknown"
                 try:
                     if ride.id_customer in Customer.obj:
-                        customer_name = Customer.obj[ride.id_customer]._nickname
+                        customer_name = Customer.obj[ride.id_customer]._name
                 except:
                     customer_name = "Unknown"
                 
@@ -430,7 +430,7 @@ def get_driver_rides():
                 customer_name = "Unknown"
                 try:
                     if ride.id_customer in Customer.obj:
-                        customer_name = Customer.obj[ride.id_customer]._nickname
+                        customer_name = Customer.obj[ride.id_customer]._name
                 except:
                     customer_name = "Unknown"
                 
