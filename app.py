@@ -57,7 +57,11 @@ def chklogin():
         session["user"] = user
         session["role"] = role
 
-        # ✅ verificar se já tem perfil
+        # ✅ ADMIN vai direto para dashboard
+        if role == "admin":
+            return redirect(url_for("admin_dashboard"))
+
+        # ✅ restante lógica
         group_id = Userlogin.get_group_id(user)
 
         if group_id is None:
@@ -1142,7 +1146,71 @@ def edit_company():
         user=session["user"],
         company=company
     )
+@app.route("/admin/dashboard")
+def admin_dashboard():
 
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.car import Car
+    from classes.company import Company
+    from classes.userlogin import Userlogin
+
+    total_users = len(Userlogin.obj)
+    total_companies = len(Company.lst)
+    total_cars = len(Car.obj)
+
+    return render_template(
+        "admin_dashboard.html",
+        user=session["user"],
+        total_users=total_users,
+        total_companies=total_companies,
+        total_cars=total_cars
+    )
+@app.route("/admin/users")
+def admin_users():
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+
+    users = Userlogin.obj.keys()
+    roles = {u: Userlogin.get_role(u) for u in users}
+
+    return render_template(
+        "admin_users.html",
+        users=users,
+        roles=roles
+    )
+@app.route("/admin/delete_user/<user>")
+def delete_user(user):
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+
+    # opcional: impedir apagar admins
+    if Userlogin.get_role(user) == "admin":
+        return redirect(url_for("admin_users"))
+
+    if user in Userlogin.obj:
+        del Userlogin.obj[user]
+
+    return redirect(url_for("admin_users"))
+@app.route("/admin/promote/<user>")
+def promote_user(user):
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+
+    if user in Userlogin.obj:
+        Userlogin.obj[user]._role = "admin"
+
+    return redirect(url_for("admin_users"))
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
