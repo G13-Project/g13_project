@@ -175,7 +175,7 @@ label {
 
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* 🔥 conteúdo começa no topo */
+    align-items: center; /* 🔥 conteúdo começa no topo */
     padding-top: 0;      /* espaço para navbar fixa */
     padding-bottom: 40px;    /* espaço no fundo */
 }
