@@ -8,9 +8,21 @@ from classes.ride import Ride
 from classes.userlogin import Userlogin
 from data.datafile import filename
 from datetime import datetime
+import os
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 app.secret_key = 'BAD_SECRET_KEY'
+
+UPLOAD_FOLDER = "static/uploads"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # ---------------- LOAD DATABASE ----------------
 Company.read(filename + 'g13_ridesharing.db')
@@ -306,13 +318,14 @@ def profile():
     role = session.get("role")
 
     if role == "customer":
-        return redirect(url_for("perfil_cliente"))
+        return redirect(url_for("customer_profile"))
     elif role == "driver":
-        return redirect(url_for("perfil_condutor"))
+        return redirect(url_for("driver_profile"))
     elif role == "company":
         return redirect(url_for("company_dashboard"))
 
     return redirect(url_for("main"))
+
 
 
 # ---------------- ESTIMATE (AJAX) ----------------
@@ -704,17 +717,7 @@ def index(table):
         butedit=butedit,
         form_values=form_values
     )
-@app.route("/perfil_cliente")
-def perfil_cliente():
-    if session.get("user") is None:
-        return redirect(url_for("login"))
-    return render_template("perfil_cliente.html")
 
-@app.route("/perfil_condutor")
-def perfil_condutor():
-    if session.get("user") is None:
-        return redirect(url_for("login"))
-    return render_template("perfil_condutor.html")
 @app.route("/company_dashboard")
 def company_dashboard():
     if session.get("user") is None:
@@ -837,6 +840,72 @@ def renew_driver(driver_id):
     Contract.insert(contract.id)
 
     return redirect(url_for("company_drivers"))
+
+@app.route("/customer/profile")
+def customer_profile():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+
+    user = session["user"]
+    customer_id = Userlogin.get_group_id(user)
+
+    cliente = Customer.obj.get(customer_id)
+
+    # histórico de viagens ACEITES
+    historico = [
+        r for r in Ride.obj.values()
+        if r._id_customer == customer_id and r._status == "aceite"
+    ]
+
+    return render_template(
+        "customer_profile.html",
+        cliente=cliente,
+        historico=historico
+    )
+
+@app.route("/customer/edit", methods=["GET", "POST"])
+def customer_edit():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+
+    user = session["user"]
+    customer_id = Userlogin.get_group_id(user)
+    cliente = Customer.obj.get(customer_id)
+
+    if request.method == "POST":
+        # atualizar dados normais
+        cliente._name = request.form["name"]
+        cliente._email = request.form["email"]
+        cliente._phone = request.form["phone"]
+        cliente._dob = request.form["dob"]
+
+        # verificar se foi enviada foto
+        if "photo" in request.files:
+            file = request.files["photo"]
+
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+
+                # garantir que a pasta existe
+                os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+                # caminho final
+                filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
+                # guardar ficheiro
+                file.save(filepath)
+
+                # guardar caminho no cliente
+                cliente._photo = "/" + filepath
+
+        # guardar alterações na BD
+        Customer.update(cliente.id)
+
+        return redirect(url_for("customer_profile"))
+
+    return render_template("customer_edit.html", cliente=cliente)
+
+
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':

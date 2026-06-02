@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg">
+    <div class="box profile-page">
+
+
+     
+        <!--     SECÇÃO DO PERFIL     -->
+                    
+        <div class="section-rect">
+            <div class="profile-header">
+
+                <!-- FOTO do CLIENTE -->
+        <div class="profile-photo-wrapper">
+            {% if cliente.photo %}
+                <img src="{{ cliente.photo }}" class="profile-photo">
+            {% else %}
+                <div class="no-photo">No picture</div>
+            {% endif %}
+        </div>
+
+
+                <!-- INFO DO CLIENTE -->
+                <div class="profile-info">
+                    <h1>{{ cliente.name }}</h1>
+
+                    <p><strong>ID:</strong> {{ cliente.id }}</p>
+                    <p><strong>Telemóvel:</strong> {{ cliente.phone }}</p>
+                    <p><strong>Email:</strong> {{ cliente.email }}</p>
+                    <p><strong>Data de nascimento:</strong> {{ cliente.dob }}</p>
+                </div>
+            </div>
+
+            <a href="/customer/edit" class="btn edit-btn">Editar dados</a>
+        </div>
+        <!--   HISTÓRICO DE VIAGENS   -->
+    
+        <div class="section-rect">
+            <h2>Histórico de Viagens</h2>
+
+            <div class="history-box">
+                {% if historico %}
+                    <table class="history-table">
+                        <tr>
+                            <th>ID</th>
+                            <th>Origem</th>
+                            <th>Destino</th>
+                            <th>Data</th>
+                            <th>Preço</th>
+                        </tr>
+
+                        {% for r in historico %}
+                        <tr>
+                            <td>{{ r.id }}</td>
+                            <td>{{ r.origin }}</td>
+                            <td>{{ r.destination }}</td>
+                            <td>{{ r.ride_date }}</td>
+                            <td>{{ r.amount }} €</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p class="no-history">Sem viagens registadas.</p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+
