@@ -22,7 +22,19 @@ class Customer(Gclass):
         self._name = name
         self._email = email
         self._phone =phone
-        self._date_of_birth = datetime.datetime.strptime(date_of_birth, "%d/%m/%Y").date()
+        if date_of_birth:
+            try:
+                # formato do formulário (dd/mm/YYYY)
+                self._date_of_birth = datetime.datetime.strptime(date_of_birth, "%d/%m/%Y").date()
+            except:
+                try:
+                    # formato ISO vindo da DB (YYYY-MM-DD)
+                    self._date_of_birth = datetime.date.fromisoformat(date_of_birth)
+                except:
+                    self._date_of_birth = None
+        else:
+            self._date_of_birth = None
+       
 
         # Add the new object to the dictionary of objects
         Customer.obj[self._id] = self
@@ -75,7 +87,9 @@ class Customer(Gclass):
         
     @property
     def date_of_birth(self):
-        return self._date_of_birth.strftime("%d/%m/%Y")
+        if self._date_of_birth:
+            return self._date_of_birth.strftime("%d/%m/%Y")
+        return None
     @date_of_birth.setter
     def date_of_birth(self, date_of_birth):
         self._date_of_birth = datetime.datetime.strptime(date_of_birth, "%d/%m/%Y").date()
