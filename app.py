@@ -509,6 +509,20 @@ def reject_ride():
     except Exception as e:
         print("ERRO REJECT RIDE:", e)
         return jsonify({"success": False, "error": str(e)})
+@app.route("/finish_ride", methods=["POST"])
+def finish_ride():
+    data = request.get_json()
+    ride_id = data.get("ride_id")
+
+    if ride_id not in Ride.obj:
+        return jsonify({"success": False, "error": "Ride not found"})
+
+    ride = Ride.obj[ride_id]
+    ride.status = "concluída"
+    Ride.update(ride_id)
+
+    return jsonify({"success": True})
+
 
 
 # ========== GET RIDE STATUS ==========
@@ -786,7 +800,7 @@ def company_drivers():
         if c.id_company == company_id and c.is_active
     ]
 
-    # ✅ agora usar
+
     active_drivers = [] 
 
     for c in active_contracts:
@@ -800,7 +814,7 @@ def company_drivers():
     active_drivers = sorted(active_drivers, key=lambda d: d.id)
 
 
-    # ✅ paginação ativos
+  
     start_a = (page_active - 1) * per_page_active
     end_a = start_a + per_page_active
     active_paginated = active_drivers[start_a:end_a]
@@ -808,7 +822,6 @@ def company_drivers():
     total_active = len(active_drivers)
     total_pages_active = (total_active + per_page_active - 1) // per_page_active
 
-    # disponíveis (igual ao teu)
     all_drivers = sorted(Driver.obj.values(), key=lambda d: d.id)
 
     available_drivers = [
@@ -877,8 +890,8 @@ def fire_driver(driver_id):
 
     for c in Contract.obj.values():
         if c.id_company == company_id and c.id_driver == driver_id and c.is_active:
-            c.terminate()                # ✅ chama método da classe
-            Contract.update(c.id)        # ✅ guarda na BD
+            c.terminate()               
+            Contract.update(c.id)        
             break
 
     return redirect(url_for("company_drivers"))

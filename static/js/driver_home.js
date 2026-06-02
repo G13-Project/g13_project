@@ -52,6 +52,12 @@
         document.getElementById('rec-amount').textContent = ride.amount;
 
         document.getElementById('recommended-section').style.display = 'block';
+        if (ride.status === "aceite") {
+            document.getElementById("finish-btn").style.display = "inline-block";
+        } else {
+            document.getElementById("finish-btn").style.display = "none";
+        }
+
     }
 
     function displayPendingRides(rides) {
@@ -174,4 +180,26 @@
             console.error('Error:', err);
             alert('Error rejecting ride');
         });
+    }
+    function finishRide() {
+    if (!recommendedRideData) return;
+
+    fetch('/finish_ride', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ride_id: recommendedRideData.id })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("🏁 Viagem concluída!");
+            loadRides(); // atualizar lista
+        } else {
+            alert("Erro ao concluir viagem: " + data.error);
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Erro ao concluir viagem");
+    });
     }

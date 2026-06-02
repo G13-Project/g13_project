@@ -426,6 +426,7 @@ class Ride(Gclass):
             if not hasattr(r, "_refused_by") or id_driver not in r._refused_by:
                 result.append(r)
         return result
+    
     @staticmethod
     def update(id):
         import sqlite3
@@ -463,4 +464,12 @@ class Ride(Gclass):
             ride._destination,
             ride._ride_date.strftime("%d/%m/%Y"),
             ride._distance,
-            ride._duration))
+            ride._duration,
+            ride._amount,
+            ride._status,
+            ride._id
+        ))
+
+        conn.commit()
+        conn.close()
+
