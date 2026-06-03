@@ -8,6 +8,7 @@ from classes.ride import Ride
 from classes.userlogin import Userlogin
 from data.datafile import filename
 from datetime import datetime
+from datetime import date
 import os
 from werkzeug.utils import secure_filename
 
@@ -398,24 +399,19 @@ def get_driver_rides():
         return jsonify({"success": False, "error": "Not logged in"})
 
     driver_id = Userlogin.get_group_id(session["user"])
-    
     if driver_id is None:
         return jsonify({"success": False, "error": "Driver not found"})
 
     try:
-     
-        
-        # Viagem recomendada (se o driver foi recomendado)
+        # -----------------------------
+        # RECOMMENDED RIDE = primeira viagem atribuída ao driver e sem data
+        # -----------------------------
         recommended_ride = None
+
         for ride in Ride.obj.values():
-            if ride.id_driver == driver_id and ride.status == "pendente":
-                customer_name = "Unknown"
-                try:
-                    if ride.id_customer in Customer.obj:
-                        customer_name = Customer.obj[ride.id_customer]._name
-                except:
-                    customer_name = "Unknown"
-                
+            if ride.id_driver == driver_id and ride._ride_date is None:
+                customer_name = Customer.obj[ride.id_customer]._name if ride.id_customer in Customer.obj else "Unknown"
+
                 recommended_ride = {
                     "id": ride.id,
                     "origin": ride.origin,
@@ -423,21 +419,19 @@ def get_driver_rides():
                     "distance": ride.distance or 0,
                     "duration": ride.duration or 0,
                     "amount": ride.amount or 0,
-                    "customer_name": customer_name
+                    "customer_name": customer_name,
+                    "ride_date": ride.ride_date
                 }
                 break
 
-        # Viagens por aceitar (driver_id = 0)
+        # -----------------------------
+        # PENDING RIDES = todas as viagens sem driver atribuído e sem data
+        # -----------------------------
         pending_rides = []
-        for ride in Ride.get_pending_rides():
-            if driver_id not in getattr(ride, '_refused_by', set()):
-                customer_name = "Unknown"
-                try:
-                    if ride.id_customer in Customer.obj:
-                        customer_name = Customer.obj[ride.id_customer]._name
-                except:
-                    customer_name = "Unknown"
-                
+        for ride in Ride.obj.values():
+            if ride.id_driver == 0 and ride._ride_date is None:
+                customer_name = Customer.obj[ride.id_customer]._name if ride.id_customer in Customer.obj else "Unknown"
+
                 pending_rides.append({
                     "id": ride.id,
                     "origin": ride.origin,
@@ -445,7 +439,8 @@ def get_driver_rides():
                     "distance": ride.distance or 0,
                     "duration": ride.duration or 0,
                     "amount": ride.amount or 0,
-                    "customer_name": customer_name
+                    "customer_name": customer_name,
+                    "ride_date": ride.ride_date
                 })
 
         return jsonify({
@@ -453,18 +448,15 @@ def get_driver_rides():
             "recommended_ride": recommended_ride,
             "pending_rides": pending_rides
         })
+
     except Exception as e:
         print("ERRO GET DRIVER RIDES:", e)
-        import traceback
-        traceback.print_exc()
         return jsonify({"success": False, "error": str(e)})
-
 
 @app.route("/accept_ride", methods=["POST"])
 def accept_ride():
     if session.get("user") is None:
         return jsonify({"success": False, "error": "Not logged in"})
-
 
     data = request.get_json()
     ride_id = data.get("ride_id")
@@ -476,13 +468,22 @@ def accept_ride():
 
     try:
         ride = Ride.obj[ride_id]
-        ride.accept(driver_id)
+
+        # Atribuir driver
+        ride._id_driver = driver_id
+
+        # Marcar como aceite → meter data atual
+        today = datetime.now().strftime("%d/%m/%Y")
+        ride.ride_date = today
+
         Ride.update(ride_id)
 
         return jsonify({"success": True, "message": "Ride accepted"})
+
     except Exception as e:
         print("ERRO ACCEPT RIDE:", e)
         return jsonify({"success": False, "error": str(e)})
+
 
 
 @app.route("/reject_ride", methods=["POST"])
@@ -490,25 +491,30 @@ def reject_ride():
     if session.get("user") is None:
         return jsonify({"success": False, "error": "Not logged in"})
 
-
-
     data = request.get_json()
     ride_id = data.get("ride_id")
 
-    driver_id = Userlogin.get_group_id(session["user"])
-
-    if driver_id is None or ride_id not in Ride.obj:
-        return jsonify({"success": False, "error": "Invalid data"})
+    if ride_id not in Ride.obj:
+        return jsonify({"success": False, "error": "Ride not found"})
 
     try:
-        ride = Ride.obj[ride_id]
-        ride.refuse(driver_id)
-        Ride.update(ride_id)
+        # Remover da memória
+        del Ride.obj[ride_id]
 
-        return jsonify({"success": True, "message": "Ride rejected"})
+        # Remover da BD
+        import sqlite3
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Ride WHERE id = ?", (ride_id,))
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Ride rejected and removed"})
+
     except Exception as e:
         print("ERRO REJECT RIDE:", e)
         return jsonify({"success": False, "error": str(e)})
+
 @app.route("/finish_ride", methods=["POST"])
 def finish_ride():
     data = request.get_json()
@@ -518,7 +524,11 @@ def finish_ride():
         return jsonify({"success": False, "error": "Ride not found"})
 
     ride = Ride.obj[ride_id]
-    ride.status = "concluída"
+
+    # Concluir = meter data atual (se quiseres)
+    today = datetime.now().strftime("%d/%m/%Y")
+    ride.ride_date = today
+
     Ride.update(ride_id)
 
     return jsonify({"success": True})
@@ -540,10 +550,11 @@ def get_ride_status(ride_id):
         "success": True,
         "ride": {
             "id": ride.id,
-            "status": ride.status,
+            "ride_date": ride.ride_date,
             "driver_id": ride.id_driver
         }
     })
+
 
 
 # -------- TABLES --------
@@ -605,18 +616,23 @@ def confirm_ride():
         car_id_val = 0  # Carro não atribuído ainda
 
         cursor.execute(
-            "INSERT INTO Ride (id, id_company, id_driver, id_customer, id_car, origin, destination, ride_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (new_id, company_id_val, driver_id_val, customer_id_val, car_id_val, origin, destination, today)
+            "INSERT INTO Ride (id, id_company, id_driver, id_customer, id_car, origin, destination, ride_date) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (new_id, company_id_val, driver_id_val, customer_id_val, car_id_val, origin, destination, None)
         )
+
 
         conn.commit()
         conn.close()
 
         # Criar objeto Ride em memória
-        new_ride = Ride(new_id, company_id_val, driver_id_val, customer_id_val, 0, origin, destination, today)
+        new_ride = Ride(new_id, company_id_val, driver_id_val, customer_id_val, 0, origin, destination, None)
         new_ride._distance = float(distance) if distance else 0
         new_ride._duration = float(duration) if duration else 0
         new_ride._amount = float(amount) if amount else 0
+
+        Ride.obj[new_id] = new_ride
+
         
         print(f"✅ Viagem criada: ID={new_id}, origin={origin}, destination={destination}, driver_id={driver_id_val}, customer_id={customer_id_val}")
 
@@ -631,6 +647,7 @@ def confirm_ride():
         import traceback
         traceback.print_exc()
         return jsonify({"success": False, "error": str(e)})
+    
 
 
 # ---------------- TABLES ----------------
@@ -927,20 +944,35 @@ def customer_profile():
 
     cliente = Customer.obj.get(customer_id)
 
-    # ✅ página atual
+    # página atual
     page = request.args.get("page", 1, type=int)
     per_page = 5
 
-    # ✅ filtrar concluídas
+    from datetime import datetime
+
+    hoje = datetime.today().date()
+
+    historico = []
+    for r in Ride.obj.values():
+        if r.id_customer == customer_id and r._ride_date is not None:
+            try:
+                ride_date = datetime.strptime(r._ride_date, "%d/%m/%Y").date()
+                if ride_date < hoje:
+                    historico.append(r)
+            except:
+                pass
+
+
+
     historico = [
         r for r in Ride.obj.values()
-        if r.id_customer == customer_id and r.status == "Concluded"
+        if r.id_customer == customer_id and r._ride_date is not None and r._ride_date < hoje
     ]
 
-    # ✅ ordenar mais recentes primeiro
+    # ordenar mais recentes primeiro
     historico = sorted(historico, key=lambda r: r._ride_date, reverse=True)
 
-    # ✅ paginação
+    # paginação
     start = (page - 1) * per_page
     end = start + per_page
 
@@ -956,6 +988,7 @@ def customer_profile():
         page=page,
         total_pages=total_pages
     )
+
 
 
 @app.route("/customer/edit", methods=["GET", "POST"])

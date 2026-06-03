@@ -158,11 +158,11 @@ class Ride(Gclass):
     pos = 0
     sortkey = ''
 
-    att = ['_id', '_id_company', '_id_driver', '_id_customer', '_id_car', '_origin', '_destination', '_ride_date', '_distance', '_duration', '_amount','_status']
+    att = ['_id', '_id_company', '_id_driver', '_id_customer', '_id_car', '_origin', '_destination', '_ride_date', '_distance', '_duration', '_amount']
 
     header = 'Ride'
 
-    des = ['Id', 'Id Company', 'Id Driver', 'Id Customer','Id Car', 'Origin', 'Destination','Ride Date','Distance', 'Duration', 'Amount', 'Status']
+    des = ['Id', 'Id Company', 'Id Driver', 'Id Customer','Id Car', 'Origin', 'Destination','Ride Date','Distance', 'Duration', 'Amount']
     
 
     def __init__(self, id, id_company, id_driver, id_customer, id_car, origin, destination, ride_date):
@@ -193,11 +193,15 @@ class Ride(Gclass):
         # if self._id_car != 0 and self._id_car not in Car.lst:
         #     raise ValueError(f"Car {self._id_car} not found")
 
-        
-        try:
-            self._ride_date = datetime.datetime.strptime(ride_date, "%d/%m/%Y").date()
-        except:
-            self._ride_date = datetime.date.today()
+        if ride_date in (None, "", "None"):
+            self._ride_date = None
+        else:
+            try:
+                self._ride_date = datetime.datetime.strptime(ride_date, "%d/%m/%Y").date()
+            except:
+                self._ride_date = None
+
+   
         
         self._origin = origin
         self._destination = destination
@@ -206,16 +210,18 @@ class Ride(Gclass):
         self._distance = None
         self._duration = None
         self._amount = None
-        self._status = None
+
 
 
         
         Ride.obj[self._id] = self
         Ride.lst.append(self._id)
 
-    
     def calculate_amount(self):
-        return round(0.8 * self._distance + 0.2 * self._duration + 1, 2)
+        if self._distance is None or self._duration is None:
+            return 0
+        return round(0.8 * float(self._distance) + 0.2 * float(self._duration) + 1, 2)
+
 
     @property
     def id(self):
@@ -253,12 +259,18 @@ class Ride(Gclass):
 
     @property
     def ride_date(self):
+        if self._ride_date is None:
+            return None
         return self._ride_date.strftime("%d/%m/%Y")
     @ride_date.setter
     def ride_date(self, ride_date):
-        self._ride_date = datetime.datetime.strptime(ride_date, "%d/%m/%Y").date()
+        if ride_date in (None, "", "None"):
+            self._ride_date = None
+        else:
+            self._ride_date = datetime.datetime.strptime(ride_date, "%d/%m/%Y").date()
+
+            
         
-    
     @property
     def distance(self):
         if self._distance is None:
@@ -277,13 +289,7 @@ class Ride(Gclass):
         if self._amount is None:
             self.calcular_viagem()
         return self._amount
-    @property
-    def status(self):
-        return self.estado_da_viagem()
 
-    @status.setter
-    def status(self, value):
-        self._status = value
 
 
     
@@ -329,8 +335,15 @@ class Ride(Gclass):
             Ride.update(self.id)
     
     def estado_da_viagem(self):
+        # Se ainda não tem data → viagem pendente
+        if self._ride_date is None:
+            return "Pending"
+
         hoje = datetime.date.today()
+
+        # Se a data da viagem é anterior a hoje → concluída
         return "Concluded" if self._ride_date < hoje else "To be concluded"
+
 
     @staticmethod
     def selecionar_drivers(preferencias: dict, id_company=None):
@@ -392,41 +405,9 @@ class Ride(Gclass):
     def get_rides_by_driver(id_driver):
         return [r for r in Ride.obj.values() if r.id_driver == id_driver]
 
-    @staticmethod
-    def get_active_ride_customer(id_customer):
-        for r in Ride.obj.values():
-            if r.id_customer == id_customer and r.status in ("pendente", "aceite"):
-                return r
-        return None
-    @staticmethod
-    def get_active_ride_driver(id_driver):
-        for r in Ride.obj.values():
-            if r.id_driver == id_driver and r.status == "aceite":
-                return r
-        return None
-    @staticmethod
-    def get_pending_rides():
-        return [r for r in Ride.obj.values()
-                if r.id_driver == 0 and r.status == "pendente"]
+ 
 
-    def accept(self, id_driver):
-        self._id_driver = id_driver
-        self._status = "aceite"
 
-    def refuse(self, id_driver):
-        if not hasattr(self, "_refused_by"):
-            self._refused_by = set()
-        self._refused_by.add(id_driver)
-
-    @staticmethod
-    def get_pending_for_driver(id_driver):
-        rides = Ride.get_pending_rides()
-        result = []
-        for r in rides:
-            if not hasattr(r, "_refused_by") or id_driver not in r._refused_by:
-                result.append(r)
-        return result
-    
     @staticmethod
     def update(id):
         import sqlite3
@@ -458,9 +439,10 @@ class Ride(Gclass):
             ride._id_car,
             ride._origin,
             ride._destination,
-            ride._ride_date.strftime("%d/%m/%Y"),
+            ride._ride_date.strftime("%d/%m/%Y") if ride._ride_date else None,
             ride._id
         ))
 
         conn.commit()
         conn.close()
+
