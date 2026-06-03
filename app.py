@@ -972,7 +972,7 @@ def customer_edit():
         cliente._name = request.form["name"]
         cliente._email = request.form["email"]
         cliente._phone = request.form["phone"]
-        cliente._dob = request.form["dob"]
+       
 
        
         # guardar alterações na BD

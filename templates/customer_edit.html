@@ -18,7 +18,7 @@
             <input type="text" name="phone" value="{{ cliente._phone }}" required>
 
             <label>Date of Birth:</label>
-            <input type="date" name="dob" value="{{ cliente._dob }}" required>
+            <input type="text" value="{{ cliente.date_of_birth }}" readonly>
 
             
             <button type="submit" class="btn">Save Changes</button>
