@@ -764,6 +764,28 @@ label {
     background-color: #005fcc;
 }
 
+.pref-category select {
+    appearance: auto !important;
+    background: rgba(0,0,0,0.85) !important;
+    color: #00ff88 !important;
+    border: 1px solid #00ff88 !important;
+    position: relative;
+    z-index: 9999;
+}
+.pref-category {
+    position: relative;
+    overflow: visible !important;
+    z-index: 9999;
+}
+
+
+
+.pref-category select:focus {
+    outline: none;
+    border-color: #00ff88;
+    box-shadow: 0 0 8px #00ff88;
+}
+
 
 /* ---------- ANIMATIONS ---------- */
 @keyframes fadeIn {

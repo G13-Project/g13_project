@@ -964,11 +964,6 @@ def customer_profile():
 
 
 
-    historico = [
-        r for r in Ride.obj.values()
-        if r.id_customer == customer_id and r._ride_date is not None and r._ride_date < hoje
-    ]
-
     # ordenar mais recentes primeiro
     historico = sorted(historico, key=lambda r: r._ride_date, reverse=True)
 
