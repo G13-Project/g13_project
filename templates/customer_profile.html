@@ -14,10 +14,10 @@
                 <!-- FOTO do CLIENTE -->
                 <div class="profile-photo-wrapper">
 
-                    {% if cliente.photo %}
-                        <img src="{{ cliente.photo }}" class="profile-photo">
+                    {% if cliente._photo %}
+                        <img src="{{ cliente._photo }}" class="profile-photo">
 
-                    {% elif cliente.name and cliente.name|length > 0 %}
+                    {% elif cliente._name and cliente._name|length > 0 %}
                         {% set parts = cliente._name.split() %}
                         {% set first = parts[0][0]|upper %}
                         {% set last = parts[-1][0]|upper %}
