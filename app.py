@@ -1174,27 +1174,105 @@ def edit_company():
         user=session["user"],
         company=company
     )
+
+# ---------------- ADMIN ----------------
 @app.route("/admin/dashboard")
 def admin_dashboard():
 
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
+    # ✅ IMPORTS
     from classes.car import Car
     from classes.company import Company
     from classes.userlogin import Userlogin
+    from classes.ride import Ride
+    from classes.contract import Contract
+    from classes.driver import Driver
+    from classes.customer import Customer
 
+    import matplotlib
+    matplotlib.use('Agg')
+
+    import matplotlib.pyplot as plt
+
+    import pandas as pd
+    import io
+    import base64
+
+    # ✅ CONTAGENS
     total_users = len(Userlogin.obj)
     total_companies = len(Company.lst)
     total_cars = len(Car.obj)
+    total_rides = len(Ride.obj)
+    total_contracts = len(Contract.obj)
 
+    total_customers = len(Customer.obj)
+    total_drivers = len(Driver.obj)
+
+    # ✅ DATAFRAME PARA GRÁFICO
+    data = {
+        'Type': ['Customers', 'Drivers', 'Companies'],
+        'Count': [
+            total_customers,
+            total_drivers,
+            total_companies
+        ]
+    }
+
+    df = pd.DataFrame(data)
+
+    # ✅ CRIAR GRÁFICO
+    plt.figure(figsize=(6, 4))
+
+    colors = ['#00ff88', '#00bfff', '#ffaa00']
+
+    bars = plt.bar(df['Type'], df['Count'], color=colors)
+
+    # ✅ adicionar valores em cima (UI MELHOR)
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2, height,
+                f'{int(height)}',
+                ha='center', va='bottom')
+
+    
+    plt.xlabel("Type")
+    plt.ylabel("Count")
+
+    plt.grid(axis='y', linestyle='--', alpha=0.4)
+    plt.tight_layout()
+
+
+    img = io.BytesIO()
+    plt.savefig(img, format='png', bbox_inches='tight')  # ✅ FIX
+    img.seek(0)
+
+    plot_url = base64.b64encode(img.getvalue()).decode()
+    plt.close()
+
+   
+
+    # ✅ TEMPLATE
     return render_template(
         "admin_dashboard.html",
         user=session["user"],
-        total_users=total_users,
+
+        total_rides=total_rides,
+        total_cars=total_cars,
+        total_contracts=total_contracts,
+
+        total_customers=total_customers,
+        total_drivers=total_drivers,
         total_companies=total_companies,
-        total_cars=total_cars
-    )
+
+        plot_url=plot_url,
+
+       )
+
+
+    
+
 @app.route("/admin/users")
 def admin_users():
 
@@ -1239,6 +1317,23 @@ def promote_user(user):
         Userlogin.obj[user]._role = "admin"
 
     return redirect(url_for("admin_users"))
+
+
+
+@app.route("/admin/get_warnings")
+def get_warnings():
+
+    if session.get("role") != "admin":
+        return jsonify({"error": "unauthorized"}), 403
+
+    from classes.ride import Ride
+
+    illegal = Ride.get_illegal_rides()
+
+    return jsonify({
+        "count": len(illegal),
+        "data": illegal[:5]
+    })
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':

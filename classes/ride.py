@@ -302,7 +302,7 @@ class Ride(Gclass):
                 result = find_geocoding(self._origin, self._destination)
 
                 if result:
-                    print("✅ Usou BD:", self._origin, "→", self._destination)
+                    #print("✅ Usou BD:", self._origin, "→", self._destination)
 
                     self._distance, self._duration, self._amount = result
                     return
@@ -445,4 +445,58 @@ class Ride(Gclass):
 
         conn.commit()
         conn.close()
+
+   
+    
+    @staticmethod
+    def get_illegal_rides():
+        from classes.contract import Contract
+
+        illegal = []
+
+        for ride in Ride.obj.values():
+
+            if ride.id_driver == 0 or ride._ride_date is None:
+                continue
+
+            contracts = [
+                c for c in Contract.obj.values()
+                if c.id_driver == ride.id_driver
+            ]
+
+            valid = False
+
+            for c in contracts:
+
+                begin = c._contract_start.date()
+                end = c._contract_end.date() if c._contract_end else None
+
+                # ✅ contrato permanente
+                if end is None:
+                    if ride._ride_date >= begin:
+                        valid = True
+                        break
+                else:
+                    if begin <= ride._ride_date <= end:
+                        valid = True
+                        break
+
+            if not valid and contracts:
+                c = contracts[0]
+
+                illegal.append({
+                    "driver_id": ride.id_driver,
+                    "ride_date": ride._ride_date.strftime("%d/%m/%y"),
+                    "contract": (
+                        f"{c._contract_start.strftime('%d/%m/%y')} - "
+                        + ("Permanent" if c._contract_end is None else c._contract_end.strftime('%d/%m/%y'))
+                    )
+                })
+
+        return illegal
+
+
+    @staticmethod #para o aviso
+    def count_illegal_rides():
+        return len(Ride.get_illegal_rides())
 

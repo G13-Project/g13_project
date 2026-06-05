@@ -1,14 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
+    <meta charset="UTF-8">
     <title>Admin Dashboard</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img  <span class="user">{{ user }}</span>
 
+    <style>
+        body {
+            margin: 0;
+        }
 
-    </div>
-</div>
-<!-- NAVBAR -->
+        .ride-box {
+            flex: 1;
+            text-align: center;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .hover-card {
+            transition: 0.3s;
+        }
+
+        .hover-card:hover {
+            transform: scale(1.05);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .chart-box {
+            margin-top: 40px;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ✅ NAVBAR -->
 <div class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
@@ -17,93 +58,174 @@
 
     <div class="nav-right">
         <span class="user">{{ user }}</span>
-
         <a href="/admin/dashboard">Home</a>
-        <a href="/admin/users">Users</a>
-        <a href="/admin/companies">Companies</a>
-        <a href="/admin/cars">Cars</a>
+        <a href="/admin/manage_users">Manage Users</a>
+        <a href="/admin/top_users">Top Users</a>
+        <a href="/admin/filters">Filters</a>
         <a href="/admin/stats">Statistics</a>
+        <a href="/admin/profile">Profile</a>
         <a href="/logoff">Logout</a>
     </div>
 </div>
+
+<!-- ✅ CONTENT -->
 <div class="home">
-<div class="overlay"></div>
+    <div class="overlay"></div>
 
-<div class="home-content">
+    <div class="home-content">
 
-<h1>Admin Control Panel 👑</h1>
+        <h1 style="text-align:center;">Totals</h1>
 
-<!-- ✅ CARDS PRINCIPAIS -->
-<div style="
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-    max-width: 1100px;
-    margin: 40px auto;
+        <div class="container">
+
+            <!-- ✅ LINHA 1 -->
+            <div class="row">
+
+                <div class="ride-box">
+                    <p style="font-size:28px;">🚖</p>
+                    <h2>{{ total_rides }}</h2>
+                    <p>Rides</p>
+                </div>
+
+                <div class="ride-box">
+                    <p style="font-size:28px;">🚗</p>
+                    <h2>{{ total_cars }}</h2>
+                    <p>Cars</p>
+                </div>
+
+                <div class="ride-box">
+                    <p style="font-size:28px;">📄</p>
+                    <h2>{{ total_contracts }}</h2>
+                    <p>Contracts</p>
+                </div>
+
+                <!-- ✅ WARNINGS -->
+                <div class="ride-box hover-card" style="
+                    background:#ff3b3b;
+                    cursor:pointer;
+                    display:flex;
+                    flex-direction:column;
+                    justify-content:center;
+                " onclick="loadWarnings()">
+
+                    <h3 style="color:white;">⚠️ Warnings</h3>
+                    <p style="color:white;">Click to check warnings</p>
+
+                </div>
+
+
+            </div>
+
+            <!-- ✅ LINHA 2 (GRÁFICO) -->
+            <div class="chart-box">
+
+                <h3 style="margin-bottom:20px;">Users Distribution</h3>
+
+                <img src="data:image/png;base64,{{ plot_url }}"
+                     style="max-width:100%; border-radius:10px;">
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- ✅ MODAL -->
+<div id="warningsModal" style="
+display:none;
+position:fixed;
+top:0; left:0;
+width:100%; height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
 ">
 
-    <!-- USERS -->
-    <a href="/admin/users" style="text-decoration:none;">
-        <div class="ride-box" style="text-align:center; padding:20px;">
-            <h3>👤 Users</h3>
-            <p>Manage all users</p>
-        </div>
-    </a>
-
-    <!-- COMPANIES -->
-    <a href="/admin/companies" style="text-decoration:none;">
-        <div class="ride-box" style="text-align:center; padding:20px;">
-            <h3>🏢 Companies</h3>
-            <p>Manage companies</p>
-        </div>
-    </a>
-
-    <!-- CARS -->
-    <a href="/admin/cars" style="text-decoration:none;">
-        <div class="ride-box" style="text-align:center; padding:20px;">
-            <h3>🚗 Cars</h3>
-            <p>View all vehicles</p>
-        </div>
-    </a>
-
-    <!-- STATS -->
-    <a href="/admin/stats" style="text-decoration:none;">
-        <div class="ride-box" style="text-align:center; padding:20px;">
-            <h3>📊 Statistics</h3>
-            <p>System overview</p>
-        </div>
-    </a>
-
-</div>
-
-<!-- ✅ ESTATÍSTICAS RÁPIDAS -->
 <div style="
-    max-width: 800px;
-    margin: 30px auto;
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
+    background:#1e1e1e;
+    padding:30px;
+    border-radius:12px;
+    width:500px;
+    max-height:80%;
+    overflow:auto;
+    color:white;
+    position:relative;
 ">
 
-    <div class="ride-box" style="flex:1; text-align:center;">
-        <h2>{{ total_users }}</h2>
-        <p>Total Users</p>
-    </div>
+<span onclick="closeWarnings()" style="
+position:absolute;
+top:10px;
+right:15px;
+cursor:pointer;">✖</span>
 
-    <div class="ride-box" style="flex:1; text-align:center;">
-        <h2>{{ total_companies }}</h2>
-        <p>Companies</p>
-    </div>
+<h2>⚠️ Warnings Report</h2>
 
-    <div class="ride-box" style="flex:1; text-align:center;">
-        <h2>{{ total_cars }}</h2>
-        <p>Cars</p>
-    </div>
+<p id="warningText">Click to load warnings</p>
 
+<hr>
+
+<div id="warningsList"></div>
+
+<hr>
+
+<div style="margin-top:20px;">
+    <a href="/admin/users" style="
+        padding:10px 15px;
+        background:#ff3b3b;
+        color:white;
+        border-radius:8px;
+        text-decoration:none;">
+        Intervene
+    </a>
 </div>
 
 </div>
 </div>
+
+<!-- ✅ SCRIPT -->
+<script>
+function loadWarnings() {
+
+    const modal = document.getElementById("warningsModal");
+    const text = document.getElementById("warningText");
+    const list = document.getElementById("warningsList");
+
+    modal.style.display = "flex";
+
+    text.innerText = "Loading warnings...";
+    list.innerHTML = "";
+
+    fetch('/admin/get_warnings')
+        .then(res => res.json())
+        .then(data => {
+
+            text.innerText = `⚠️ ${data.count} illegal rides detected`;
+
+            let html = "";
+
+            if (data.data.length === 0) {
+                html = "<p>No illegal rides ✅</p>";
+            } else {
+                data.data.forEach(r => {
+                    html += `
+                        <p style="margin-bottom:10px;">
+                            <strong>Driver ${r.driver_id}</strong><br>
+                            Ride: ${r.ride_date}<br>
+                            Contract: ${r.contract}
+                        </p>
+                    `;
+                });
+            }
+
+            list.innerHTML = html;
+        });
+}
+
+function closeWarnings(){
+    document.getElementById("warningsModal").style.display="none";
+}
+</script>
 
 </body>
 </html>
