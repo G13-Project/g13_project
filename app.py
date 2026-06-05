@@ -1271,40 +1271,6 @@ def admin_dashboard():
        )
 
 
-    
-
-@app.route("/admin/users")
-def admin_users():
-
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    from classes.userlogin import Userlogin
-
-    users = Userlogin.obj.keys()
-    roles = {u: Userlogin.get_role(u) for u in users}
-
-    return render_template(
-        "admin_users.html",
-        users=users,
-        roles=roles
-    )
-@app.route("/admin/delete_user/<user>")
-def delete_user(user):
-
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    from classes.userlogin import Userlogin
-
-    # opcional: impedir apagar admins
-    if Userlogin.get_role(user) == "admin":
-        return redirect(url_for("admin_users"))
-
-    if user in Userlogin.obj:
-        del Userlogin.obj[user]
-
-    return redirect(url_for("admin_users"))
 @app.route("/admin/promote/<user>")
 def promote_user(user):
 
@@ -1334,6 +1300,198 @@ def get_warnings():
         "count": len(illegal),
         "data": illegal[:5]
     })
+@app.route("/admin/manage_users")
+def admin_users():
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+    from classes.customer import Customer
+    from classes.company import Company
+    from classes.driver import Driver
+
+    users = list(Userlogin.obj.keys())
+
+    roles = {}
+    details = {}
+
+    for u in users:
+
+        user_obj = Userlogin.obj[u]
+
+        group = str(user_obj.usergroup).lower().strip()
+        ref_id = user_obj.id_usergroup   # ✅ 🔥 AQUI ESTÁ A CHAVE
+
+        roles[u] = group
+
+        # ✅ CUSTOMER
+        if group == "customer":
+
+            cust = Customer.obj.get(ref_id)
+
+            if cust:
+                details[u] = {
+                    "group": "customer",
+                    "name": cust.name,
+                    "email": cust.email,
+                    "phone": cust.phone,
+                    "dob": cust.date_of_birth
+                }
+            else:
+                details[u] = {"group": "customer"}
+
+        # ✅ COMPANY
+        elif group == "company":
+
+            comp = Company.obj.get(ref_id)
+
+            if comp:
+                details[u] = {
+                    "group": "company",
+                    "name": comp.name,
+                    "begin": comp.begin_date
+                }
+            else:
+                details[u] = {"group": "company"}
+
+        # ✅ DRIVER
+        elif group == "driver":
+
+            drv = Driver.obj.get(ref_id)
+
+            if drv:
+                details[u] = {
+                    "group": "driver",
+                    "nickname": drv.nickname,
+                    "type": drv.driver_type,
+                    "rating": round(drv.average_ratings(), 2)
+                }
+            else:
+                details[u] = {"group": "driver"}
+
+        else:
+            details[u] = {"group": "admin"}
+
+    return render_template(
+        "admin_manage_users.html",
+        users=users,
+        roles=roles,
+        details=details,
+        user=session["user"]
+    )
+
+@app.route("/admin/get_company_lucro/<user>")
+def get_company_lucro(user):
+
+    if session.get("role") != "admin":
+        return {"lucro": 0}
+
+    from classes.company import Company
+
+    # 🔥 procurar a company correta
+    for comp_id, comp in Company.obj.items():
+
+        if str(comp_id) == str(user):
+            return {"lucro": comp.lucro()}
+
+    return {"lucro": 0}
+
+@app.route("/admin/delete_user/<user>")
+def delete_user(user):
+    #Não elimina o objeto da conta, apenas elimina o userlogin e o acesso. O objeto "driver"/"customer"/"company" fica lá, mas sem userlogin associado, logo sem acesso.
+
+    print("🔥 DELETE CHAMADO:", user)
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+    import sqlite3
+
+    user_id = int(user)   # ✅ 🔥 FIX
+
+    # ✅ remover memória
+    if user_id in Userlogin.obj:
+        del Userlogin.obj[user_id]
+
+    if user_id in Userlogin.lst:
+        Userlogin.lst.remove(user_id)
+
+    # ✅ remover BD
+    conn = sqlite3.connect(Userlogin.db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM Users WHERE id = ?", (user_id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("admin_manage_users"))
+@app.route("/admin/edit_user/<user>", methods=["POST"])
+def edit_user(user):
+    #Não edita username, password nem role, só os dados do perfil. Para mudar password/role tem de apagar e criar outro user.
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+    from classes.customer import Customer
+    from classes.company import Company
+    from classes.driver import Driver
+
+    user_id = int(user)
+    user_obj = Userlogin.obj.get(user_id)
+
+    group = user_obj.usergroup
+    ref_id = user_obj.id_usergroup
+
+    if group == "customer":
+        obj = Customer.obj.get(ref_id)
+
+        obj.name = request.form["name"]
+        obj.email = request.form["email"]
+        obj.phone = request.form["phone"]
+        obj.date_of_birth = request.form["dob"]
+
+        obj.update(obj.id)   # ✅ GUARDA NA BD
+
+    elif group == "company":
+        obj = Company.obj.get(ref_id)
+
+        obj.name = request.form["name"]
+        obj.begin_date = request.form["begin"]
+        print("ANTES UPDATE:", obj.name)
+        obj.update(obj.id)
+        print("DEPOIS UPDATE:", obj.name)
+    elif group == "driver":
+        obj = Driver.obj.get(ref_id)
+
+        obj.nickname = request.form["nickname"]
+        obj.driver_type = request.form["type"]
+
+        obj.update(obj.id)
+
+    return redirect(url_for("admin_users"))
+
+@app.route("/admin/user_details/<user>")
+def user_details(user):
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+
+    if user not in Userlogin.obj:
+        return redirect(url_for("admin_users"))
+
+    user_obj = Userlogin.obj[user]
+
+    return render_template(
+        "admin_user_details.html",
+        user=user,
+        role=user_obj._usergroup
+    )
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
