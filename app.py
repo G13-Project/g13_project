@@ -1176,6 +1176,20 @@ def edit_company():
     )
 
 # ---------------- ADMIN ----------------
+admin_logs = []
+
+def log_action(action):
+    from datetime import datetime
+
+    global admin_logs
+
+    admin_logs.insert(0, {
+        "action": action,
+        "time": datetime.now().strftime("%H:%M:%S")
+    })
+
+    admin_logs = admin_logs[:10]
+
 @app.route("/admin/dashboard")
 def admin_dashboard():
 
@@ -1270,22 +1284,6 @@ def admin_dashboard():
 
        )
 
-
-@app.route("/admin/promote/<user>")
-def promote_user(user):
-
-    if session.get("role") != "admin":
-        return redirect(url_for("login"))
-
-    from classes.userlogin import Userlogin
-
-    if user in Userlogin.obj:
-        Userlogin.obj[user]._role = "admin"
-
-    return redirect(url_for("admin_users"))
-
-
-
 @app.route("/admin/get_warnings")
 def get_warnings():
 
@@ -1311,18 +1309,29 @@ def admin_users():
     from classes.company import Company
     from classes.driver import Driver
 
-    users = list(Userlogin.obj.keys())
+    users = []
 
     roles = {}
     details = {}
+
+    for u, user_obj in Userlogin.obj.items():
+
+        group = str(user_obj.usergroup).lower().strip()
+
+        if group == "admin":
+            continue   
+
+        ref_id = user_obj.id_usergroup
+
+        users.append(u)
+        roles[u] = group
 
     for u in users:
 
         user_obj = Userlogin.obj[u]
 
         group = str(user_obj.usergroup).lower().strip()
-        ref_id = user_obj.id_usergroup   # ✅ 🔥 AQUI ESTÁ A CHAVE
-
+        ref_id = user_obj.id_usergroup   
         roles[u] = group
 
         # ✅ CUSTOMER
@@ -1370,9 +1379,6 @@ def admin_users():
             else:
                 details[u] = {"group": "driver"}
 
-        else:
-            details[u] = {"group": "admin"}
-
     return render_template(
         "admin_manage_users.html",
         users=users,
@@ -1401,8 +1407,6 @@ def get_company_lucro(user):
 def delete_user(user):
     #Não elimina o objeto da conta, apenas elimina o userlogin e o acesso. O objeto "driver"/"customer"/"company" fica lá, mas sem userlogin associado, logo sem acesso.
 
-    print("🔥 DELETE CHAMADO:", user)
-
     if session.get("role") != "admin":
         return redirect(url_for("login"))
 
@@ -1418,6 +1422,8 @@ def delete_user(user):
     if user_id in Userlogin.lst:
         Userlogin.lst.remove(user_id)
 
+    log_action(f"Deleted user {user}")
+
     # ✅ remover BD
     conn = sqlite3.connect(Userlogin.db_path)
     cursor = conn.cursor()
@@ -1427,7 +1433,8 @@ def delete_user(user):
     conn.commit()
     conn.close()
 
-    return redirect(url_for("admin_manage_users"))
+    return redirect(url_for("admin_users"))
+    
 @app.route("/admin/edit_user/<user>", methods=["POST"])
 def edit_user(user):
     #Não edita username, password nem role, só os dados do perfil. Para mudar password/role tem de apagar e criar outro user.
@@ -1471,6 +1478,7 @@ def edit_user(user):
         obj.driver_type = request.form["type"]
 
         obj.update(obj.id)
+    log_action(f"✏️ Edited {user}")
 
     return redirect(url_for("admin_users"))
 
@@ -1493,6 +1501,64 @@ def user_details(user):
         role=user_obj._usergroup
     )
 
+
+
+
+
+
+
+@app.route("/admin/profile")
+def admin_profile():
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+
+    user = session["user"]
+    user_id = Userlogin.get_user_id(user)
+    admin = Userlogin.obj[user_id]
+
+    log_action("Accessed profile")
+
+    return render_template(
+        "admin_profile.html",
+        user=user,
+        admin=admin,
+        total_users=len(Userlogin.obj),
+        logs=admin_logs
+    )
+
+@app.route("/admin/edit_profile", methods=["POST"])
+def edit_admin_profile():
+
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    from classes.userlogin import Userlogin
+
+    user = session["user"]
+    user_id = Userlogin.get_user_id(user)
+    admin = Userlogin.obj[user_id]
+
+    new_username = request.form.get("username")
+    new_password = request.form.get("password")
+
+    if new_username:
+        admin._user = new_username
+        session["user"] = new_username
+
+    if new_password:
+        admin._password = Userlogin.set_password(new_password)
+
+    admin.update(admin.id)
+
+    log_action("Updated profile")
+
+    return redirect(url_for("admin_profile"))
+
+
+ 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
     app.run(debug=True)
