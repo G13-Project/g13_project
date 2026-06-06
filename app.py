@@ -416,8 +416,8 @@ def get_driver_rides():
                     "id": ride.id,
                     "origin": ride.origin,
                     "destination": ride.destination,
-                    "distance": ride.distance or 0,
-                    "duration": ride.duration or 0,
+                    "distance": ride.formatted_distance,
+                    "duration": ride.formatted_duration,
                     "amount": ride.amount or 0,
                     "customer_name": customer_name,
                     "ride_date": ride.ride_date
@@ -436,8 +436,8 @@ def get_driver_rides():
                     "id": ride.id,
                     "origin": ride.origin,
                     "destination": ride.destination,
-                    "distance": ride.distance or 0,
-                    "duration": ride.duration or 0,
+                    "distance": ride.formatted_distance,
+                    "duration": ride.formatted_duration,
                     "amount": ride.amount or 0,
                     "customer_name": customer_name,
                     "ride_date": ride.ride_date
@@ -955,12 +955,8 @@ def customer_profile():
     historico = []
     for r in Ride.obj.values():
         if r.id_customer == customer_id and r._ride_date is not None:
-            try:
-                ride_date = datetime.strptime(r._ride_date, "%d/%m/%Y").date()
-                if ride_date < hoje:
-                    historico.append(r)
-            except:
-                pass
+            if r._ride_date < hoje:
+                historico.append(r)
 
 
 
@@ -976,15 +972,140 @@ def customer_profile():
     total = len(historico)
     total_pages = (total + per_page - 1) // per_page
 
+    from datetime import datetime
+    idade = None
+    if cliente.date_of_birth:
+        try:
+            dob = datetime.strptime(cliente.date_of_birth, "%d/%m/%Y").date()
+            idade = hoje.year - dob.year - ((hoje.month, hoje.day) < (dob.month, dob.day))
+        except:
+            pass
+
     return render_template(
         "customer_profile.html",
         cliente=cliente,
         historico=historico_paginated,
         page=page,
-        total_pages=total_pages
+        total_pages=total_pages,
+        idade=idade
     )
 
 
+
+@app.route("/driver/profile")
+def driver_profile():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+
+    user = session["user"]
+    driver_id = Userlogin.get_group_id(user)
+
+    driver = Driver.obj.get(driver_id)
+
+    # página atual
+    page = request.args.get("page", 1, type=int)
+    per_page = 5
+
+    historico = []
+    for r in Ride.obj.values():
+        if r.id_driver == driver_id and r._ride_date is not None:
+            historico.append(r)
+
+    # ordenar mais recentes primeiro
+    historico = sorted(historico, key=lambda r: r._ride_date if r._ride_date else datetime.min.date(), reverse=True)
+
+    # paginação
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    historico_paginated = historico[start:end]
+
+    total = len(historico)
+    total_pages = (total + per_page - 1) // per_page if per_page else 1
+    if total_pages == 0: total_pages = 1
+
+    return render_template(
+        "driver_profile.html",
+        driver=driver,
+        historico=historico_paginated,
+        page=page,
+        total_pages=total_pages,
+        total_rides=total
+    )
+
+@app.route("/statistics")
+def statistics():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+    role = session.get("role")
+    if role == "customer":
+        return redirect(url_for("customer_statistics"))
+    elif role == "driver":
+        return redirect(url_for("driver_statistics"))
+    elif role == "company":
+        return redirect(url_for("company_dashboard"))
+    elif role == "admin":
+        return redirect(url_for("admin_dashboard"))
+    return redirect(url_for("main"))
+
+@app.route("/customer/statistics")
+def customer_statistics():
+    if session.get("user") is None or session.get("role") != "customer":
+        return redirect(url_for("login"))
+    
+    user = session["user"]
+    customer_id = Userlogin.get_group_id(user)
+    
+    rides = [r for r in Ride.obj.values() if r.id_customer == customer_id and r._ride_date is not None]
+    
+    total_rides = len(rides)
+    total_spent = sum(r.amount for r in rides if r.amount)
+    total_distance = sum(r.distance for r in rides if r.distance)
+    total_duration = sum(r.duration for r in rides if r.duration)
+    
+    return render_template("customer_statistics.html", 
+                           total_rides=total_rides, 
+                           total_spent=round(total_spent, 2), 
+                           total_distance=round(total_distance, 2),
+                           total_duration=round(total_duration, 2))
+
+@app.route("/driver/statistics")
+def driver_statistics():
+    if session.get("user") is None or session.get("role") != "driver":
+        return redirect(url_for("login"))
+    
+    user = session["user"]
+    driver_id = Userlogin.get_group_id(user)
+    
+    rides = [r for r in Ride.obj.values() if r.id_driver == driver_id and r._ride_date is not None]
+    
+    total_rides = len(rides)
+    total_earned = sum(r.amount for r in rides if r.amount)
+    total_distance = sum(r.distance for r in rides if r.distance)
+    total_duration = sum(r.duration for r in rides if r.duration)
+    
+    return render_template("driver_statistics.html", 
+                           total_rides=total_rides, 
+                           total_earned=round(total_earned, 2), 
+                           total_distance=round(total_distance, 2),
+                           total_duration=round(total_duration, 2))
+
+@app.route("/driver/edit", methods=["GET", "POST"])
+def driver_edit():
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+
+    user = session["user"]
+    driver_id = Userlogin.get_group_id(user)
+    driver = Driver.obj.get(driver_id)
+
+    if request.method == "POST":
+        driver.nickname = request.form["nickname"]
+        driver.driver_type = request.form["driver_type"]
+        Driver.update(driver.id)
+        return redirect(url_for("driver_profile"))
+
+    return render_template("driver_edit.html", driver=driver)
 
 @app.route("/customer/edit", methods=["GET", "POST"])
 def customer_edit():
@@ -1000,9 +1121,33 @@ def customer_edit():
         cliente._name = request.form["name"]
         cliente._email = request.form["email"]
         cliente._phone = request.form["phone"]
-       
 
-       
+        # atualizar data de nascimento
+        new_dob = request.form.get("date_of_birth")
+        if new_dob:
+            try:
+                from datetime import datetime as dt_parse
+                parsed = dt_parse.strptime(new_dob, "%Y-%m-%d")
+                cliente.date_of_birth = parsed.strftime("%d/%m/%Y")
+            except:
+                pass
+
+        # atualizar foto de perfil
+        remove_photo = request.form.get("remove_photo")
+        photo = request.files.get("photo")
+
+        if remove_photo == "true":
+            cliente.photo = None
+        elif photo and photo.filename:
+            import os
+            ext = os.path.splitext(photo.filename)[1].lower()
+            if ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']:
+                photo_filename = f"customer_{customer_id}{ext}"
+                photo_path = os.path.join("static", "images", "customer", photo_filename)
+                os.makedirs(os.path.dirname(photo_path), exist_ok=True)
+                photo.save(photo_path)
+                cliente.photo = url_for('static', filename=f'images/customer/{photo_filename}')
+
         # guardar alterações na BD
         Customer.update(cliente.id)
 
@@ -1162,6 +1307,23 @@ def edit_company():
         if new_begin_date:
             date = dt.datetime.strptime(new_begin_date, "%Y-%m-%d")
             company.begin_date = date.strftime("%d/%m/%Y")
+
+        # atualizar foto de perfil
+        remove_photo = request.form.get("remove_photo")
+        photo = request.files.get("photo")
+
+        if remove_photo == "true":
+            company.photo = None
+        elif photo and photo.filename:
+            import os
+            ext = os.path.splitext(photo.filename)[1].lower()
+            if ext in ['.png', '.jpg', '.jpeg', '.gif', '.webp']:
+                photo_filename = f"company_{company_id}{ext}"
+                photo_path = os.path.join("static", "images", "company", photo_filename)
+                os.makedirs(os.path.dirname(photo_path), exist_ok=True)
+                photo.save(photo_path)
+                from flask import url_for
+                company.photo = url_for('static', filename=f'images/company/{photo_filename}')
 
         
         Company.update(company._id)

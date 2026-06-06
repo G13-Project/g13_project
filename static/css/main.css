@@ -50,11 +50,11 @@ html, body {
 
 /* ---------- BACKGROUND ---------- */
 .bg {
-    height: 100vh;
+    min-height: 100vh;
 
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
 
     background:
         linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.85)),
@@ -63,8 +63,10 @@ html, body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    background-attachment: fixed;
 
-    padding-top: 80px; /* 🔥 altura da navbar */
+    padding-top: 100px; /* altura da navbar + margem */
+    padding-bottom: 40px;
 }
 
 
@@ -571,31 +573,33 @@ label {
 
 .profile-page .section-rect {
     width: 100%;
-    padding: 25px;
+    padding: 25px 30px 30px;
     margin-bottom: 25px;
     background: rgba(255,255,255,0.06);
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.12);
     display: block;
+    box-sizing: border-box;
 }
 
 
 .profile-page .profile-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 35px;
     width: 100%;
 }
 
 
 .profile-page .profile-photo-wrapper {
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
 }
 
 .profile-page .profile-photo {
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
     border-radius: 12px;
     object-fit: cover;
     border: 3px solid #00ffcc;
@@ -604,16 +608,84 @@ label {
 
 
 .profile-page .no-photo {
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
     border-radius: 12px;
-    background: rgba(255,255,255,0.1);
-    border: 2px dashed #00ffcc;
+    background: linear-gradient(135deg, rgba(0,255,204,0.15), rgba(0,255,136,0.08));
+    border: 2px solid #00ffcc;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #00ffcc;
-    font-size: 16px;
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Edit Profile Photo Upload Styling */
+.photo-upload-area {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.photo-preview-wrapper {
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+}
+
+.photo-preview {
+    width: 140px;
+    height: 140px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 3px solid #00ffcc;
+    box-shadow: 0 0 12px #00ffcc88;
+}
+
+.photo-upload-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.photo-upload-controls .btn-upload {
+    display: inline-block;
+    width: auto;
+    padding: 10px 20px;
+    background: #00ffcc;
+    color: black;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.photo-upload-controls .btn-remove-photo {
+    display: inline-block;
+    width: auto;
+    padding: 8px 15px;
+    background: transparent;
+    color: #ff6b6b;
+    text-align: center;
+    border-radius: 8px;
+    border: 1px solid #ff6b6b;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.photo-upload-controls .btn-remove-photo:hover {
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.photo-hint {
+    color: #aaa;
+    font-size: 13px;
+    margin: 0 !important;
 }
 
 
@@ -665,13 +737,13 @@ label {
 
 .profile-page .history-table th {
     text-align: left;
-    padding-bottom: 10px;
+    padding: 10px 20px 10px 0;
     color: #00ffcc;
     border-bottom: 1px solid rgba(255,255,255,0.15);
 }
 
 .profile-page .history-table td {
-    padding: 10px 0;
+    padding: 12px 20px 12px 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
@@ -682,22 +754,31 @@ label {
 }
 .profile-page {
     width: 900px !important;
+    max-width: 95vw !important;
     text-align: left !important;
     display: block !important;
     padding: 30px !important;
+    background: rgba(255,255,255,0.08) !important;
+    backdrop-filter: blur(12px) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
 }
 
 
-.profile-page .section-rect {
-    position: relative; 
+.profile-page .section-rect:first-of-type {
+    position: relative;
+    padding-bottom: 60px;
 }
 
 .profile-page .edit-btn {
     position: absolute;
-    bottom: 20px;   
-    right: 20px;    
-    width: auto;    
-    padding: 10px 20px;
+    bottom: 20px;
+    right: 25px;
+    width: auto;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    text-decoration: none;
 }
 
 .profile-page .box {

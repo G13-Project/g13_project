@@ -9,19 +9,20 @@ class Company(Gclass):
     sortkey = ''
     
     # Attribute names list, identifier attribute must be the first one and callled 'id'
-    att = ['_id','_name','_begin_date']
+    att = ['_id','_name','_begin_date', '_photo']
     # Class header title
     header = 'Company'
     # field description for use in, for example, input form
-    des = ['Id','Name','Begin_Date']
+    des = ['Id','Name','Begin_Date', 'Photo']
     
     # Constructor: Called when an object is instantiated
-    def __init__(self, id, name, begin_date):
+    def __init__(self, id, name, begin_date, photo=None):
         super().__init__()
         id = Company.get_id(id)
         self._id = id
         self._name = name
         self._begin_date = dt.datetime.strptime(begin_date, "%d/%m/%Y").date()
+        self._photo = photo
 
         Company.obj[id] = self
         Company.lst.append(id)
@@ -44,6 +45,14 @@ class Company(Gclass):
     @begin_date.setter
     def begin_date(self, begin_date):
         self._begin_date = dt.datetime.strptime(begin_date, "%d/%m/%Y").date()
+
+    @property
+    def photo(self):
+        return self._photo
+    @photo.setter
+    def photo(self, photo):
+        self._photo = photo
+
     @classmethod
     def insert(cls, code):
         obj = cls.obj[code]
@@ -55,8 +64,8 @@ class Company(Gclass):
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO Company (id, name, begin_date) VALUES (?, ?, ?)",
-            (obj.id, obj.name, obj.begin_date)
+            "INSERT INTO Company (id, name, begin_date, photo) VALUES (?, ?, ?, ?)",
+            (obj.id, obj.name, obj.begin_date, obj.photo)
         )
 
         conn.commit()
@@ -89,15 +98,14 @@ class Company(Gclass):
 
         cursor.execute("""
             UPDATE Company
-            SET name = ?, begin_date = ?
+            SET name = ?, begin_date = ?, photo = ?
             WHERE id = ?
         """, (
             obj.name,
             obj.begin_date,
+            obj.photo,
             obj.id
         ))
 
         conn.commit()
         conn.close()
-
-

@@ -80,8 +80,8 @@ function displayPendingRides(rides) {
             </div>
 
             <div class="ride-details">
-                <span>📏 <strong>${ride.distance}</strong> km</span>
-                <span>⏱️ <strong>${ride.duration}</strong> min</span>
+                <span>📏 <strong>${ride.distance}</strong></span>
+                <span>⏱️ <strong>${ride.duration}</strong></span>
                 <span>💰 <strong>${ride.amount}</strong> €</span>
             </div>
 

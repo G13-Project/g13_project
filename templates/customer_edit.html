@@ -4,30 +4,136 @@
 <div class="bg">
     <div class="box profile-page">
 
-        <h1>Edit Profile</h1>
+        <h1 style="margin-bottom: 20px;">Edit Profile</h1>
+
+        <!-- ✅ BOTÃO BACK -->
+        <a href="{{ url_for('customer_profile') }}"
+           style="
+                position:absolute;
+                right:30px;
+                top:30px;
+                background:#00ff88;
+                padding:8px 15px;
+                border-radius:8px;
+                text-decoration:none;
+                color:black;
+                font-weight:bold;
+           ">
+            Back
+        </a>
 
         <form method="POST" enctype="multipart/form-data">
 
-            <label>Name:</label>
-            <input type="text" name="name" value="{{ cliente._name }}" required>
+            <div class="section-rect">
+                <h2>Profile Photo</h2>
 
-            <label>Email:</label>
-            <input type="email" name="email" value="{{ cliente._email }}" required>
+                <div class="photo-upload-area">
+                    <div class="photo-preview-wrapper">
+                        {% if cliente._photo %}
+                            <img src="{{ cliente._photo }}" class="photo-preview" id="photoPreview">
+                        {% elif cliente._name and cliente._name|length > 0 %}
+                            {% set parts = cliente._name.split() %}
+                            {% set first = parts[0][0]|upper %}
+                            {% set last = parts[-1][0]|upper %}
+                            <div class="no-photo photo-preview" id="photoPreview">{{ first }}{{ last }}</div>
+                        {% else %}
+                            <div class="no-photo photo-preview" id="photoPreview">?</div>
+                        {% endif %}
+                    </div>
 
-            <label>Phone Number:</label>
-            <input type="text" name="phone" value="{{ cliente._phone }}" required>
+                    <div class="photo-upload-controls">
+                        <label for="photoInput" class="btn btn-upload">📷 Choose Photo</label>
+                        <input type="file" id="photoInput" name="photo" accept="image/*" style="display:none"
+                            onchange="previewPhoto(this)">
+                        
+                        <button type="button" class="btn btn-remove-photo" id="removePhotoBtn" 
+                                onclick="removePhoto()" {% if not cliente.photo %}style="display:none;"{% endif %}>
+                            🗑️ Remove Photo
+                        </button>
+                        
+                        <p class="photo-hint">JPG, PNG or WEBP. Max 5MB.</p>
+                        <input type="hidden" name="remove_photo" id="removePhotoInput" value="false">
+                    </div>
+                </div>
+            </div>
 
-            <label>Date of Birth:</label>
-            <input type="text" value="{{ cliente.date_of_birth }}" readonly>
+            <div class="section-rect">
+                <h2>Personal Information</h2>
 
-            
-            <button type="submit" class="btn">Save Changes</button>
+                <label>Name:</label>
+                <input type="text" name="name" value="{{ cliente._name }}" required>
+
+                <label>Email:</label>
+                <input type="email" name="email" value="{{ cliente._email }}" required>
+
+                <label>Phone Number:</label>
+                <input type="text" name="phone" value="{{ cliente._phone }}" required>
+
+                <label>Date of Birth:</label>
+                {% if cliente._date_of_birth %}
+                    <input type="date" name="date_of_birth" value="{{ cliente._date_of_birth.strftime('%Y-%m-%d') }}">
+                {% else %}
+                    <input type="date" name="date_of_birth" value="">
+                {% endif %}
+            </div>
+
+            <div class="edit-actions">
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
         </form>
-
-        <a href="{{ url_for('customer_profile') }}" class="btn btn-voltar">Back</a>
-
 
     </div>
 </div>
-{% endblock %}
 
+<script>
+// Obter iniciais dinamicamente em Javascript para o fallback
+const userInitials = "{{ (cliente._name.split()[0][0]|upper ~ cliente._name.split()[-1][0]|upper) if cliente._name and cliente._name.split()|length > 0 else '?' }}";
+
+function removePhoto() {
+    // 1. Limpar o input de ficheiro
+    document.getElementById('photoInput').value = '';
+    
+    // 2. Avisar o backend que queremos remover a foto
+    document.getElementById('removePhotoInput').value = 'true';
+    
+    // 3. Esconder o botão de remover
+    document.getElementById('removePhotoBtn').style.display = 'none';
+    
+    // 4. Mudar a preview para as iniciais (fallback)
+    var preview = document.getElementById('photoPreview');
+    if (preview.tagName === 'IMG') {
+        var div = document.createElement('div');
+        div.id = 'photoPreview';
+        div.className = 'no-photo photo-preview';
+        div.innerText = userInitials;
+        preview.parentNode.replaceChild(div, preview);
+    }
+}
+
+function previewPhoto(input) {
+    if (input.files && input.files[0]) {
+        // Ao escolher uma foto nova, já não queremos remover
+        document.getElementById('removePhotoInput').value = 'false';
+        
+        // Mostrar o botão de remover
+        document.getElementById('removePhotoBtn').style.display = 'inline-block';
+
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var preview = document.getElementById('photoPreview');
+            // Replace with img if it was a div
+            if (preview.tagName !== 'IMG') {
+                var img = document.createElement('img');
+                img.id = 'photoPreview';
+                img.className = 'photo-preview';
+                img.src = e.target.result;
+                preview.parentNode.replaceChild(img, preview);
+            } else {
+                preview.src = e.target.result;
+            }
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

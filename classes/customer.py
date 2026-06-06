@@ -7,14 +7,14 @@ class Customer(Gclass):
     pos = 0
     sortkey = ''
     # Attribute names list, identifier attribute must be the first one and callled 'id'
-    att = ['_id', '_name', '_email', '_phone', '_date_of_birth']
+    att = ['_id', '_name', '_email', '_phone', '_date_of_birth', '_photo']
     # Class header title
     header = 'Customer'
     # field description for use in, for example, input form
-    des = ['Id', 'Name', 'Email', 'Phone', 'Date_Of_Birth']
+    des = ['Id', 'Name', 'Email', 'Phone', 'Date_Of_Birth', 'Photo']
     # Constructor: Called when an object is instantiated
     
-    def __init__(self, id, name, email, phone, date_of_birth):
+    def __init__(self, id, name, email, phone, date_of_birth, photo=None):
         super().__init__()
         # Object attributes
         id = Customer.get_id(id)
@@ -22,6 +22,7 @@ class Customer(Gclass):
         self._name = name
         self._email = email
         self._phone =phone
+        self._photo = photo
         if date_of_birth:
             try:
                 # formato do formulário (dd/mm/YYYY)
@@ -51,8 +52,8 @@ class Customer(Gclass):
         cursor = conn.cursor()
 
         cursor.execute(
-    "INSERT INTO Customer (id, name, email, phone, date_of_birth) VALUES (?, ?, ?, ?, ?)",
-    (obj.id, obj.name, obj.email, obj.phone, obj.date_of_birth)
+    "INSERT INTO Customer (id, name, email, phone, date_of_birth, photo) VALUES (?, ?, ?, ?, ?, ?)",
+    (obj.id, obj.name, obj.email, obj.phone, obj.date_of_birth, obj.photo)
 )
 
 
@@ -85,6 +86,34 @@ class Customer(Gclass):
     def phone(self, phone):
         self._phone = phone
         
+    @classmethod
+    def read(cls, db_path):
+        cls.obj = dict()
+        cls.lst = list()
+
+        import sqlite3
+        try:
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+
+            # Garantir que a coluna photo existe na base de dados
+            try:
+                cursor.execute("ALTER TABLE Customer ADD COLUMN photo TEXT")
+                conn.commit()
+            except:
+                pass
+
+            cursor.execute("SELECT * FROM Customer")
+            rows = cursor.fetchall()
+
+            for row in rows:
+                cls(*row)   
+
+            conn.close()
+
+        except Exception as e:
+            print(f"Erro ao ler tabela Customer: {e}")
+
     @property
     def date_of_birth(self):
         if self._date_of_birth:
@@ -93,4 +122,37 @@ class Customer(Gclass):
     @date_of_birth.setter
     def date_of_birth(self, date_of_birth):
         self._date_of_birth = datetime.datetime.strptime(date_of_birth, "%d/%m/%Y").date()
+
+    @property
+    def photo(self):
+        return self._photo
+    @photo.setter
+    def photo(self, photo):
+        self._photo = photo
+
+    @classmethod
+    def update(cls, code):
+        obj = cls.obj[code]
+
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE Customer
+            SET name = ?, email = ?, phone = ?, date_of_birth = ?, photo = ?
+            WHERE id = ?
+        """, (
+            obj.name,
+            obj.email,
+            obj.phone,
+            obj.date_of_birth,
+            obj.photo,
+            obj.id
+        ))
+
+        conn.commit()
+        conn.close()
     

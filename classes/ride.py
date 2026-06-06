@@ -278,10 +278,40 @@ class Ride(Gclass):
     def distance(self):
         return self._distance
 
+    @property
+    def formatted_distance(self):
+        if not self._distance:
+            return "0 km"
+        
+        dist = float(self._distance)
+        if dist >= 100:
+            return f"{int(round(dist))} km"
+        elif dist >= 10:
+            return f"{round(dist, 1)} km"
+        else:
+            return f"{round(dist, 2)} km"
+
 
     @property
     def duration(self):
         return self._duration
+
+    @property
+    def formatted_duration(self):
+        if not self._duration:
+            return "0 min"
+        
+        total_minutes = int(round(float(self._duration)))
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        
+        if hours > 0:
+            if minutes > 0:
+                return f"{hours}h {minutes}m"
+            else:
+                return f"{hours}h"
+        else:
+            return f"{minutes} min"
 
 
     @property

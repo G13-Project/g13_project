@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg">
+    <div class="box profile-page" style="text-align: center;">
+
+        <h1 style="margin-bottom: 30px; color: #00ffcc;">My Statistics</h1>
+
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+            
+            <div style="background: #333; padding: 20px; border-radius: 12px; width: 200px; border: 1px solid #444;">
+                <h3 style="color: #aaa; margin-bottom: 10px;">Total Rides</h3>
+                <p style="font-size: 28px; font-weight: bold; color: white;">{{ total_rides }}</p>
+            </div>
+
+            <div style="background: #333; padding: 20px; border-radius: 12px; width: 200px; border: 1px solid #444;">
+                <h3 style="color: #aaa; margin-bottom: 10px;">Total Spent</h3>
+                <p style="font-size: 28px; font-weight: bold; color: white;">{{ total_spent }} €</p>
+            </div>
+
+            <div style="background: #333; padding: 20px; border-radius: 12px; width: 200px; border: 1px solid #444;">
+                <h3 style="color: #aaa; margin-bottom: 10px;">Distance Traveled</h3>
+                <p style="font-size: 28px; font-weight: bold; color: white;">{{ total_distance }} km</p>
+            </div>
+
+            <div style="background: #333; padding: 20px; border-radius: 12px; width: 200px; border: 1px solid #444;">
+                <h3 style="color: #aaa; margin-bottom: 10px;">Time in Rides</h3>
+                <p style="font-size: 28px; font-weight: bold; color: white;">{{ total_duration }} min</p>
+            </div>
+
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

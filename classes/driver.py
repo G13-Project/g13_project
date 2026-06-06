@@ -91,3 +91,26 @@ class Driver(Gclass):
         if len(self._ratings) == 0: 
             return 0 
         return sum(self._ratings) / len(self._ratings)
+
+    @classmethod
+    def update(cls, code):
+        obj = cls.obj[code]
+
+        import sqlite3
+        from data.datafile import filename
+
+        conn = sqlite3.connect(filename + 'g13_ridesharing.db')
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE Driver
+            SET nickname = ?, driver_type = ?
+            WHERE id = ?
+        """, (
+            obj.nickname,
+            obj.driver_type,
+            obj.id
+        ))
+
+        conn.commit()
+        conn.close()

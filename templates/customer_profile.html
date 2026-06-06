@@ -15,7 +15,8 @@
                 <div class="profile-photo-wrapper">
 
                     {% if cliente._photo %}
-                        <img src="{{ cliente._photo }}" class="profile-photo">
+                        <img src="{{ cliente._photo }}" class="profile-photo"
+                            onerror="this.outerHTML='<div class=&#34;no-photo&#34;>{{ cliente._name[0]|upper if cliente._name else "?" }}</div>'">
 
                     {% elif cliente._name and cliente._name|length > 0 %}
                         {% set parts = cliente._name.split() %}
@@ -23,11 +24,12 @@
                         {% set last = parts[-1][0]|upper %}
 
                         <img src="{{ url_for('static', filename='images/customer' ~ first ~ '_' ~ last ~ '.png') }}"
-                            class="profile-photo">
+                            class="profile-photo"
+                            onerror="this.outerHTML='<div class=&#34;no-photo&#34;>{{ first }}{{ last }}</div>'">
 
 
                     {% else %}
-                        <div class="no-photo">No picture</div>
+                        <div class="no-photo">?</div>
                     {% endif %}
 
                 </div>
@@ -40,7 +42,7 @@
                     <p><strong>ID:</strong> {{ cliente.id }}</p>
                     <p><strong>Phone Number:</strong> {{ cliente._phone }}</p>
                     <p><strong>Email:</strong> {{ cliente._email }}</p>
-                    <p><strong>Date of Birth:</strong> {{ cliente.date_of_birth }}</p>
+                    <p><strong>Date of Birth:</strong> {{ cliente.date_of_birth }} {% if idade is not none %}({{ idade }} years old){% endif %}</p>
                 </div>
             </div>
 
@@ -59,6 +61,8 @@
                             <th>Origin</th>
                             <th>Destination</th>
                             <th>Date</th>
+                            <th>Distance</th>
+                            <th>Duration</th>
                             <th>Price</th>
                         </tr>
 
@@ -68,6 +72,8 @@
                             <td>{{ r.origin }}</td>
                             <td>{{ r.destination }}</td>
                             <td>{{ r.ride_date }}</td>
+                            <td>{{ r.formatted_distance }}</td>
+                            <td>{{ r.formatted_duration }}</td>
                             <td>{{ r.amount }} €</td>
                         </tr>
                         {% endfor %}
