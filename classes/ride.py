@@ -165,7 +165,7 @@ class Ride(Gclass):
     des = ['Id', 'Id Company', 'Id Driver', 'Id Customer','Id Car', 'Origin', 'Destination','Ride Date','Distance', 'Duration', 'Amount']
     
 
-    def __init__(self, id, id_company, id_driver, id_customer, id_car, origin, destination, ride_date):
+    def __init__(self, id, id_company, id_driver, id_customer, id_car, origin, destination, ride_date, distance=None, duration=None, amount=None):
         super().__init__()
 
         self._id = Ride.get_id(id)
@@ -207,16 +207,18 @@ class Ride(Gclass):
         self._destination = destination
         
         
-        self._distance = None
-        self._duration = None
-        self._amount = None
+        self._distance = float(distance) if distance not in (None, "", "None") else None
+        self._duration = float(duration) if duration not in (None, "", "None") else None
+        self._amount = float(amount) if amount not in (None, "", "None") else None
 
-
-
-        
         Ride.obj[self._id] = self
         Ride.lst.append(self._id)
+ 
+        if self._distance is None or self._duration is None:
+            self.calcular_viagem()
 
+        
+        
     def calculate_amount(self):
         if self._distance is None or self._duration is None:
             return 0
@@ -271,23 +273,19 @@ class Ride(Gclass):
 
             
         
+    
     @property
     def distance(self):
-        if self._distance is None:
-            self.calcular_viagem()
         return self._distance
+
 
     @property
     def duration(self):
-        if self._duration is None:
-            self.calcular_viagem()
         return self._duration
 
 
     @property
     def amount(self):
-        if self._amount is None:
-            self.calcular_viagem()
         return self._amount
 
 
@@ -430,7 +428,10 @@ class Ride(Gclass):
                 id_car = ?,
                 origin = ?,
                 destination = ?,
-                ride_date = ?
+                ride_date = ?,
+                distance = ?,     
+                duration = ?,     
+                amount = ?        
             WHERE id = ?
         """, (
             ride._id_company,
@@ -440,6 +441,9 @@ class Ride(Gclass):
             ride._origin,
             ride._destination,
             ride._ride_date.strftime("%d/%m/%Y") if ride._ride_date else None,
+            ride._distance,
+            ride._duration,
+            ride._amount,
             ride._id
         ))
 

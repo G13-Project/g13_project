@@ -1502,7 +1502,202 @@ def user_details(user):
     )
 
 
+@app.route("/admin/top_users")
+def admin_top_users():
 
+    if session.get("role") != "admin":
+        return redirect(url_for("login"))
+
+    return render_template(
+        "admin_top_users.html",
+        user=session["user"]
+    )
+
+@app.route("/admin/get_top/<group>/<metric>")
+def get_top(group, metric):
+
+    from classes.ride import Ride
+    from classes.driver import Driver
+    from classes.customer import Customer
+    from classes.company import Company
+    from classes.contract import Contract
+    from classes.car import Car
+    from flask import jsonify
+
+    result = []
+
+    # ✅ CUSTOMER STATS
+    customer_stats = {}
+
+    if group == "customers":
+        for r in Ride.obj.values():
+
+            cid = r.id_customer
+
+            if cid not in customer_stats:
+                customer_stats[cid] = {"rides": 0, "distance": 0, "amount": 0}
+
+            customer_stats[cid]["rides"] += 1
+            customer_stats[cid]["distance"] += r._distance or 0
+            customer_stats[cid]["amount"] += r._amount or 0
+
+    # ✅ DRIVER STATS
+    driver_stats = {}
+
+    if group == "drivers":
+        for r in Ride.obj.values():
+
+            did = r.id_driver
+
+            if did not in driver_stats:
+                driver_stats[did] = {"rides": 0, "distance": 0, "amount": 0}
+
+            driver_stats[did]["rides"] += 1
+            driver_stats[did]["distance"] += r._distance or 0
+            driver_stats[did]["amount"] += r._amount or 0
+
+    # ✅ CONTRACTS
+    contracts_by_driver = {}
+    contracts_by_company = {}
+
+    if metric in ["contracts", "drivers", "rating"] or group == "companies":
+
+        for c in Contract.obj.values():
+            contracts_by_driver.setdefault(c.id_driver, []).append(c)
+            contracts_by_company.setdefault(c.id_company, []).append(c)
+
+    # ✅ CARS
+    cars_by_company = {}
+
+    if metric == "cars":
+        for car in Car.obj.values():
+            cars_by_company.setdefault(car.id_company, []).append(car)
+
+    # ✅ =========================
+    # ✅ DRIVERS
+    # ✅ =========================
+    if group == "drivers":
+
+        for d in Driver.obj.values():
+
+            stats = driver_stats.get(d.id, {})
+            contracts = contracts_by_driver.get(d.id, [])
+
+            if metric == "rides":
+                value = stats.get("rides", 0)
+
+            elif metric == "distance":
+                value = stats.get("distance", 0)
+
+            elif metric == "amount":
+                value = stats.get("amount", 0)
+
+            elif metric == "contracts":
+                value = len(contracts)
+
+            elif metric == "rating":
+                value = d.average_ratings()
+
+            else:
+                value = 0
+
+            # ✅ nome do driver (nickname ou fallback)
+            driver_name = getattr(d, "nickname", None) or getattr(d, "name", None) or f"Driver {d.id}"
+
+            name = f"Driver {d.id}"
+            subtitle = driver_name
+
+            result.append({
+                "name": name,
+                "subtitle": subtitle,
+                "value": round(value, 2)
+            })
+
+    # ✅ =========================
+    # ✅ CUSTOMERS
+    # ✅ =========================
+    elif group == "customers":
+
+        for c in Customer.obj.values():
+
+            stats = customer_stats.get(c.id, {})
+
+            if metric == "rides":
+                value = stats.get("rides", 0)
+
+            elif metric == "distance":
+                value = stats.get("distance", 0)
+
+            elif metric == "amount":
+                value = stats.get("amount", 0)
+
+            else:
+                value = 0
+
+            # ✅ nome do customer
+            customer_name = getattr(c, "name", None) or f"Customer {c.id}"
+
+            name = f"Customer {c.id}"
+            subtitle = customer_name
+
+            result.append({
+                "name": name,
+                "subtitle": subtitle,
+                "value": round(value, 2)
+            })
+
+    # ✅ =========================
+    # ✅ COMPANIES
+    # ✅ =========================
+    elif group == "companies":
+
+        for comp in Company.obj.values():
+
+            contracts = contracts_by_company.get(comp.id, [])
+
+            if metric == "drivers":
+                value = len(set(c.id_driver for c in contracts))
+
+            elif metric == "cars":
+                value = len(cars_by_company.get(comp.id, []))
+
+            elif metric == "contracts":
+                value = len(contracts)
+
+            elif metric == "profit":
+                value = comp.lucro()
+
+            elif metric == "rating":
+
+                driver_ids = set(c.id_driver for c in contracts)
+
+                ratings = [
+                    d.average_ratings()
+                    for d in Driver.obj.values()
+                    if d.id in driver_ids
+                ]
+
+                value = sum(ratings)/len(ratings) if ratings else 0
+
+            else:
+                value = 0
+
+            # ✅ nome da company
+            company_name = getattr(comp, "name", None) or f"Company {comp.id}"
+
+            name = f"Company {comp.id}"
+            subtitle = company_name
+
+            result.append({
+                "name": name,
+                "subtitle": subtitle,
+                "value": round(value, 2)
+            })
+
+    # ✅ ORDER + TOP 3
+    result.sort(key=lambda x: (-x["value"], x["name"]))
+
+    return jsonify(result[:3])
 
 
 
