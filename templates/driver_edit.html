@@ -69,33 +69,7 @@
                     .custom-select-dropdown::-webkit-scrollbar-thumb:hover { background: #00ffcc; }
                 </style>
 
-                <script>
-                    function toggleDropdown() {
-                        var dropdown = document.getElementById("customSelectDropdown");
-                        if (dropdown.style.display === "none" || dropdown.style.display === "") {
-                            dropdown.style.display = "block";
-                        } else {
-                            dropdown.style.display = "none";
-                        }
-                    }
-
-                    function selectOption(value) {
-                        // Atualiza o select nativo invisível
-                        document.getElementById("nativeDriverType").value = value;
-                        // Atualiza o texto visível
-                        document.getElementById("customSelectText").innerText = value;
-                        // Esconde a lista
-                        document.getElementById("customSelectDropdown").style.display = "none";
-                    }
-
-                    // Fechar dropdown ao clicar fora
-                    document.addEventListener("click", function(event) {
-                        var wrapper = document.querySelector(".custom-select-wrapper");
-                        if (!wrapper.contains(event.target)) {
-                            document.getElementById("customSelectDropdown").style.display = "none";
-                        }
-                    });
-                </script>
+                <script src="{{ url_for('static', filename='js/driver_edit.js') }}"></script>
             </div>
 
             <div class="edit-actions">

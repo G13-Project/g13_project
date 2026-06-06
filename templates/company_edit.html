@@ -100,66 +100,8 @@
 <script>
 // Obter a imagem de fallback em Javascript
 const userInitialFallback = "{{ url_for('static', filename='images/company/' ~ (company.name[0]|upper) ~ '.png') if company.name and company.name|length > 0 else '' }}";
-
-function removePhoto() {
-    // 1. Limpar o input de ficheiro
-    document.getElementById('photoInput').value = '';
-    
-    // 2. Avisar o backend que queremos remover a foto
-    document.getElementById('removePhotoInput').value = 'true';
-    
-    // 3. Esconder o botão de remover
-    document.getElementById('removePhotoBtn').style.display = 'none';
-    
-    // 4. Mudar a preview para a imagem fallback
-    var preview = document.getElementById('photoPreview');
-    if (userInitialFallback !== '') {
-        if (preview.tagName !== 'IMG') {
-            var img = document.createElement('img');
-            img.id = 'photoPreview';
-            img.className = 'photo-preview';
-            img.src = userInitialFallback;
-            preview.parentNode.replaceChild(img, preview);
-        } else {
-            preview.src = userInitialFallback;
-        }
-    } else {
-        if (preview.tagName === 'IMG') {
-            var div = document.createElement('div');
-            div.id = 'photoPreview';
-            div.className = 'no-photo photo-preview';
-            div.innerText = '?';
-            preview.parentNode.replaceChild(div, preview);
-        }
-    }
-}
-
-function previewPhoto(input) {
-    if (input.files && input.files[0]) {
-        // Ao escolher uma foto nova, já não queremos remover
-        document.getElementById('removePhotoInput').value = 'false';
-        
-        // Mostrar o botão de remover
-        document.getElementById('removePhotoBtn').style.display = 'inline-block';
-
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var preview = document.getElementById('photoPreview');
-            // Replace with img if it was a div
-            if (preview.tagName !== 'IMG') {
-                var img = document.createElement('img');
-                img.id = 'photoPreview';
-                img.className = 'photo-preview';
-                img.src = e.target.result;
-                preview.parentNode.replaceChild(img, preview);
-            } else {
-                preview.src = e.target.result;
-            }
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
-}
 </script>
+<script src="{{ url_for('static', filename='js/company_edit.js') }}"></script>
 
 </body>
 </html>
