@@ -1,0 +1,169 @@
+/* BACKGROUND */
+.bg {
+    min-height: 100vh;
+
+    background:
+        linear-gradient(rgba(10,20,30,0.85), rgba(10,20,30,0.92)),
+        url("/static/images/drivers_contracts.png") no-repeat center;
+
+    background-size: cover;
+
+    display: flex;
+    justify-content: center;
+}
+
+/* CONTAINER */
+.bg .contracts-container {
+    width: 100%;
+    max-width: 950px;
+
+    margin: 60px auto;
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    color: white;
+}
+
+/* TITLE */
+.contracts-container h1 {
+    font-size: 34px;
+    margin-bottom: 30px;
+}
+
+/* CARD */
+.bg .contract-card {
+    width: 100%;
+    max-width: 850px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    padding: 28px;
+    margin-bottom: 30px;
+
+    border-radius: 20px;
+
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(16px);
+
+    border: 1px solid rgba(255,255,255,0.1);
+
+    transition: all 0.3s ease;
+}
+
+/* HOVER */
+.bg .contract-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,255,136,0.25);
+}
+
+/* COMPANY */
+.company-info {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    width: 260px;
+}
+
+.company-photo {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+
+    object-fit: cover;
+
+    border: 2px solid #00ff88;
+    box-shadow: 0 0 12px rgba(0,255,136,0.7);
+}
+
+/* COMPANY TEXT */
+.company-text h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* DETAILS */
+.contract-details {
+    flex: 1;
+
+    display: flex;
+    justify-content: center;
+    gap: 70px; /* ✅ mais espaçado e alinhado */
+}
+
+/* CADA BLOCO */
+.detail-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* ✅ isto centra tudo */
+
+    min-width: 110px;
+}
+
+/* LABEL */
+.detail-box span {
+    color: #aaa;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+/* VALOR */
+.detail-box strong {
+    font-size: 16px;
+    color: #00ff88;
+
+    text-align: center;   /* ✅ CENTRADO */
+    line-height: 1.3;
+}
+
+/* ✅ PARA DATAS (melhor layout vertical) */
+.detail-box strong br {
+    display: block;
+}
+
+/* MONEY */
+.money {
+    white-space: nowrap;
+}
+
+/* ACTION */
+.contract-actions {
+    width: 130px;
+    text-align: right;
+}
+
+/* BUTTON */
+.btn-danger {
+    background: linear-gradient(135deg, #ff4d4d, red);
+
+    padding: 10px 18px;
+
+    border-radius: 12px;
+    border: none;
+
+    font-weight: bold;
+    color: white;
+
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+}
+
+/* BUTTON HOVER */
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255,0,0,0.5);
+}
+
+/* EMPTY */
+.no-contracts {
+    margin-top: 30px;
+    font-size: 18px;
+    color: #ccc;
+}

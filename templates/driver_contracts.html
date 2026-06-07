@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/driver_contracts.css') }}">
+{% endblock %}
+
+<div class="bg">
+
+    <div class="contracts-container">
+
+        <h1>My Active Contracts</h1>
+
+        {% if contracts %}
+
+            {% for item in contracts %}
+            <div class="contract-card">
+
+                
+                <div class="company-info">
+
+                    {% if item.company.photo %}
+                        <img src="{{ item.company.photo }}" class="company-photo">
+                    {% else %}
+                        <img src="{{ url_for('static',
+                            filename='images/company/' ~ item.company.name[0]|upper ~ '.png') }}"
+                             class="company-photo">
+                    {% endif %}
+
+                    <div class="company-text">
+                        <h2>{{ item.company.name }}</h2>
+                        
+                    </div>
+                </div>
+
+                
+                <div class="contract-details">
+                    <div class="detail-box">
+                        <span>Start</span>
+                        <strong>{{ item.contract.contract_start }}</strong>
+                    </div>
+
+                    <div class="detail-box">
+                        <span>End</span>
+                        <strong>{{ item.contract.contract_end }}</strong>
+                    </div>
+
+                    <div class="detail-box">
+                        <span>Earned</span>
+                        <strong class="money">{{ item.earned }} €</strong>
+
+                    </div>
+                </div>
+
+                
+                <div class="contract-actions">
+                    <a href="{{ url_for('terminate_contract', id=item.contract.id) }}"
+                       class="btn btn-danger">
+                        Leave
+                    </a>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        {% else %}
+            <p class="no-contracts">No active contracts.</p>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/driver_contracts.js') }}"></script>
+
+{% endblock %}

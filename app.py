@@ -2042,6 +2042,73 @@ def get_company_lucro(user):
 
     return {"lucro": 0}
 
+@app.route("/driver/contracts")
+def driver_contracts():
+
+    if session.get("user") is None:
+        return redirect(url_for("login"))
+
+    if session.get("role") != "driver":
+        return redirect(url_for("main"))
+
+    from classes.contract import Contract
+    from classes.company import Company
+    from classes.ride import Ride
+    from classes.userlogin import Userlogin
+    from flask import render_template
+
+    user = session["user"]
+
+    
+    driver_id = Userlogin.get_group_id(user)
+
+    print("DRIVER ID:", driver_id)
+
+    contracts_data = []
+
+    for c in Contract.obj.values():
+
+        print("Contract driver:", c.id_driver, "Active:", c.is_active)
+
+        if c.id_driver == driver_id and c.is_active:
+
+            company = Company.obj.get(c.id_company)
+
+            total = 0
+            for r in Ride.obj.values():
+                if r.id_driver == driver_id and r.id_company == company.id:
+                    try:
+                        total += float(r.amount)
+                    except:
+                        pass
+
+            earned = round(0.80 * total, 2)
+
+            contracts_data.append({
+                "contract": c,
+                "company": company,
+                "earned": earned
+            })
+
+    print("FINAL:", contracts_data)
+
+    return render_template(
+        "driver_contracts.html",
+        contracts=contracts_data
+    )
+@app.route("/driver/terminate/<int:id>")
+def terminate_contract(id):
+    from classes.contract import Contract
+    from flask import redirect, url_for
+
+    c = Contract.obj.get(id)
+
+    if c:
+        c.terminate()
+        Contract.update(id)
+
+    return redirect(url_for("driver_contracts"))
+
 
 # ================================================================
 #  RUN
