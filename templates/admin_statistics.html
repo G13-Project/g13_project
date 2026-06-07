@@ -1,106 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title> Admin Analytics</title>
-    <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f8fafc; 
-            margin: 0; 
-            padding: 40px 20px; 
-            color: #0f172a; 
-        }
-        .header-container { 
-            max-width: 1200px; 
-            margin: 0 auto 35px auto; 
-            text-align: left; 
-            padding-bottom: 10px; 
-        }
-        h1 { 
-            font-size: 28px; 
-            color: #1e3a8a; 
-            margin: 0 0 8px 0; 
-            font-weight: 700; 
-        }
-        .user-meta { 
-            font-size: 14px; 
-            color: #475569; 
-            margin: 0; 
-        }
-        /* Grelha simétrica profissional de 3 colunas para acolher os 6 gráficos */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 25px; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-        }
-        @media (max-width: 1024px) { 
-            .grid { grid-template-columns: repeat(2, 1fr); } 
-        }
-        @media (max-width: 768px) { 
-            .grid { grid-template-columns: 1fr; } 
-        }
-        .card { 
-            background: white; 
-            padding: 15px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(15,23,42,0.04); 
-            border: 1px solid #e2e8f0; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .card img { 
-            width: 100%; 
-            height: auto; 
-            border-radius: 6px; 
-        }
-        .no-data-card {
-            text-align: center; 
-            padding: 60px 20px; 
-            background: white; 
-            border-radius: 12px; 
-            border: 1px solid #e2e8f0; 
-            max-width: 1200px; 
-            margin: 0 auto;
-        }
-    </style>
+    <title>Admin Analytics</title>
+
+    <!-- CSS GLOBAL -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
+
 <body>
 
-    <div class="header-container">
-        <h1>Control System</h1>
-        <p class="user-meta">Macro Statistics: <strong>Global Administrator Mode</strong></p>
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
+        Itiji
     </div>
 
-    {% if active_charts %}
-        <div class="grid">
-            {% if '1' in active_charts %}
-            <div class="card"><img src="{{ url_for('static', filename='images/admin_global_1.png') }}?v=105"></div>
-            {% endif %}
-            {% if '2' in active_charts %}
-            <div class="card"><img src="{{ url_for('static', filename='images/admin_global_2.png') }}?v=105"></div>
-            {% endif %}
-            {% if '3' in active_charts %}
-            <div class="card"><img src="{{ url_for('static', filename='images/admin_global_3.png') }}?v=105"></div>
-            {% endif %}
-            {% if '4' in active_charts %}
-            <div class="card"><img src="{{ url_for('static', filename='images/admin_global_4.png') }}?v=105"></div>
-            {% endif %}
-            {% if '5' in active_charts %}
-            <div class="card"><img src="{{ url_for('static', filename='images/admin_global_5.png') }}?v=105"></div>
-            {% endif %}
-            {% if '6' in active_charts %}
-            <div class="card"><img src="{{ url_for('static', filename='images/admin_global_6.png') }}?v=105"></div>
-            {% endif %}
+    <div class="nav-right">
+        <span class="user">{{ user }}</span>
+        <a href="/admin/dashboard">Home</a>
+        <a href="/admin/manage_users">Manage Users</a>
+        <a href="/admin/top_users">Top Users</a>
+        <a href="/admin/stats">Statistics</a>
+        <a href="/admin/profile">Profile</a>
+        <a href="/logoff">Logout</a>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="bg">
+    <div class="statistics-page">
+        <div class="header-container">
+            <h1>Control System</h1>
+            <p class="user-meta">Macro Statistics: <strong>Global Administrator Mode</strong></p>
         </div>
-    {% else %}
-        <div class="no-data-card">
-            <p style="font-size: 18px; color: #64748b; margin: 0; font-weight: 500;">📊 No global platform activity found in database logs.</p>
-        </div>
-    {% endif %}
+
+        {% if active_charts %}
+            <div class="grid">
+                {% if '1' in active_charts %}
+                <div class="card"><img src="{{ url_for('static', filename='images/admin_global_1.png') }}?v=105"></div>
+                {% endif %}
+                {% if '2' in active_charts %}
+                <div class="card"><img src="{{ url_for('static', filename='images/admin_global_2.png') }}?v=105"></div>
+                {% endif %}
+                {% if '3' in active_charts %}
+                <div class="card"><img src="{{ url_for('static', filename='images/admin_global_3.png') }}?v=105"></div>
+                {% endif %}
+                {% if '4' in active_charts %}
+                <div class="card"><img src="{{ url_for('static', filename='images/admin_global_4.png') }}?v=105"></div>
+                {% endif %}
+                {% if '5' in active_charts %}
+                <div class="card"><img src="{{ url_for('static', filename='images/admin_global_5.png') }}?v=105"></div>
+                {% endif %}
+                {% if '6' in active_charts %}
+                <div class="card"><img src="{{ url_for('static', filename='images/admin_global_6.png') }}?v=105"></div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="no-data-card">
+                <p>📊 No global platform activity found in database logs.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
 
 </body>
 </html>

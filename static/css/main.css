@@ -993,3 +993,82 @@ button:not(:disabled):hover {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* ============================================================
+   11. STATISTICS PAGE
+   ============================================================ */
+
+.statistics-page {
+    width: 92%;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 30px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+}
+
+.statistics-page .header-container {
+    text-align: left;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.statistics-page h1 {
+    font-size: 28px;
+    color: #00ffcc;
+    margin: 0 0 8px 0;
+}
+
+.statistics-page .user-meta {
+    font-size: 14px;
+    color: #aaa;
+    margin: 0;
+}
+
+.statistics-page .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+}
+
+.statistics-page .card {
+    background: rgba(255,255,255,0.06);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.statistics-page .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,255,204,0.15);
+    border-color: rgba(0,255,204,0.3);
+}
+
+.statistics-page .card img {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
+
+.statistics-page .no-data-card {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.statistics-page .no-data-card p {
+    font-size: 18px;
+    color: #ccc;
+    margin: 0;
+}
