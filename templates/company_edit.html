@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Company Profile</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/company_edit.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
+        Itiji
+    </div>
+
+    <div class="nav-right">
+        <span class="user">{{ user }}</span>        
+
+        <a href="/company/dashboard">Home</a>
+        <a href="/company/cars">Cars</a>
+        <a href="/company/drivers">Drivers</a>
+        <a href="/company/statistics">Statistics</a>
+        <a href="/company/profile">Profile</a>
+        <a href="/logoff">Logout</a>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="bg bg-edit">
+
+    <div class="profile-page">
+
+        <h1>Edit Profile</h1>
+
+        <!-- BACK BUTTON -->
+        <a href="{{ url_for('company_profile') }}" class="btn back-btn">
+            Back
+        </a>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <!-- PHOTO -->
+            <div class="section-rect">
+                <h2>Profile Photo</h2>
+
+                <div class="photo-upload-area">
+
+                    <div class="photo-preview-wrapper">
+                        {% if company.photo %}
+                            <img src="{{ company.photo }}" class="photo-preview" id="photoPreview">
+
+                        {% elif company.name %}
+                            <img src="{{ url_for('static', filename='images/company/' ~ (company.name[0]|upper) ~ '.png') }}"
+                                 class="photo-preview" id="photoPreview">
+
+                        {% else %}
+                            <div class="no-photo photo-preview" id="photoPreview">?</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="photo-upload-controls">
+                        <label for="photoInput" class="btn btn-upload">Choose Photo</label>
+
+                        <input type="file" id="photoInput" name="photo" accept="image/*"
+                               onchange="previewPhoto(this)">
+
+                        <button type="button"
+                                class="btn btn-remove-photo"
+                                id="removePhotoBtn"
+                                onclick="removePhoto()"
+                                {% if not company.photo %}style="display:none;"{% endif %}>
+                            Remove Photo
+                        </button>
+
+                        <p class="photo-hint">JPG, PNG or WEBP. Max 5MB.</p>
+
+                        <input type="hidden" name="remove_photo" id="removePhotoInput" value="false">
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- INFO -->
+            <div class="section-rect">
+                <h2>Company Information</h2>
+
+                <label>Name:</label>
+                <input type="text" name="name" value="{{ company.name }}" required>
+
+                <label>Begin Date:</label>
+                <input type="date"
+                       name="begin_date"
+                       value="{{ company.begin_date.split('/')|reverse|join('-') }}"
+                       required>
+            </div>
+
+            <!-- SAVE -->
+            <div class="edit-actions">
+                <button type="submit" class="btn btn-save">Save Changes</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- JS -->
+<script>
+const userInitialFallback =
+"{{ url_for('static', filename='images/company/' ~ (company.name[0]|upper) ~ '.png') if company.name else '' }}";
+</script>
+
+<script src="{{ url_for('static', filename='js/company_edit.js') }}"></script>
+
+</body>
+</html>

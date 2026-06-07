@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg">
+    <div class="box profile-page">
+
+        <!--     SECÇÃO DO PERFIL     -->
+        <div class="section-rect">
+            <div class="profile-header">
+
+                <!-- FOTO do DRIVER -->
+                <div class="profile-photo-wrapper">
+
+                    {% if driver.photo %}
+                        <img src="{{ driver.photo }}" class="profile-photo">
+                    {% elif driver.nickname and driver.nickname|length > 0 %}
+                        {% set parts = driver.nickname.split() %}
+                        {% set first = parts[0][0]|upper %}
+                        {% set last = parts[-1][0]|upper if parts|length > 1 else '' %}
+
+                        <div class="no-photo" style="background: linear-gradient(135deg, rgba(255,204,0,0.15), rgba(255,136,0,0.08)); border-color: #ffcc00; color: #ffcc00;">
+                            {{ first }}{{ last }}
+                        </div>
+
+                    {% else %}
+                        <div class="no-photo">?</div>
+                    {% endif %}
+
+                </div>
+
+                <!-- INFO DO DRIVER -->
+                <div class="profile-info">
+                    <h1>{{ driver.nickname }}</h1>
+
+                    <p><strong>ID:</strong> {{ driver.id }}</p>
+                    <p><strong>Driver Type:</strong> {{ driver.driver_type|capitalize }}</p>
+                    <p><strong>Rating:</strong> {{ "%.1f"|format(driver.average_ratings()) }} ⭐</p>
+                    <p><strong>Total Rides:</strong> {{ total_rides }}</p>
+                </div>
+            </div>
+
+            <!-- Botão de Edit -->
+            <a href="/driver/edit" class="btn edit-btn">Edit Profile</a>
+        </div>
+
+        <!--   HISTÓRICO DE VIAGENS   -->
+        <div class="section-rect">
+            <h2>History of Rides</h2>
+
+            <div class="history-box">
+                {% if historico %}
+                    <table class="history-table">
+                        <tr>
+                            <th>ID</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Date</th>
+                            <th>Distance</th>
+                            <th>Duration</th>
+                            <th>Amount</th>
+                        </tr>
+
+                        {% for r in historico %}
+                        <tr>
+                            <td>{{ r.id }}</td>
+                            <td>{{ r.origin }}</td>
+                            <td>{{ r.destination }}</td>
+                            <td class="nowrap">{{ r.ride_date }}</td>
+                            <td class="nowrap">{{ r.formatted_distance }}</td>
+                            <td class="nowrap">{{ r.formatted_duration }}</td>
+                            <td class="nowrap">{{ r.amount }} €</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p class="no-history">No rides registered.</p>
+                {% endif %}
+            </div>
+
+            <div style="margin-top:15px; text-align:center;">
+                {% if page > 1 %}
+                    <a href="{{ url_for('driver_profile', page=page-1) }}"
+                    style="color:white; margin-right:20px; text-decoration: none;">
+                        ⬅️
+                    </a>
+                {% endif %}
+
+                <span style="color:white;">
+                    {{ page }} / {{ total_pages }}
+                </span>
+
+                {% if page < total_pages %}
+                    <a href="{{ url_for('driver_profile', page=page+1) }}"
+                    style="color:white; margin-left:20px; text-decoration: none;">
+                        ➡️
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

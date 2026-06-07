@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Users</title>
+
+    <!-- CSS GLOBAL -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <!-- CSS DA PÁGINA -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_manage_users.css') }}">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
+        Itiji
+    </div>
+
+    <div class="nav-right">
+        <span class="user">{{ user }}</span>
+        <a href="/admin/dashboard">Home</a>
+        <a href="/admin/manage_users">Manage Users</a>
+        <a href="/admin/top_users">Top Users</a>
+        <a href="/admin/stats">Statistics</a>
+        <a href="/admin/profile">Profile</a>
+        <a href="/logoff">Logout</a>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="home">
+    <div class="overlay"></div>
+
+    <div class="home-content">
+
+        <h1>Users Management</h1>
+
+        <!-- SEARCH -->
+        <div class="search-box">
+            <input id="searchInput"
+                   onkeypress="handleSearch(event)"
+                   placeholder="🔍 Search user or role...">
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-container">
+
+            <table id="usersTable">
+
+                <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% for u in users %}
+                <tr>
+
+                    <td>{{ u }}</td>
+                    <td>{{ roles[u] }}</td>
+
+                    <td>
+
+                        <!-- DETAILS -->
+                        <button class="btn-glow btn-details"
+                            data-user="{{ u }}"
+                            data-details='{{ details[u] | tojson | safe }}'>
+                            🔍 Details
+                        </button>
+
+                        <!-- EDIT -->
+                        <button class="btn-glow btn-edit"
+                            data-user="{{ u }}"
+                            data-details='{{ details[u] | tojson | safe }}'>
+                            ✏️ Edit
+                        </button>
+
+                        <!-- DELETE -->
+                        <a href="{{ url_for('delete_user', user=u) }}"
+                           class="btn-glow btn-delete"
+                           onclick="return confirm('Delete user?')">
+                           ❌ Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h2>User Details</h2>
+
+        <div id="modal-extra"></div>
+
+    </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+
+        <span class="close" onclick="closeEditModal()">&times;</span>
+
+        <h2>Edit User</h2>
+
+        <form id="editForm" method="POST">
+
+            <div id="edit-fields"></div>
+
+            <button type="submit">💾 Save</button>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- JS -->
+<script src="{{ url_for('static', filename='js/admin_manage_users.js') }}"></script>
+
+</body>
+</html>

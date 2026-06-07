@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg">
+
+    <div class="profile-page">
+
+        <!-- PROFILE -->
+        <div class="section-rect">
+            <div class="profile-header">
+
+                <!-- FOTO -->
+                <div class="profile-photo-wrapper">
+
+                    {% if cliente._photo %}
+                        <img src="{{ cliente._photo }}" class="profile-photo">
+
+                    {% elif cliente._name and cliente._name|length > 0 %}
+                        {% set parts = cliente._name.split() %}
+                        {% set first = parts[0][0]|upper %}
+                        {% set last = parts[-1][0]|upper %}
+
+                        <img src="{{ url_for('static', filename='images/customer/' ~ first ~ '_' ~ last ~ '.png') }}"
+                             class="profile-photo"
+                             onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<div class=&quot;no-photo&quot;>{{ first }}{{ last }}</div>');">
+
+                    {% else %}
+                        <div class="no-photo">?</div>
+                    {% endif %}
+
+                </div>
+
+                <!-- INFO -->
+                <div class="profile-info">
+                    <h1>{{ cliente._name }}</h1>
+
+                    <p><strong>ID:</strong> {{ cliente.id }}</p>
+                    <p><strong>Phone Number:</strong> {{ cliente._phone }}</p>
+                    <p><strong>Email:</strong> {{ cliente._email }}</p>
+                    <p>
+                        <strong>Date of Birth:</strong> {{ cliente.date_of_birth }}
+                        {% if idade is not none %}
+                            ({{ idade }} years old)
+                        {% endif %}
+                    </p>
+                </div>
+
+            </div>
+
+            <a href="/customer/edit" class="btn edit-btn">✏️ Edit Profile</a>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="section-rect">
+            <h2>History of Rides</h2>
+
+            <div class="history-box">
+                {% if historico %}
+                    <table class="history-table">
+                        <tr>
+                            <th>ID</th>
+                            <th>Origin</th>
+                            <th>Destination</th>
+                            <th>Date</th>
+                            <th>Distance</th>
+                            <th>Duration</th>
+                            <th>Price</th>
+                        </tr>
+
+                        {% for r in historico %}
+                        <tr>
+                            <td>{{ r.id }}</td>
+                            <td>{{ r.origin }}</td>
+                            <td>{{ r.destination }}</td>
+                            <td class="nowrap">{{ r.ride_date }}</td>
+                            <td class="nowrap">{{ r.formatted_distance }}</td>
+                            <td class="nowrap">{{ r.formatted_duration }}</td>
+                            <td class="nowrap">{{ r.amount }} €</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p class="no-history">No rides registered.</p>
+                {% endif %}
+            </div>
+
+            <!-- PAGINAÇÃO -->
+            <div style="margin-top:15px; text-align:center;">
+
+                {% if page > 1 %}
+                    <a href="{{ url_for('customer_profile', page=page-1) }}"
+                       style="color:white; margin-right:20px;">
+                        ⬅️
+                    </a>
+                {% endif %}
+
+                <span style="color:white;">
+                    {{ page }} / {{ total_pages }}
+                </span>
+
+                {% if page < total_pages %}
+                    <a href="{{ url_for('customer_profile', page=page+1) }}"
+                       style="color:white; margin-left:20px;">
+                        ➡️
+                    </a>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
