@@ -981,28 +981,6 @@ def customer_edit():
     return render_template("customer_edit.html", cliente=cliente)
 
 
-@app.route("/customer/statistics")
-def customer_statistics():
-    if session.get("user") is None or session.get("role") != "customer":
-        return redirect(url_for("login"))
-
-    user = session["user"]
-    customer_id = Userlogin.get_group_id(user)
-
-    rides = [r for r in Ride.obj.values() if r.id_customer == customer_id and r._ride_date is not None]
-
-    total_rides = len(rides)
-    total_spent = sum(r.amount for r in rides if r.amount)
-    total_distance = sum(r.distance for r in rides if r.distance)
-    total_duration = sum(r.duration for r in rides if r.duration)
-
-    return render_template("customer_statistics.html",
-                           total_rides=total_rides,
-                           total_spent=round(total_spent, 2),
-                           total_distance=round(total_distance, 2),
-                           total_duration=round(total_duration, 2))
-
-
 # ================================================================
 #  DRIVER
 # ================================================================
@@ -1095,27 +1073,6 @@ def driver_edit():
 
     return render_template("driver_edit.html", driver=driver)
 
-
-@app.route("/driver/statistics")
-def driver_statistics():
-    if session.get("user") is None or session.get("role") != "driver":
-        return redirect(url_for("login"))
-
-    user = session["user"]
-    driver_id = Userlogin.get_group_id(user)
-
-    rides = [r for r in Ride.obj.values() if r.id_driver == driver_id and r._ride_date is not None]
-
-    total_rides = len(rides)
-    total_earned = sum(r.amount for r in rides if r.amount)
-    total_distance = sum(r.distance for r in rides if r.distance)
-    total_duration = sum(r.duration for r in rides if r.duration)
-
-    return render_template("driver_statistics.html",
-                           total_rides=total_rides,
-                           total_earned=round(total_earned, 2),
-                           total_distance=round(total_distance, 2),
-                           total_duration=round(total_duration, 2))
 
 
 # ================================================================
@@ -1503,6 +1460,8 @@ def renew_driver(driver_id):
 #  ADMIN
 # ================================================================
 
+
+@app.route("/admin/management")
 @app.route("/admin/dashboard")
 def admin_dashboard():
 
@@ -2108,6 +2067,166 @@ def terminate_contract(id):
         Contract.update(id)
 
     return redirect(url_for("driver_contracts"))
+
+
+# ================================================================
+#  DYNAMIC ANALYTICS & BI MODULE (COMPREHENSIVE INTEGRATION)
+# ================================================================
+
+@app.route("/admin/statistics")
+@app.route("/admin/stats")
+@app.route("/admin_statistics")
+def admin_statistics():
+    if session.get("user") is None or session.get("role") != "admin":
+        return redirect(url_for("login"))
+ 
+    # ================================================================
+    # 1. ADMIN: Telemetry logging action
+    # ================================================================
+    log_action("Accessed Administrative Core Tower Dashboard")
+    
+    # ================================================================
+    # 2. ADMIN: Dynamic BI chart generation via Pandas & Matplotlib
+    # ================================================================
+    active_charts = []
+    try:
+        from data_analysis import generate_admin_charts
+        active_charts = generate_admin_charts()
+    except Exception as e:
+        print("BI Error Log - Administrative Pipeline:", e)
+ 
+    # ================================================================
+    # 3. ADMIN: Injecting metrics, logs, and charts into the HTML
+    # ================================================================
+    return render_template(
+        "admin_statistics.html", 
+        active_charts=active_charts,
+        user=session["user"],
+        total_users=len(Userlogin.obj),
+        logs=admin_logs
+    )
+
+
+@app.route("/customer_statistics")
+@app.route("/customer/statistics") # Accepts both URL pathways
+def customer_statistics():
+    if session.get("user") is None or session.get("role") != "customer":
+        return redirect(url_for("login"))
+
+    user = session["user"]
+    customer_id = Userlogin.get_group_id(user)
+
+    # ================================================================
+    # 1. CUSTOMER: Text metric calculations (Rides, Spent, Distance)
+    # ================================================================
+    rides = [r for r in Ride.obj.values() if r.id_customer == customer_id and r._ride_date is not None]
+    total_rides = len(rides)
+    total_spent = sum(r.amount for r in rides if r.amount)
+    total_distance = sum(r.distance for r in rides if r.distance)
+    total_duration = sum(r.duration for r in rides if r.duration)
+
+    # ================================================================
+    # 2. CUSTOMER: Dynamic BI chart generation via Pandas & Matplotlib
+    # ================================================================
+    active_charts = []
+    if customer_id:
+        try:
+            from data_analysis import generate_customer_charts
+            active_charts = generate_customer_charts(customer_id)
+        except Exception as e:
+            print("BI Error Log - Customer:", e)
+ 
+    # ================================================================
+    # 3. CUSTOMER: Injecting both text metrics and charts into HTML
+    # ================================================================
+    return render_template("customer_statistics.html",
+                           customer_id=customer_id,
+                           email_utilizador=f"{user}",
+                           active_charts=active_charts,
+                           total_rides=total_rides,
+                           total_spent=round(total_spent, 2),
+                           total_distance=round(total_distance, 2),
+                           total_duration=round(total_duration, 2))
+
+
+@app.route("/driver_statistics")
+@app.route("/driver/statistics") # Accepts both URL pathways
+def driver_statistics():
+    if session.get("user") is None or session.get("role") != "driver":
+        return redirect(url_for("login"))
+
+    user = session["user"]
+    driver_id = Userlogin.get_group_id(user)
+
+    # ================================================================
+    # 1. DRIVER: Text metric calculations (Rides, Earnings, Distance)
+    # ================================================================
+    rides = [r for r in Ride.obj.values() if r.id_driver == driver_id and r._ride_date is not None]
+    total_rides = len(rides)
+    total_earned = sum(r.amount for r in rides if r.amount)
+    total_distance = sum(r.distance for r in rides if r.distance)
+    total_duration = sum(r.duration for r in rides if r.duration)
+
+    # ================================================================
+    # 2. DRIVER: Dynamic BI chart generation via Pandas & Matplotlib
+    # ================================================================
+    active_charts = []
+    if driver_id:
+        try:
+            from data_analysis import generate_driver_charts
+            active_charts = generate_driver_charts(driver_id)
+        except Exception as e:
+            print("BI Error Log - Driver:", e)
+ 
+    # ================================================================
+    # 3. DRIVER: Injecting both text metrics and charts into HTML
+    # ================================================================
+    return render_template("driver_statistics.html", 
+                           driver_id=driver_id, 
+                           active_charts=active_charts,
+                           total_rides=total_rides,
+                           total_earned=round(total_earned, 2),
+                           total_distance=round(total_distance, 2),
+                           total_duration=round(total_duration, 2))
+
+
+@app.route("/company/statistics")
+@app.route("/company_statistics") # Accepts both URL pathways
+def company_statistics():
+    if session.get("user") is None or session.get("role") != "company":
+        return redirect(url_for("login"))
+
+    user = session["user"]
+    company_id = Userlogin.get_group_id(user)
+
+    # ================================================================
+    # 1. GROUP CODE: Text metric calculations (Contracts, Active Drivers)
+    # ================================================================
+    contracts = [c for c in Contract.obj.values() if c.id_company == company_id]
+    total_contracts = len(contracts)
+    
+    # FIX HERE: Using the correct 'is_active' property from their Contract class
+    active_drivers = len([c for c in contracts if c.is_active])
+
+    # ================================================================
+    # 2. MY CODE: Dynamic BI chart generation via Pandas & Matplotlib
+    # ================================================================
+    active_charts = []
+    if company_id:
+        try:
+            from data_analysis import generate_company_charts
+            active_charts = generate_company_charts(company_id)
+        except Exception as e:
+            print("BI Error Log - Company:", e)
+ 
+    # ================================================================
+    # 3. RENDER: Injecting both text metrics and charts into HTML
+    # ================================================================
+    return render_template("company_statistics.html", 
+                           company_id=company_id, 
+                           active_charts=active_charts,
+                           total_contracts=total_contracts,
+                           active_drivers=active_drivers)
 
 
 # ================================================================
