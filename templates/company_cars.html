@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Company Dashboard</title>
+    <title>Company Cars</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/company_cars.css') }}">
 </head>
 
 <body>
 
-<!-- 🔥 NAVBAR (igual) -->
 <div class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
@@ -16,7 +17,6 @@
 
     <div class="nav-right">
         <span class="user">{{ user }}</span>
-
         <a href="/company/dashboard">Home</a>
         <a href="/company/cars">Cars</a>
         <a href="/company/drivers">Drivers</a>
@@ -27,105 +27,89 @@
 </div>
 
 <div class="home">
-    <div class="overlay"></div>
+<div class="overlay"></div>
 
-    <div class="home-content">
+<div class="home-content">
 
-        <h1> Vrumm Vrummnnn... 💨 </h1>
+<h1>Vrumm Vrummnnn... 💨</h1>
 
-        <!-- ✅ GRID DE CARDS -->
-<div style="
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-    padding: 20px;
-">
+<!-- GRID -->
+<div class="cars-grid">
 
-            {% for c in cars %}
-            <a href="{{ '/company/cars' if show_id == c.id|string else '/company/cars?show=' + (c.id|string) }}"
-   style="text-decoration:none; color:inherit;">
+    {% for c in cars %}
+    <a href="{{ '/company/cars' if show_id == c.id|string else '/company/cars?show=' + (c.id|string) }}">
 
-    <div class="ride-box"
-         style="width:100%; text-align:center; cursor:pointer;">
+        <div class="car-card">
 
-        {% if c._car_type == 2 %}
-            <img src="{{ url_for('static', filename='images/carper.png') }}"
-                style="width:100%; border-radius:10px;">
-        {% else %}
-            <img src="{{ url_for('static', filename='images/carcom.png') }}"
-                style="width:100%; border-radius:10px;">
-        {% endif %}
-        <p style="margin-top:8px; font-size:12px; color:#aaa;">
-            ID:{{ c.id }}
-        </p>
+            {% if c._car_type == 2 %}
+                <img src="{{ url_for('static', filename='images/carper.png') }}">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/carcom.png') }}">
+            {% endif %}
 
-        <h4 style="margin-top:10px;">
-            Description: {{c.description }}
-        </h4>
+            <p>ID: {{ c.id }}</p>
+            <h4>{{ c.description }}</h4>
 
-        <p style="font-size:13px; color:#ccc;">
-    {% if c._car_type == 1 %}
-        Company vehicle
-    {% elif c._car_type == 2 %}
-        Personal vehicle
-    {% elif c._car_type.lower() == "personal vehicle" %}
-        Personal vehicle
-    {% elif c._car_type.lower() == "company's vehicle" %}
-        Company vehicle
-    {% endif %}
-</p>
+            <p>
+                {% if c._car_type == 1 %}Company vehicle
+                {% elif c._car_type == 2 %}Personal vehicle
+                {% endif %}
+            </p>
 
+        </div>
 
-    </div>
-
-            {% endfor %}
-
-            <!-- ➕ ADD CARD -->
-<div style="display:flex; justify-content:center; margin-top:20px;">
-
-    {% if add %}
-    <a href="/company/cars"
-       class="ride-box"
-       style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-size:30px; color:white; text-decoration:none;">
-        ✖
     </a>
-    {% else %}
-    <a href="/company/cars?add=1"
-       class="ride-box"
-       style="width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-size:30px; color:white; text-decoration:none;">
-        +
+    {% endfor %}
+
+    <!-- BOTÃO ADD COMO CARD -->
+    <a href="/company/cars?add=1">
+
+        <div class="car-card add-card">
+
+            <div style="font-size:50px;">+</div>
+            <p>Add Car</p>
+
+        </div>
+
     </a>
-    {% endif %}
 
 </div>
 
-
-<!-- ✅ DETALHES DO CARRO -->
+<!-- DETAILS -->
 {% if show_id and not request.args.get("add") and not edit_id %}
 
-<div class="ride-box" style="width:600px; margin:30px auto; text-align:center;">
+<div class="details-box">
 
-    
-<h3>Opções do carro 🚗</h3>
+<h3>Car Options</h3>
 
 {% for c in cars %}
     {% if show_id == c.id|string %}
 
         <p><b>{{ c.description }}</b></p>
-        <p>{{ c.car_type }}</p>
 
-        <div style="margin-top:20px;">
+        <p>
+            {% if c._car_type == 1 %}Company vehicle
+            {% elif c._car_type == 2 %}Personal vehicle
+            {% endif %}
+        </p>
 
-            <a href="/company/cars?action=delete&id={{ c.id }}" style="color:red;">
-                ❌ Eliminar
+        <div class="action-buttons">
+
+            <a href="/company/cars?action=delete&id={{ c.id }}"
+               class="btn-delete"
+               onclick="return confirm('Delete car?')">
+                ❌ Delete
             </a>
 
-            &nbsp;&nbsp;
-
-            <a href="/company/cars?edit={{ c.id }}" style="color:orange;">
-                ✏️ Editar
+            <a href="/company/cars?edit={{ c.id }}"
+               class="btn-edit">
+                ✏️ Edit
             </a>
 
+            <a href="/company/cars"
+               class="btn-cancel">
+                Cancel
+            </a>
 
         </div>
 
@@ -133,76 +117,65 @@
 {% endfor %}
 
 </div>
+
 {% endif %}
 
-<!-- ✅ FORM ADD (SÓ QUANDO CLICAS ➕) -->
+<!-- ADD FORM -->
 {% if add %}
-<div class="ride-box" style="width:400px; margin:30px auto;">
+<div class="center-box">
 
-<h3 style="text-align:center;">Add Car</h3>
+    <h3>Add Car</h3>
 
-<form method="POST" action="/add_car">
-    <input type="text" name="description" placeholder="Description" required>
-    <select name="car_type" required>
-    <option value="1">Company vehicle</option>
-    <option value="2">Personal vehicle</option>
-</select>
-    <button class="btn" style="width:100%; margin-top:10px;">
-        Adicionar
-    </button>
+    <form method="POST" action="/add_car">
 
-    <a href="/company/cars"
-       class="btn"
-       style="width:100%; margin-top:10px; background:#d44f4f; display:block; text-align:center;">
-        Cancelar
-    </a>
-</form>
+        <input type="text" name="description" placeholder="Description" required>
+
+        <select name="car_type" required>
+            <option value="1">Company vehicle</option>
+            <option value="2">Personal vehicle</option>
+        </select>
+
+        <div class="form-buttons">
+
+            <button class="btn btn-main">
+                Add
+            </button>
+
+            <a href="/company/cars" class="btn btn-cancel">
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
 
 </div>
 {% endif %}
 
-<!-- ✅ FORM EDIT -->
+<!-- EDIT FORM -->
 {% if edit_id %}
-<div class="ride-box" style="width:600px; margin:30px auto;">
-
-<h3 style="text-align:center;">Editar carro ✏️</h3>
+<div class="center-box">
+<h3>Edit Car</h3>
 
 <form method="POST">
 
-    <input type="hidden" name="id" value="{{ edit_id }}">
+<input type="hidden" name="id" value="{{ edit_id }}">
 
-    {% for c in cars %}
-        {% if edit_id == c.id|string %}
-            <input type="text" name="description" value="{{ c.description }}" required>
-           <select name="car_type" required>
+{% for c in cars %}
+{% if edit_id == c.id|string %}
+<input name="description" value="{{ c.description }}">
 
-    <option value="1"
-        {% if c._car_type == 1 or not c._car_type %} selected {% endif %}>
-        Company vehicle
-    </option>
-
-    <option value="2"
-        {% if c._car_type == 2 %} selected {% endif %}>
-        Personal vehicle
-    </option>
-
+<select name="car_type">
+<option value="1" {% if c._car_type == 1 %} selected {% endif %}>Company</option>
+<option value="2" {% if c._car_type == 2 %} selected {% endif %}>Personal</option>
 </select>
+{% endif %}
+{% endfor %}
 
-        {% endif %}
-    {% endfor %}
-
-    <button class="btn" style="width:100%; margin-top:10px;">
-        Guardar
-    </button>
-
-    <a href="/company/cars"
-       class="btn"
-       style="width:100%; margin-top:10px; background:#d44f4f; display:block; text-align:center;">
-        Cancelar
-    </a>
+<button class="btn">Save</button>
+<a href="/company/cars" class="btn btn-cancel">Cancel</a>
 
 </form>
-
 </div>
 {% endif %}
 

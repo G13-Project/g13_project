@@ -2,12 +2,13 @@
 <html>
 <head>
     <title>Admin Profile</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_profile.css') }}">
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
@@ -16,11 +17,9 @@
 
     <div class="nav-right">
         <span class="user">{{ user }}</span>
-
         <a href="/admin/dashboard">Home</a>
         <a href="/admin/manage_users">Manage Users</a>
         <a href="/admin/top_users">Top Users</a>
-        <a href="/admin/filters">Filters</a>
         <a href="/admin/stats">Statistics</a>
         <a href="/admin/profile">Profile</a>
         <a href="/logoff">Logout</a>
@@ -32,89 +31,77 @@
 
 <div class="home-content">
 
-<!-- ✅ WRAPPER COM GLOW -->
 <div class="profile-wrapper">
 
-    <!-- PROFILE CARD -->
-    <div class="profile-card">
+<div class="profile-card">
 
-        <!-- IMAGE -->
-        <div class="profile-img">
-            <img src="{{ url_for('static', filename='images/admin.png') }}">
-        </div>
+<div class="profile-img">
+    <img src="{{ url_for('static', filename='images/admin.png') }}">
+</div>
 
-        <!-- INFO -->
-        <div class="profile-info">
+<div class="profile-info">
 
-            <h2>👑 Admin Profile</h2>
+<h2>👑 Admin Profile</h2>
 
-            <form method="POST" action="/admin/edit_profile">
+<form method="POST" action="/admin/edit_profile">
 
-                <p><b>ID:</b> {{ admin.id }}</p>
+<p><b>ID:</b> {{ admin.id }}</p>
 
-                <p>
-                    <b>Username:</b>
-                    <span id="usernameText">{{ admin.user }}</span>
+<p>
+<b>Username:</b>
+<span id="usernameText">{{ admin.user }}</span>
 
-                    <input id="usernameInput" name="username"
-                           value="{{ admin.user }}" style="display:none;">
-                </p>
+<input id="usernameInput" name="username"
+       value="{{ admin.user }}" style="display:none;">
+</p>
 
-                <div id="passwordBlock" style="display:none;">
-                    <p>
-                        <b>Password:</b>
-                        <input name="password" type="password"
-                               placeholder="New password">
-                    </p>
-                </div>
+<div id="passwordBlock" style="display:none;">
+<p>
+<b>Password:</b>
+<input name="password" type="password" placeholder="New password">
+</p>
+</div>
 
-                <p><b>Permissions:</b> Full access</p>
+<p><b>Permissions:</b> Full access</p>
 
-                <!-- BOTÕES -->
-                <div class="profile-actions">
+<div class="profile-actions">
 
-                    <button type="button" onclick="openAbout()" class="btn-glow">
-                        📘 About
-                    </button>
+<button type="button" onclick="openAbout()" class="btn-glow">📘 About</button>
 
-                    <button type="button" onclick="toggleEdit()" class="btn-glow">
-                        ✏️ Edit
-                    </button>
+<button type="button" onclick="toggleEdit()" class="btn-glow">✏️ Edit</button>
 
-                    <button id="saveBtn" type="submit"
-                            class="btn-glow"
-                            style="display:none;">
-                        💾 Save
-                    </button>
+<button id="saveBtn" type="submit" class="btn-glow" style="display:none;">
+💾 Save
+</button>
 
-                </div>
+</div>
 
-            </form>
+</form>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
-    <!-- ✅ LOGS DENTRO DO MESMO BLOCO -->
-    <div class="admin-logs-inline">
+<!-- LOGS -->
+<div class="admin-logs-inline">
 
-        <h3>📜 Recent Activity</h3>
+<h3>📜 Recent Activity</h3>
 
-        {% for log in logs %}
-            <div class="log-item">
-                <span class="log-time">{{ log.time }}</span>
-                <span class="log-action">{{ log.action }}</span>
-            </div>
-        {% endfor %}
+{% for log in logs %}
+<div class="log-item">
+<span class="log-time">{{ log.time }}</span>
+<span class="log-action">{{ log.action }}</span>
+</div>
+{% endfor %}
 
-    </div>
+</div>
 
 </div>
 
 </div>
 </div>
 
-<!-- ✅ ABOUT MODAL -->
+<!-- MODAL -->
 <div id="aboutModal" class="modal">
 <div class="modal-content about-big">
 
@@ -122,193 +109,18 @@
 
 <h1>🎥 Project Demo</h1>
 
-<p style="margin-bottom:20px;">
-    Watch the demonstrations of the platform features below.
-</p>
-
 <div class="video-grid">
 
-    <div class="video-grid">
-
-    <iframe src="https://www.youtube.com/embed/VIDEO1"></iframe>
-
-    <iframe src="https://www.youtube.com/embed/VIDEO2"></iframe>
-    <iframe src="https://www.youtube.com/embed/VIDEO3"></iframe>
-    <iframe src="https://www.youtube.com/embed/VIDEO4"></iframe>
-    <iframe src="https://www.youtube.com/embed/VIDEO1"></iframe>
-
-</div>
-
+<iframe src="https://www.youtube.com/embed/VIDEO1"></iframe>
+<iframe src="https://www.youtube.com/embed/VIDEO2"></iframe>
+<iframe src="https://www.youtube.com/embed/VIDEO3"></iframe>
 
 </div>
 
 </div>
 </div>
 
-
-<script>
-
-let editing = false;
-
-function toggleEdit() {
-
-    editing = !editing;
-
-    document.getElementById("usernameText").style.display = editing ? "none" : "inline";
-    document.getElementById("usernameInput").style.display = editing ? "inline" : "none";
-    document.getElementById("passwordBlock").style.display = editing ? "block" : "none";
-    document.getElementById("saveBtn").style.display = editing ? "inline" : "none";
-}
-
-function openAbout() {
-    document.getElementById("aboutModal").style.display = "flex";
-}
-
-function closeAbout() {
-    document.getElementById("aboutModal").style.display = "none";
-}
-
-window.onclick = function(event) {
-    let modal = document.getElementById("aboutModal");
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-}
-
-</script>
-
-<style>
-
-/* ✅ WRAPPER COM GLOW */
-.profile-wrapper {
-    max-width: 850px;
-    margin: 100px auto;
-    padding: 30px;
-
-    background: rgba(20,20,20,0.8);
-    border-radius: 15px;
-
-    backdrop-filter: blur(10px);
-
-    box-shadow:
-        0 0 15px rgba(0,255,136,0.6),
-        0 0 40px rgba(0,255,136,0.3),
-        0 10px 30px rgba(0,0,0,0.8);
-}
-
-/* PROFILE */
-.profile-card {
-    display: flex;
-    gap: 25px;
-    align-items: center;
-}
-
-.profile-img img {
-    width: 120px;
-    border-radius: 12px;
-}
-
-/* LOGS */
-.admin-logs-inline {
-    margin-top: 30px;
-    padding-top: 20px;
-
-    border-top: 1px solid rgba(0,255,136,0.25);
-}
-
-.admin-logs-inline h3 {
-    color: #00ff88;
-}
-
-.log-item {
-    display: flex;
-    justify-content: space-between;
-
-    padding: 8px 0;       /* ✅ mais espaço vertical */
-    font-size: 14px;
-
-    border-bottom: 1px solid rgba(255,255,255,0.05);  /* leve separador */
-}
-
-
-.log-time {
-    color: #00ff88;
-    font-weight: bold;
-    min-width: 70px;   /* ✅ alinhamento */
-}
-
-.log-action {
-    color: rgba(255,255,255,0.85);  /* ✅ menos agressivo */
-}
-.log-item:hover {
-    background: rgba(0,255,136,0.05);
-    border-radius: 6px;
-    padding-left: 5px;
-}
-
-/* MODAL */
-.modal {
-    display:none;
-    position:fixed;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.8);
-    justify-content:center;
-    align-items:center;
-}
-
-/* ABOUT */
-.about-big {
-    width:90%;
-    height:90vh;
-    background:#222;
-    padding:25px;
-    overflow:auto;
-}
-
-.about-layout {
-    display:grid;
-    grid-template-columns:1fr 1.5fr;
-    gap:30px;
-}
-
-/* VIDEOS */
-.video-grid {
-    display: flex;
-    flex-direction: column;   /* ✅ 1 por fila */
-    gap: 25px;
-
-    width: 100%;
-}
-.video-grid iframe {
-    width: 100%;
-    height: 350px;   /* 💥 grande e bonito */
-
-    border-radius: 12px;
-
-    box-shadow:
-        0 0 12px rgba(0,255,136,0.5),
-        0 6px 20px rgba(0,0,0,0.9);
-}
-
-
-.about-big {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.about-big h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.close {
-    float:right;
-    cursor:pointer;
-    font-size:22px;
-}
-
-</style>
+<script src="{{ url_for('static', filename='js/admin_profile.js') }}"></script>
 
 </body>
 </html>

@@ -1,332 +1,218 @@
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Drivers Management</title>
-            <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-        </head>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drivers Management</title>
 
-        <body>
-        
+    <!-- ✅ CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/company_drivers.css') }}">
+</head>
 
-        <div class="navbar">
-            <div class="logo">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
-                Itiji
-            </div>
+<body>
 
-            <div class="nav-right">
-                <span class="user">{{ user }}</span>
+<!-- ✅ NAVBAR -->
+<div class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
+        Itiji
+    </div>
 
-                <a href="/company/dashboard">Home</a>
-                <a href="/company/cars">Cars</a>
-                <a href="/company/drivers">Drivers</a>
-                <a href="/company/statistics">Statistics</a>
-                <a href="/company/profile">Profile</a>
-                <a href="/logoff">Logout</a>
-            </div>
-        </div>
+    <div class="nav-right">
+        <span class="user">{{ user }}</span>
+        <a href="/company/dashboard">Home</a>
+        <a href="/company/cars">Cars</a>
+        <a href="/company/drivers">Drivers</a>
+        <a href="/company/statistics">Statistics</a>
+        <a href="/company/profile">Profile</a>
+        <a href="/logoff">Logout</a>
+    </div>
+</div>
 
-        <div class="home" style="min-height:100vh;">
+<!-- ✅ MAIN -->
+<div class="home">
+<div class="overlay"></div>
 
-            <div class="overlay"></div>
+<div class="home-content">
 
-            <div class="home-content">
+<div class="drivers-container">
 
-                
+<!-- ✅ ACTIVE DRIVERS -->
+<div class="drivers-box">
 
-            
-                <!-- ATIVOS -->
-                <div class="ride-box" style="margin-top:30px; width:900px;">
-                    
-                    <h3 style="text-align:center; margin-bottom:20px;">
-                        Drivers Management
-                    </h3>
+<h3>Drivers Management</h3>
 
-                    <table style="width:100%; border-collapse: collapse; color:white;">
+<table class="drivers-table">
 
-                        <!-- HEADER COM FUNDO VERDE -->
-                        <tr style="background-color: rgba(0, 255, 136, 0.2);">
-                            <th style="padding:12px;">ID</th>
-                            <th style="padding:12px;">Nickname</th>
-                            <th style="padding:12px;">Type</th>
-                            <th style="padding:12px;">Contract End</th>
-                            <th style="padding:12px;">Rating</th>
-                            <th style="padding:12px;">Actions</th>
-                        </tr>
+<tr>
+    <th>ID</th>
+    <th>Nickname</th>
+    <th>Type</th>
+    <th>Contract End</th>
+    <th>Rating</th>
+    <th>Actions</th>
+</tr>
 
-                        {% for d in active_drivers %}
-                        <tr>
+{% for d in active_drivers %}
+<tr>
 
-                            <td style="padding:10px;">{{ d.id }}</td>
-                            <td style="padding:10px;">{{ d.nickname }}</td>
-                            <td style="padding:10px;">{{ d.driver_type }}</td>
-                            <td style="padding:10px;">
-                                {% if d.contract_end %}
-                                    {{ d.contract_end }}
-                                {% else %}
-                                    Permanent
-                                {% endif %}
-                            </td>
+<td>{{ d.id }}</td>
+<td>{{ d.nickname }}</td>
+<td>{{ d.driver_type }}</td>
 
-                            <td style="padding:10px;">⭐ {{ "%.1f"|format(d.average_ratings()) }}</td>
+<td>
+{% if d.contract_end %}
+    {{ d.contract_end }}
+{% else %}
+    Permanent
+{% endif %}
+</td>
 
-                            <td style="padding:10px;">
+<td>⭐ {{ "%.1f"|format(d.average_ratings()) }}</td>
 
-                                <!-- 🔴 BOTÃO FIRE -->
-                                <a href="/fire_driver/{{ d.id }}"
-                                onclick="return fireDriver(this, 'Are you sure you want to fire this driver?')"
-                                style="
-                                        background-color: #ff4d4d;
-                                        color: white;
-                                        padding: 5px 10px;
-                                        border-radius: 6px;
-                                        text-decoration: none;
-                                        font-size: 13px;
-                                        transition: all 0.2s ease;
-                                "
-                                onmouseover="this.style.backgroundColor='#ff1a1a'; this.style.transform='scale(1.05)'"
-                                onmouseout="this.style.backgroundColor='#ff4d4d'; this.style.transform='scale(1)'">
-                                    Fire
-                                </a>
+<td>
+    <div class="actions-col">
 
+        <a href="/fire_driver/{{ d.id }}"
+           class="action-btn btn-fire"
+           onclick="return fireDriver(this, 'Are you sure?')">
+            Fire
+        </a>
 
-                                <!-- 🔵 BOTÃO RENEW -->
-                                <button onclick="toggleForm('{{ d.id }}')"
-                                        style="
-                                            background-color: #00ff88;
-                                            color: black;
-                                            padding: 5px 10px;
-                                            border-radius: 6px;
-                                            border: none;
-                                            cursor: pointer;
-                                            font-size: 13px;
-                                            transition: all 0.2s ease;
-                                        "
-                                        onmouseover="this.style.backgroundColor='#00cc6a'; this.style.transform='scale(1.05)'"
-                                        onmouseout="this.style.backgroundColor='#00ff88'; this.style.transform='scale(1)'">
-                                    Renew
-                                </button>
+        <button onclick="toggleForm('{{ d.id }}')"
+                class="action-btn btn-renew">
+            Renew
+        </button>
 
-                                <!-- FORM ESCONDIDO -->
-                                <form id="form-{{ d.id }}"
-                                    action="/renew_driver/{{ d.id }}"
-                                    method="POST"
-                                    style="display:none; margin-top:8px;">
+    </div>
 
-                                    <!-- DATA NORMAL -->
-                                    <input type="datetime-local" name="new_date">
+    <!-- FORM -->
+    <form id="form-{{ d.id }}" class="inline-form"
+          action="/renew_driver/{{ d.id }}" method="POST">
 
-                                    <!-- ✅ BOTÃO PERMANENTE -->
-                                    <button type="submit"
-                                            name="permanent"
-                                            value="true"
-                                            style="
-                                                background-color: gold;
-                                                color: black;
-                                                padding: 5px 10px;
-                                                border-radius: 6px;
-                                                border: none;
-                                                margin-left:5px;
-                                            ">
-                                        Permanent
-                                    </button>
+        <input type="datetime-local" name="new_date">
 
-                                    <!-- CONFIRMAR NORMAL -->
-                                    <button type="submit">✔</button>
+        <button class="small-btn btn-permanent"
+                name="permanent" value="true">
+            Permanent
+        </button>
 
-                                    <button type="button" onclick="toggleForm('{{ d.id }}')">
-                                        Cancel
-                                    </button>
+        <button class="small-btn btn-confirm">✔</button>
 
-                                </form>
+        <button type="button"
+                class="small-btn btn-cancel"
+                onclick="toggleForm('{{ d.id }}')">
+            Cancel
+        </button>
 
-                            </td>
+    </form>
 
-                        </tr>
-                        {% endfor %}
+</td>
 
-                    </table>
-                </div>
-                <div style="margin-top:15px; text-align:center;">
+</tr>
+{% endfor %}
 
-                    {% if page_active > 1 %}
-                        <a href="{{ url_for('company_drivers', page_active=page_active-1) }}"
-                        style="color:white; margin-right:20px;">
-                            ⬅️
-                        </a>
-                    {% endif %}
+</table>
 
-                    <span style="color:white;">
-                        {{ page_active }} / {{ total_pages_active }}
-                    </span>
+<!-- ✅ PAGINATION -->
+<div class="pagination">
 
-                    {% if page_active < total_pages_active %}
-                        <a href="{{ url_for('company_drivers', page_active=page_active+1) }}"
-                        style="color:white; margin-left:20px;">
-                            ➡️
-                        </a>
-                    {% endif %}
+{% if page_active > 1 %}
+<a href="{{ url_for('company_drivers', page_active=page_active-1) }}">⬅️</a>
+{% endif %}
 
-                </div>
+<span>{{ page_active }} / {{ total_pages_active }}</span>
 
-                <!-- DISPONIVEIS -->
-                <div class="ride-box" style="margin-top:30px; width:900px;">
-                    
-                    <h3 style="text-align:center; margin-bottom:20px;">
-                        Available Drivers
-                    </h3>
+{% if page_active < total_pages_active %}
+<a href="{{ url_for('company_drivers', page_active=page_active+1) }}">➡️</a>
+{% endif %}
 
-                    <table style="width:100%; border-collapse: collapse; color:white;">
+</div>
 
-                        <!-- HEADER VERDE -->
-                        <tr style="background-color: rgba(0, 255, 136, 0.2);">
-                            <th style="padding:12px;">ID</th>
-                            <th style="padding:12px;">Nickname</th>
-                            <th style="padding:12px;">Type</th>
-                            <th style="padding:12px;">Rating</th>
-                            <th style="padding:12px;">Actions</th>
-                        </tr>
+</div>
 
-                        {% for d in available_drivers %}
-                        <tr>
+<!-- ✅ AVAILABLE DRIVERS -->
+<div class="drivers-box">
 
-                            <td style="padding:10px;">{{ d.id }}</td>
-                            <td style="padding:10px;">{{ d.nickname }}</td>
-                            <td style="padding:10px;">{{ d.driver_type }}</td>
-                            <td style="padding:10px;">⭐ {{ "%.1f"|format(d.average_ratings()) }}</td>
+<h3>Available Drivers</h3>
 
-                            <td style="padding:10px;">
+<table class="drivers-table">
 
-                            <!-- BOTÃO HIRE -->
-                            <button onclick="toggleHire('{{ d.id }}')"
-                                    style="
-                                        background-color: #00bfff;
-                                        color: white;
-                                        padding: 5px 10px;
-                                        border-radius: 6px;
-                                        border: none;
-                                        cursor: pointer;
-                                        font-size: 13px;
-                                        transition: all 0.2s ease;
-                                    "
-                                    onmouseover="this.style.backgroundColor='#0099cc'; this.style.transform='scale(1.05)'"
-                                    onmouseout="this.style.backgroundColor='#00bfff'; this.style.transform='scale(1)'">
-                                Hire
-                            </button>
+<tr>
+    <th>ID</th>
+    <th>Nickname</th>
+    <th>Type</th>
+    <th>Rating</th>
+    <th>Actions</th>
+</tr>
 
-                            <!-- FORM ESCONDIDO -->
-                            <form id="hire-form-{{ d.id }}"
-                                action="/hire_driver/{{ d.id }}"
-                                method="POST"
-                                style="display:none; margin-top:8px;">
+{% for d in available_drivers %}
+<tr>
 
-                                <!-- ✅ DATA NORMAL -->
-                                <input type="datetime-local" name="contract_end">
+<td>{{ d.id }}</td>
+<td>{{ d.nickname }}</td>
+<td>{{ d.driver_type }}</td>
+<td>⭐ {{ "%.1f"|format(d.average_ratings()) }}</td>
 
-                                <!-- ✅ BOTÃO PERMANENTE -->
-                                <button type="submit"
-                                        name="permanent"
-                                        value="true"
-                                        style="
-                                            background-color: gold;
-                                            color: black;
-                                            padding: 5px 10px;
-                                            border-radius: 6px;
-                                            border: none;
-                                            margin-left:5px;
-                                        ">
-                                    Permanent
-                                </button>
+<td>
 
-                                <!-- ✅ CONFIRMAR -->
-                                <button type="submit">✔</button>
+<div class="actions-col">
+    <button onclick="toggleHire('{{ d.id }}')"
+            class="action-btn btn-hire">
+        Hire
+    </button>
+</div>
 
-                                <button type="button" onclick="toggleHire('{{ d.id }}')">
-                                    Cancel
-                                </button>
+<form id="hire-form-{{ d.id }}" class="inline-form"
+      action="/hire_driver/{{ d.id }}" method="POST">
 
-                            </form>
+    <input type="datetime-local" name="contract_end">
 
+    <button class="small-btn btn-permanent"
+            name="permanent" value="true">
+        Permanent
+    </button>
 
-                            </td>
+    <button class="small-btn btn-confirm">✔</button>
 
-                        </tr>
-                        {% endfor %}
+    <button type="button"
+            class="small-btn btn-cancel"
+            onclick="toggleHire('{{ d.id }}')">
+        Cancel
+    </button>
 
-                    </table>
-                    </div>
-                    <div style="margin-top:15px; text-align:center;">
+</form>
 
-                        {% if page > 1 %}
-                            <a href="{{ url_for('company_drivers', page=page-1) }}"
-                            style="color:white; margin-right:20px;">
-                                ⬅️
-                            </a>
-                        {% endif %}
+</td>
 
-                        <span style="color:white;">
-                            {{ page }} / {{ total_pages }}
-                        </span>
+</tr>
+{% endfor %}
 
-                        {% if page < total_pages %}
-                            <a href="{{ url_for('company_drivers', page=page+1) }}"
-                            style="color:white; margin-left:20px;">
-                                ➡️
-                            </a>
-                        {% endif %}
+</table>
 
-                    </div>
+<!-- ✅ PAGINATION -->
+<div class="pagination">
 
-            
-            </div>
-        </div>
+{% if page > 1 %}
+<a href="{{ url_for('company_drivers', page=page-1) }}">⬅️</a>
+{% endif %}
 
-        <script>
-        function toggleForm(id) {
-            var form = document.getElementById("form-" + id);
+<span>{{ page }} / {{ total_pages }}</span>
 
-            if (form.style.display === "none") {
-                form.style.display = "inline";
-            } else {
-                form.style.display = "none";
-            }
-        }
-        </script>
+{% if page < total_pages %}
+<a href="{{ url_for('company_drivers', page=page+1) }}">➡️</a>
+{% endif %}
 
-        <script>
-        function fireDriver(element, message) {
+</div>
 
-            if (!confirm(message)) {
-                return false; // ❌ cancela tudo
-            }
+</div>
 
-            // ✅ encontra a linha da tabela
-            var row = element.closest("tr");
+</div>
 
-            // ✅ animação (fade + mover)
-            row.style.transition = "all 0.3s ease";
-            row.style.opacity = "0";
-            row.style.transform = "translateX(50px)";
+</div>
+</div>
 
-            // ✅ remover depois da animação
-            setTimeout(function () {
-                row.remove();
-            }, 300);
+<!-- ✅ JS -->
+<script src="{{ url_for('static', filename='js/company_drivers.js') }}"></script>
 
-            // ✅ deixa continuar para o Flask (despedir mesmo)
-            return true;
-        }
-        </script>
-        <script>
-        function toggleHire(id) {
-            var form = document.getElementById("hire-form-" + id);
-
-            if (form.style.display === "none") {
-                form.style.display = "inline";
-            } else {
-                form.style.display = "none";
-            }
-        }
-        </script>
-        </body>
-        </html>
+</body>
+</html>

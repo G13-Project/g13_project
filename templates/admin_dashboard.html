@@ -4,52 +4,16 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
 
+    <!-- CSS GLOBAL -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
-    <style>
-        body {
-            margin: 0;
-        }
-
-        .ride-box {
-            flex: 1;
-            text-align: center;
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 12px;
-        }
-
-        .hover-card {
-            transition: 0.3s;
-        }
-
-        .hover-card:hover {
-            transform: scale(1.05);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-        }
-
-        .row {
-            display: flex;
-            gap: 20px;
-        }
-
-        .chart-box {
-            margin-top: 40px;
-            background: #1e1e1e;
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-        }
-    </style>
+    <!-- CSS DA PÁGINA -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
 </head>
 
 <body>
 
-<!-- ✅ NAVBAR -->
+<!-- NAVBAR -->
 <div class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
@@ -67,7 +31,7 @@
     </div>
 </div>
 
-<!-- ✅ CONTENT -->
+<!-- CONTENT -->
 <div class="home">
     <div class="overlay"></div>
 
@@ -77,7 +41,7 @@
 
         <div class="container">
 
-            <!-- ✅ LINHA 1 -->
+            <!-- LINHA 1 -->
             <div class="row">
 
                 <div class="ride-box">
@@ -98,30 +62,23 @@
                     <p>Contracts</p>
                 </div>
 
-                <!-- ✅ WARNINGS -->
-                <div class="ride-box hover-card" style="
-                    background:#ff3b3b;
-                    cursor:pointer;
-                    display:flex;
-                    flex-direction:column;
-                    justify-content:center;
-                " onclick="loadWarnings()">
-
-                    <h3 style="color:white;">⚠️ Warnings</h3>
-                    <p style="color:white;">Click to check warnings</p>
-
+                <!-- WARNINGS -->
+                <div class="ride-box hover-card warnings-box" onclick="loadWarnings()">
+                    <h3>⚠️ Warnings</h3>
+                    <p>Click to check warnings</p>
                 </div>
-
 
             </div>
 
-            <!-- ✅ LINHA 2 (GRÁFICO) -->
+            <!-- GRÁFICO -->
             <div class="chart-box">
 
                 <h3 style="margin-bottom:20px;">Users Distribution</h3>
 
-                <img src="data:image/png;base64,{{ plot_url }}"
-                     style="max-width:100%; border-radius:10px;">
+                <img 
+                    src="data:image/png;base64,{{ plot_url }}"
+                    style="max-width:100%; border-radius:10px;"
+                >
 
             </div>
 
@@ -130,101 +87,34 @@
     </div>
 </div>
 
-<!-- ✅ MODAL -->
-<div id="warningsModal" style="
-display:none;
-position:fixed;
-top:0; left:0;
-width:100%; height:100%;
-background:rgba(0,0,0,0.7);
-justify-content:center;
-align-items:center;
-">
+<!-- MODAL -->
+<div id="warningsModal" class="warnings-modal" style="display:none;">
 
-<div style="
-    background:#1e1e1e;
-    padding:30px;
-    border-radius:12px;
-    width:500px;
-    max-height:80%;
-    overflow:auto;
-    color:white;
-    position:relative;
-">
+    <div class="warnings-content">
 
-<span onclick="closeWarnings()" style="
-position:absolute;
-top:10px;
-right:15px;
-cursor:pointer;">✖</span>
+        <span onclick="closeWarnings()" class="close-btn">✖</span>
 
-<h2>⚠️ Warnings Report</h2>
+        <h2>⚠️ Warnings Report</h2>
 
-<p id="warningText">Click to load warnings</p>
+        <p id="warningText">Click to load warnings</p>
 
-<hr>
+        <hr>
 
-<div id="warningsList"></div>
+        <div id="warningsList"></div>
 
-<hr>
+        <hr>
 
-<div style="margin-top:20px;">
-    <a href="/admin/manage_users" style="
-        padding:10px 15px;
-        background:#ff3b3b;
-        color:white;
-        border-radius:8px;
-        text-decoration:none;">
-        Intervene
-    </a>
+        <div style="margin-top:20px;">
+            <a href="/admin/manage_users" class="intervene-btn">
+                Intervene
+            </a>
+        </div>
+
+    </div>
 </div>
 
-</div>
-</div>
-
-<!-- ✅ SCRIPT -->
-<script>
-function loadWarnings() {
-
-    const modal = document.getElementById("warningsModal");
-    const text = document.getElementById("warningText");
-    const list = document.getElementById("warningsList");
-
-    modal.style.display = "flex";
-
-    text.innerText = "Loading warnings...";
-    list.innerHTML = "";
-
-    fetch('/admin/get_warnings')
-        .then(res => res.json())
-        .then(data => {
-
-            text.innerText = `⚠️ ${data.count} illegal rides detected`;
-
-            let html = "";
-
-            if (data.data.length === 0) {
-                html = "<p>No illegal rides ✅</p>";
-            } else {
-                data.data.forEach(r => {
-                    html += `
-                        <p style="margin-bottom:10px;">
-                            <strong>Driver ${r.driver_id}</strong><br>
-                            Ride: ${r.ride_date}<br>
-                            Contract: ${r.contract}
-                        </p>
-                    `;
-                });
-            }
-
-            list.innerHTML = html;
-        });
-}
-
-function closeWarnings(){
-    document.getElementById("warningsModal").style.display="none";
-}
-</script>
+<!-- JS (NO FINAL!) -->
+<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
 
 </body>
 </html>

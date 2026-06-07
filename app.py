@@ -936,6 +936,23 @@ def driver_statistics():
 # ================================================================
 #  COMPANY
 # ================================================================
+company_logs = {}
+
+def log_company_action(company_id, action):
+
+    from datetime import datetime
+
+    now = datetime.now().strftime("%H:%M:%S")
+
+    if company_id not in company_logs:
+        company_logs[company_id] = []
+
+    company_logs[company_id].insert(0, {
+        "time": now,
+        "action": action
+    })
+
+    company_logs[company_id] = company_logs[company_id][:10]
 
 @app.route("/company/dashboard")
 def company_dashboard():
@@ -980,12 +997,14 @@ def company_profile():
     company_id = Userlogin.get_group_id(session["user"])
     company = Company.obj.get(company_id)
 
+    logs = company_logs.get(company_id, [])
+
     return render_template(
         "company_profile.html",
         user=session["user"],
-        company=company
+        company=company,
+        logs=logs
     )
-
 
 @app.route("/company/edit", methods=["GET", "POST"])
 def edit_company():
@@ -1024,10 +1043,11 @@ def edit_company():
                 photo_path = os.path.join("static", "images", "company", photo_filename)
                 os.makedirs(os.path.dirname(photo_path), exist_ok=True)
                 photo.save(photo_path)
-                from flask import url_for
+                
                 company.photo = url_for('static', filename=f'images/company/{photo_filename}')
 
         Company.update(company._id)
+        log_company_action(company_id, "Updated company profile")
 
         return redirect(url_for("company_profile"))
 
@@ -1119,6 +1139,7 @@ def company_cars():
 
     if action == "delete" and car_id:
         car_id = int(car_id)
+        log_company_action(company_id, f"Removed car {car_id}")
 
         import sqlite3
         from data.datafile import filename
@@ -1141,6 +1162,7 @@ def company_cars():
         car_id = int(request.form["id"])
         description = request.form["description"]
         car_type = int(request.form["car_type"])
+        log_company_action(company_id, f"Updated car {car_id}")
 
         import sqlite3
         from data.datafile import filename
@@ -1208,6 +1230,8 @@ def add_car():
     Car.obj[new_car.id] = new_car
     Car.lst.append(new_car.id)
 
+    log_company_action(company_id, f"Added car {new_id}")
+
     return redirect(url_for("company_cars"))
 
 
@@ -1234,7 +1258,7 @@ def hire_driver(driver_id):
             end = None
 
     contract = Contract(0, start, end, company_id, driver_id)
-
+    log_company_action(company_id, f"Hired driver {driver_id}")
     Contract.insert(contract.id)
 
     return redirect(url_for("company_drivers"))
@@ -1253,6 +1277,7 @@ def fire_driver(driver_id):
             c.terminate()
             Contract.update(c.id)
             break
+    log_company_action(company_id, f"Fired driver {driver_id}")
 
     return redirect(url_for("company_drivers"))
 
@@ -1284,6 +1309,7 @@ def renew_driver(driver_id):
 
             Contract.update(c.id)
             break
+    log_company_action(company_id, f"Updated contract for driver {driver_id}")
 
     return redirect(url_for("company_drivers"))
 
@@ -1347,16 +1373,18 @@ def admin_dashboard():
                 f'{int(height)}',
                 ha='center', va='bottom')
 
-    plt.xlabel("Type")
-    plt.ylabel("Count")
+    
+    plt.xlabel("Type", fontweight='bold')
+    plt.ylabel("Count", fontweight='bold')
 
+    
     plt.grid(axis='y', linestyle='--', alpha=0.4)
     plt.tight_layout()
 
     img = io.BytesIO()
     plt.savefig(img, format='png', bbox_inches='tight')
     img.seek(0)
-
+    
     plot_url = base64.b64encode(img.getvalue()).decode()
     plt.close()
 

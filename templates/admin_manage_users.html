@@ -2,7 +2,12 @@
 <html>
 <head>
     <title>Admin Users</title>
+
+    <!-- CSS GLOBAL -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <!-- CSS DA PÁGINA -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_manage_users.css') }}">
 </head>
 
 <body>
@@ -16,7 +21,6 @@
 
     <div class="nav-right">
         <span class="user">{{ user }}</span>
-
         <a href="/admin/dashboard">Home</a>
         <a href="/admin/manage_users">Manage Users</a>
         <a href="/admin/top_users">Top Users</a>
@@ -26,260 +30,107 @@
     </div>
 </div>
 
+<!-- CONTENT -->
 <div class="home">
-<div class="overlay"></div>
+    <div class="overlay"></div>
 
-<div class="home-content">
+    <div class="home-content">
 
-<h1>👤 Users Management</h1>
+        <h1>Users Management</h1>
 
-<!-- SEARCH -->
-<div style="max-width:1200px; margin:20px auto; display:flex; justify-content:center;">
-    <input id="searchInput" onkeypress="handleSearch(event)"
-        placeholder="🔍 Search user or role..."
-        style="padding:10px; width:300px; border-radius:10px; border:none;">
+        <!-- SEARCH -->
+        <div class="search-box">
+            <input id="searchInput"
+                   onkeypress="handleSearch(event)"
+                   placeholder="🔍 Search user or role...">
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-container">
+
+            <table id="usersTable">
+
+                <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% for u in users %}
+                <tr>
+
+                    <td>{{ u }}</td>
+                    <td>{{ roles[u] }}</td>
+
+                    <td>
+
+                        <!-- DETAILS -->
+                        <button class="btn-glow btn-details"
+                            data-user="{{ u }}"
+                            data-details='{{ details[u] | tojson | safe }}'>
+                            🔍 Details
+                        </button>
+
+                        <!-- EDIT -->
+                        <button class="btn-glow btn-edit"
+                            data-user="{{ u }}"
+                            data-details='{{ details[u] | tojson | safe }}'>
+                            ✏️ Edit
+                        </button>
+
+                        <!-- DELETE -->
+                        <a href="{{ url_for('delete_user', user=u) }}"
+                           class="btn-glow btn-delete"
+                           onclick="return confirm('Delete user?')">
+                           ❌ Delete
+                        </a>
+
+                    </td>
+
+                </tr>
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
 </div>
 
-<!-- TABLE -->
-<div style="max-width:1200px; margin:40px auto;">
-<table id="usersTable" style="width:100%; background:#2c2f33; color:white; border-radius:10px;">
-
-<tr style="background:#1e2124;">
-    <th style="padding:15px;">User</th>
-    <th style="padding:15px;">Role</th>
-    <th style="padding:15px;">Actions</th>
-</tr>
-
-{% for u in users %}
-<tr style="text-align:center; border-top:1px solid #444;">
-
-    <td>{{ u }}</td>
-    <td>{{ roles[u] }}</td>
-
-    <td>
-
-        <!-- ✅ DETAILS -->
-        <button class="btn-glow btn-details"
-            data-user="{{ u }}"
-            data-details='{{ details[u] | tojson | safe }}'>
-            🔍 Details
-        </button>
-
-        <!-- ✅ EDIT -->
-        <button class="btn-glow btn-edit"
-            data-user="{{ u }}"
-            data-details='{{ details[u] | tojson | safe }}'>
-            ✏️ Edit
-        </button>
-
-        <!-- ✅ DELETE -->
-        <a href="{{ url_for('delete_user', user=u) }}"
-           class="btn-glow btn-delete"
-           onclick="return confirm('Delete user?')">
-           ❌ Delete
-        </a>
-
-    </td>
-
-</tr>
-{% endfor %}
-
-</table>
-</div>
-</div>
-</div>
-
-<!-- ✅ DETAILS MODAL -->
+<!-- DETAILS MODAL -->
 <div id="userModal" class="modal">
-<div class="modal-content">
-<span class="close" onclick="closeModal()">&times;</span>
-<h2>User Details</h2>
-<div id="modal-extra"></div>
-</div>
+    <div class="modal-content">
+
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h2>User Details</h2>
+
+        <div id="modal-extra"></div>
+
+    </div>
 </div>
 
-<!-- ✅ EDIT MODAL -->
+<!-- EDIT MODAL -->
 <div id="editModal" class="modal">
-<div class="modal-content">
-<span class="close" onclick="closeEditModal()">&times;</span>
-<h2>Edit User</h2>
+    <div class="modal-content">
 
-<form id="editForm" method="POST">
-    <div id="edit-fields"></div>
-    <button type="submit">💾 Save</button>
-</form>
+        <span class="close" onclick="closeEditModal()">&times;</span>
 
+        <h2>Edit User</h2>
+
+        <form id="editForm" method="POST">
+
+            <div id="edit-fields"></div>
+
+            <button type="submit">💾 Save</button>
+
+        </form>
+
+    </div>
 </div>
-</div>
 
-<script>
-
-/* 🔍 SEARCH */
-function handleSearch(event) {
-    if (event.key === "Enter") {
-        let input = document.getElementById("searchInput").value.toLowerCase();
-        let rows = document.querySelectorAll("#usersTable tr");
-
-        for (let i = 1; i < rows.length; i++) {
-            let user = rows[i].cells[0].innerText.toLowerCase();
-            let role = rows[i].cells[1].innerText.toLowerCase();
-
-            if (user === input || role === input) {
-                rows[i].scrollIntoView({ behavior:"smooth", block:"center" });
-
-                rows[i].style.backgroundColor = "#4FC3F7";
-                setTimeout(() => rows[i].style.backgroundColor="", 2000);
-                return;
-            }
-        }
-        alert("Not found ❌");
-    }
-}
-
-/* ✅ DETAILS */
-function openModal(data, user) {
-
-    let html = "";
-
-    if (data.group === "customer") {
-        html = `
-            👤 ${data.name}<br>
-            📧 ${data.email}<br>
-            📱 ${data.phone}<br>
-            🎂 ${data.dob}
-        `;
-    }
-    else if (data.group === "company") {
-        html = `
-            🏢 ${data.name}<br>
-            📅 ${data.begin}<br>
-            💰 Loading...
-        `;
-
-        fetch(`/admin/get_company_lucro/${user}`)
-            .then(res => res.json())
-            .then(res => {
-                document.getElementById("modal-extra").innerHTML += `<br>💰 ${res.lucro} €`;
-            });
-    }
-    else if (data.group === "driver") {
-        html = `
-            🚗 ${data.nickname}<br>
-            🆔 ${data.type}<br>
-            ⭐ ${data.rating}
-        `;
-    }
-
-    document.getElementById("modal-extra").innerHTML = html;
-    document.getElementById("userModal").style.display = "flex";
-}
-
-function closeModal() {
-    document.getElementById("userModal").style.display = "none";
-}
-
-/* ✅ EDIT */
-function openEditModal(data, user) {
-
-    let form = "";
-    document.getElementById("editForm").action = `/admin/edit_user/${user}`;
-
-    if (data.group === "customer") {
-        form = `
-            <input name="name" value="${data.name}"><br><br>
-            <input name="email" value="${data.email}"><br><br>
-            <input name="phone" value="${data.phone}"><br><br>
-            <input name="dob" value="${data.dob}"><br><br>
-        `;
-    }
-    else if (data.group === "company") {
-        form = `
-            <input name="name" value="${data.name}"><br><br>
-            <input name="begin" value="${data.begin}"><br><br>
-        `;
-    }
-    else if (data.group === "driver") {
-        form = `
-            <input name="nickname" value="${data.nickname}"><br><br>
-            <input name="type" value="${data.type}"><br><br>
-        `;
-    }
-
-    document.getElementById("edit-fields").innerHTML = form;
-    document.getElementById("editModal").style.display = "flex";
-}
-
-function closeEditModal() {
-    document.getElementById("editModal").style.display = "none";
-}
-
-/* ✅ BOTÕES (VERSÃO ESTÁVEL) */
-window.onload = function() {
-
-    document.querySelectorAll(".btn-details").forEach(btn => {
-        btn.addEventListener("click", () => {
-            let data = JSON.parse(btn.dataset.details);
-            let user = btn.dataset.user;
-            openModal(data, user);
-        });
-    });
-
-    document.querySelectorAll(".btn-edit").forEach(btn => {
-        btn.addEventListener("click", () => {
-            let data = JSON.parse(btn.dataset.details);
-            let user = btn.dataset.user;
-            openEditModal(data, user);
-        });
-    });
-};
-
-</script>
-
-<style>
-
-/* BOTÕES */
-.btn-details, .btn-edit {
-    padding:8px 14px;
-    border-radius:20px;
-    border:none;
-    cursor:pointer;
-    margin-right:8px;
-    box-shadow:0 3px 8px rgba(0,0,0,0.4);
-}
-
-.btn-details { background:#00e676; }
-.btn-edit { background:#1de9b6; }
-
-.btn-delete {
-    color:#ff4d4d;
-    text-decoration:none;
-    font-weight:bold;
-}
-
-/* MODAL */
-.modal {
-    display:none;
-    position:fixed;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.7);
-    justify-content:center;
-    align-items:center;
-}
-
-.modal-content {
-    background:#2c2f33;
-    padding:20px;
-    border-radius:10px;
-    color:white;
-}
-
-.close {
-    float:right;
-    cursor:pointer;
-}
-
-</style>
+<!-- JS -->
+<script src="{{ url_for('static', filename='js/admin_manage_users.js') }}"></script>
 
 </body>
 </html>

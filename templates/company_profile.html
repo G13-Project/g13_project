@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Drivers Management</title>
+    <title>Company Profile</title>
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/company_profile.css') }}">
 </head>
 
 <body>
 
-
+<!-- ✅ NAVBAR -->
 <div class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
@@ -15,7 +17,7 @@
     </div>
 
     <div class="nav-right">
-        <span class="user">{{ user }}</span>        
+        <span class="user">{{ user }}</span>
 
         <a href="/company/dashboard">Home</a>
         <a href="/company/cars">Cars</a>
@@ -40,7 +42,7 @@
                     {% if company.photo %}
                         <img src="{{ company.photo }}" class="profile-photo">
 
-                    {% elif company.name and company.name|length > 0 %}
+                    {% elif company.name %}
                         <img src="{{ url_for('static', filename='images/company/' ~ (company.name[0]|upper) ~ '.png') }}"
                              class="profile-photo">
 
@@ -57,15 +59,32 @@
                     <p><strong>ID:</strong> {{ company.id }}</p>
                     <p><strong>Name:</strong> {{ company.name }}</p>
                     <p><strong>Begin Date:</strong> {{ company.begin_date }}</p>
-
                 </div>
 
             </div>
 
-            <!-- ✅ BOTÃO EDIT -->
+            <!-- ✅ BOTÃO -->
             <a href="/company/edit" class="btn edit-btn">
                 Edit Profile
             </a>
+
+        </div>
+
+        <!-- ✅ LOGS -->
+        <div class="admin-logs-inline">
+
+            <h3>Recent Activity</h3>
+
+            {% if logs %}
+                {% for log in logs %}
+                    <div class="log-item">
+                        <span class="log-time">{{ log.time }}</span>
+                        <span class="log-action">{{ log.action }}</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="opacity:0.6;">No activity yet</p>
+            {% endif %}
 
         </div>
 
