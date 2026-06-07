@@ -1,0 +1,183 @@
+.company-bg {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+
+    padding: 100px 0 40px; /* espaço para navbar */
+}
+.profile-page {
+    width: 92%;
+    max-width: 1200px;
+
+    margin: 40px auto;
+    padding: 40px;
+
+    background: rgba(20,20,20,0.85);
+    border-radius: 20px;
+
+    backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 0 30px rgba(0,255,136,0.4),
+        0 0 70px rgba(0,255,136,0.2),
+        0 20px 60px rgba(0,0,0,0.95);
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.section-rect {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    margin-bottom: 40px;
+}
+
+
+.profile-header {
+    display: flex;
+    gap: 60px;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-wrap: wrap;
+}
+
+
+.profile-photo-wrapper {
+    width: 200px;
+    height: 200px;
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 0 30px rgba(0,255,136,0.6),
+        0 15px 40px rgba(0,0,0,0.9);
+}
+
+.no-photo {
+    width: 200px;
+    height: 200px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 20px;
+    background: #333;
+    color: #aaa;
+}
+
+
+.profile-info {
+    max-width: 400px;
+    text-align: center;
+}
+
+.profile-info h1 {
+    color: #00ff88;
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.profile-info p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+
+.edit-btn {
+    margin-top: 25px;
+
+    padding: 10px 20px;
+    border-radius: 10px;
+
+    background: #00ff88;
+    color: black;
+
+    text-decoration: none;
+    font-weight: bold;
+
+    transition: 0.2s;
+}
+
+.edit-btn:hover {
+    background: #00cc6a;
+    transform: scale(1.05);
+}
+
+
+.admin-logs-inline {
+    width: 100%;
+
+    padding: 25px;
+    border-radius: 15px;
+
+    background: rgba(0,0,0,0.4);
+
+    border-top: 1px solid rgba(0,255,136,0.3);
+
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+
+.admin-logs-inline h3 {
+    color: #00ff88;
+    margin-bottom: 20px;
+}
+
+
+.log-item {
+    display: grid;
+    grid-template-columns: 10px 110px 1fr;
+
+    align-items: center;
+    gap: 15px;
+
+    padding: 14px;
+    border-radius: 12px;
+
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 10px;
+
+    transition: 0.2s;
+}
+
+
+.log-item:hover {
+    background: rgba(0,255,136,0.2);
+    transform: translateX(6px);
+}
+
+
+.log-item::before {
+    content: "●";
+    color: #00ff88;
+}
+
+
+.log-time {
+    font-weight: bold;
+    color: #00ff88;
+    font-family: monospace;
+}
+
+
+.log-action {
+    color: rgba(255,255,255,0.9);
+}
+
+
+.profile-page:hover {
+    transform: scale(1.01);
+    transition: 0.3s;
+}
