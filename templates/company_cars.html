@@ -61,24 +61,19 @@
     </a>
     {% endfor %}
 
-    <!-- BOTÃO ADD COMO CARD -->
+    <!-- ADD CARD -->
     <a href="/company/cars?add=1">
-
         <div class="car-card add-card">
-
             <div style="font-size:50px;">+</div>
             <p>Add Car</p>
-
         </div>
-
     </a>
 
 </div>
 
 <!-- DETAILS -->
 {% if show_id and not request.args.get("add") and not edit_id %}
-
-<div class="details-box">
+<div class="details-box" id="detailsBox">
 
 <h3>Car Options</h3>
 
@@ -117,12 +112,11 @@
 {% endfor %}
 
 </div>
-
 {% endif %}
 
 <!-- ADD FORM -->
 {% if add %}
-<div class="center-box">
+<div class="center-box" id="formBox">
 
     <h3>Add Car</h3>
 
@@ -137,13 +131,9 @@
 
         <div class="form-buttons">
 
-            <button class="btn btn-main">
-                Add
-            </button>
+            <button class="btn btn-main">Add</button>
 
-            <a href="/company/cars" class="btn btn-cancel">
-                Cancel
-            </a>
+            <a href="/company/cars" class="btn btn-cancel">Cancel</a>
 
         </div>
 
@@ -154,7 +144,8 @@
 
 <!-- EDIT FORM -->
 {% if edit_id %}
-<div class="center-box">
+<div class="center-box" id="formBox">
+
 <h3>Edit Car</h3>
 
 <form method="POST">
@@ -163,17 +154,21 @@
 
 {% for c in cars %}
 {% if edit_id == c.id|string %}
+
 <input name="description" value="{{ c.description }}">
 
 <select name="car_type">
 <option value="1" {% if c._car_type == 1 %} selected {% endif %}>Company</option>
 <option value="2" {% if c._car_type == 2 %} selected {% endif %}>Personal</option>
 </select>
+
 {% endif %}
 {% endfor %}
 
-<button class="btn">Save</button>
+<div class="form-buttons">
+<button class="btn btn-main">Save</button>
 <a href="/company/cars" class="btn btn-cancel">Cancel</a>
+</div>
 
 </form>
 </div>
@@ -182,5 +177,7 @@
 </div>
 </div>
 
+<!-- SCROLL SCRIPT -->
+<script src="{{ url_for('static', filename='js/company_cars.js') }}"></script>
 </body>
 </html>

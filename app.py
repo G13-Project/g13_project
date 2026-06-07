@@ -17,7 +17,7 @@ from werkzeug.utils import secure_filename
 #  APP CONFIG
 # ================================================================
 app = Flask(__name__)
-app.secret_key = 'BAD_SECRET_KEY'
+app.secret_key = 'GOOD_SECRET_KEY_BY_ITIJI'
 
 UPLOAD_FOLDER = "static/uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}

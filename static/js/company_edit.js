@@ -1,31 +1,31 @@
 function removePhoto() {
 
-    // 1. Limpar input file
+    
     const input = document.getElementById('photoInput');
     if (input) {
         input.value = '';
     }
 
-    // 2. Avisar backend
+    
     const removeInput = document.getElementById('removePhotoInput');
     if (removeInput) {
         removeInput.value = 'true';
     }
 
-    // 3. Esconder botão remove
+    
     const removeBtn = document.getElementById('removePhotoBtn');
     if (removeBtn) {
         removeBtn.style.display = 'none';
     }
 
-    // 4. Atualizar preview
+    
     const preview = document.getElementById('photoPreview');
 
     if (!preview) return;
 
     if (typeof userInitialFallback !== 'undefined' && userInitialFallback !== '') {
 
-        // Mostrar fallback image
+        
         if (preview.tagName !== 'IMG') {
             const img = document.createElement('img');
             img.id = 'photoPreview';
@@ -38,7 +38,7 @@ function removePhoto() {
         }
 
     } else {
-        // Sem fallback → mostrar "?"
+        
         if (preview.tagName === 'IMG') {
             const div = document.createElement('div');
             div.id = 'photoPreview';
@@ -59,20 +59,20 @@ function previewPhoto(input) {
 
     const file = input.files[0];
 
-    // ✅ OPCIONAL: validação de tamanho (5MB)
+    
     if (file.size > 5 * 1024 * 1024) {
         alert("Image too large (max 5MB).");
         input.value = '';
         return;
     }
 
-    // ✅ reset remove flag
+    
     const removeInput = document.getElementById('removePhotoInput');
     if (removeInput) {
         removeInput.value = 'false';
     }
 
-    // ✅ mostrar botão remove
+    
     const removeBtn = document.getElementById('removePhotoBtn');
     if (removeBtn) {
         removeBtn.style.display = 'inline-block';
@@ -84,7 +84,7 @@ function previewPhoto(input) {
         const preview = document.getElementById('photoPreview');
         if (!preview) return;
 
-        // substituir se for div
+        
         if (preview.tagName !== 'IMG') {
             const img = document.createElement('img');
             img.id = 'photoPreview';

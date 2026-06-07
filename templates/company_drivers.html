@@ -3,14 +3,14 @@
 <head>
     <title>Drivers Management</title>
 
-    <!-- ✅ CSS -->
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/company_drivers.css') }}">
 </head>
 
 <body>
 
-<!-- ✅ NAVBAR -->
+<!-- NAVBAR -->
 <div class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
@@ -28,7 +28,7 @@
     </div>
 </div>
 
-<!-- ✅ MAIN -->
+<!-- MAIN -->
 <div class="home">
 <div class="overlay"></div>
 
@@ -36,7 +36,7 @@
 
 <div class="drivers-container">
 
-<!-- ✅ ACTIVE DRIVERS -->
+<!-- ACTIVE DRIVERS -->
 <div class="drivers-box">
 
 <h3>Drivers Management</h3>
@@ -113,7 +113,7 @@
 
 </table>
 
-<!-- ✅ PAGINATION -->
+<!-- PAGINATION -->
 <div class="pagination">
 
 {% if page_active > 1 %}
@@ -130,7 +130,7 @@
 
 </div>
 
-<!-- ✅ AVAILABLE DRIVERS -->
+<!-- AVAILABLE DRIVERS -->
 <div class="drivers-box">
 
 <h3>Available Drivers</h3>
@@ -189,7 +189,7 @@
 
 </table>
 
-<!-- ✅ PAGINATION -->
+<!-- PAGINATION -->
 <div class="pagination">
 
 {% if page > 1 %}
@@ -211,7 +211,7 @@
 </div>
 </div>
 
-<!-- ✅ JS -->
+<!-- JS -->
 <script src="{{ url_for('static', filename='js/company_drivers.js') }}"></script>
 
 </body>

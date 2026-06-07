@@ -1,8 +1,17 @@
 /* ✅ BACKGROUND */
 .bg {
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+
     min-height: 100vh;
-    padding: 40px 0;
+
+    display: flex;                 /* 🔥 centra */
+    justify-content: center;
+    align-items: center;
+
+    padding-top: 80px;             /* ✅ respeita navbar */
+    padding-bottom: 20px;
+
+    box-sizing: border-box;
 }
 
 /* ✅ CONTAINER */
@@ -31,9 +40,9 @@
     margin-bottom: 25px;
 }
 
-/* ✅ SECTION CARDS */
+/* ✅ SECTIONS */
 .section-rect {
-    background: rgba(255,255,255,0.04); /* 🔥 novo contraste */
+    background: rgba(255,255,255,0.04);
     padding: 25px;
     border-radius: 15px;
     margin-bottom: 25px;
@@ -41,13 +50,12 @@
     border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* ✅ SUBTITLE */
 .section-rect h2 {
     margin-bottom: 20px;
     color: white;
 }
 
-/* ✅ BACK BUTTON (fix 🔥) */
+/* ✅ BACK BUTTON */
 .back-btn {
     position: absolute;
     top: 25px;
@@ -62,14 +70,14 @@
     text-decoration: none;
     font-weight: bold;
 
-    width: auto; /* ✅ IMPORTANTE */
+    width: auto; 
 }
 
 .back-btn:hover {
     background: #00cc6a;
 }
 
-/* ✅ PHOTO AREA */
+/* ✅ PHOTO */
 .photo-upload-area {
     display: flex;
     gap: 30px;
@@ -77,7 +85,6 @@
     flex-wrap: wrap;
 }
 
-/* ✅ PREVIEW */
 .photo-preview-wrapper {
     width: 150px;
     height: 150px;
@@ -95,7 +102,6 @@
         0 10px 25px rgba(0,0,0,0.8);
 }
 
-/* ✅ FALLBACK */
 .no-photo {
     display: flex;
     align-items: center;
@@ -113,7 +119,6 @@
     gap: 10px;
 }
 
-/* ✅ ESCONDER INPUT FILE FEIO 🔥 */
 input[type="file"] {
     display: none;
 }
@@ -122,9 +127,8 @@ input[type="file"] {
 input[type="text"],
 input[type="date"] {
     width: 100%;
-    max-width: none;  /* 🔥 remove limite */
 
-    padding: 9px 10px;
+    padding: 10px;
     margin: 10px 0;
 
     border-radius: 8px;
@@ -143,27 +147,24 @@ input[type="date"] {
     font-weight: bold;
 }
 
-/* ✅ UPLOAD */
 .btn-upload {
     background: #00bfff;
     color: white;
     width: fit-content;
 }
 
-/* ✅ REMOVE */
 .btn-remove-photo {
     background: #ff4d4d;
     color: white;
     width: fit-content;
 }
 
-/* ✅ SAVE (fix largura 🔥) */
 .btn-save {
     background: #00ff88;
     color: black;
 
     padding: 12px;
-    width: 100%; /* ✅ barra completa */
+    width: 100%;
     border-radius: 10px;
 }
 
@@ -176,7 +177,7 @@ input[type="date"] {
     margin-top: 25px;
 }
 
-/* ✅ HOVER CONTAINER */
+/* ✅ HOVER */
 .profile-page:hover {
     transform: scale(1.01);
     transition: 0.25s;

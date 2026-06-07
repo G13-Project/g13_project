@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="bg">
-    <div class="box">
+
+<div class="bg bg-login">
+
+    <div class="box login-box">
 
         <h1>Login</h1>
 
@@ -12,6 +14,7 @@
             <input type="password" name="password" placeholder="Password" required>
 
             <button class="btn">Login</button>
+
         </form>
 
         {% if resul %}
@@ -24,5 +27,7 @@
         </p>
 
     </div>
+
 </div>
+
 {% endblock %}

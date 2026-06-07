@@ -1,11 +1,9 @@
-/* ✅ BACKGROUND (igual ao admin 🔥) */
-.bg {
+.company-bg {
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
     min-height: 100vh;
-    padding: 40px 0;
-}
 
-/* ✅ WRAPPER */
+    padding: 100px 0 40px; /* espaço para navbar */
+}
 .profile-page {
     width: 92%;
     max-width: 1200px;
@@ -27,7 +25,7 @@
     flex-direction: column;
 }
 
-/* ✅ PROFILE CARD */
+
 .section-rect {
     display: flex;
     flex-direction: column;
@@ -36,7 +34,7 @@
     margin-bottom: 40px;
 }
 
-/* ✅ HEADER */
+
 .profile-header {
     display: flex;
     gap: 60px;
@@ -47,7 +45,7 @@
     flex-wrap: wrap;
 }
 
-/* ✅ FOTO */
+
 .profile-photo-wrapper {
     width: 200px;
     height: 200px;
@@ -65,7 +63,6 @@
         0 15px 40px rgba(0,0,0,0.9);
 }
 
-/* ✅ FALLBACK */
 .no-photo {
     width: 200px;
     height: 200px;
@@ -79,7 +76,7 @@
     color: #aaa;
 }
 
-/* ✅ INFO */
+
 .profile-info {
     max-width: 400px;
     text-align: center;
@@ -96,7 +93,7 @@
     font-size: 16px;
 }
 
-/* ✅ BOTÃO EDIT */
+
 .edit-btn {
     margin-top: 25px;
 
@@ -117,7 +114,7 @@
     transform: scale(1.05);
 }
 
-/* ✅ LOGS */
+
 .admin-logs-inline {
     width: 100%;
 
@@ -132,13 +129,13 @@
     overflow-y: auto;
 }
 
-/* ✅ TITLE */
+
 .admin-logs-inline h3 {
     color: #00ff88;
     margin-bottom: 20px;
 }
 
-/* ✅ LOG ITEM */
+
 .log-item {
     display: grid;
     grid-template-columns: 10px 110px 1fr;
@@ -155,31 +152,31 @@
     transition: 0.2s;
 }
 
-/* ✅ HOVER */
+
 .log-item:hover {
     background: rgba(0,255,136,0.2);
     transform: translateX(6px);
 }
 
-/* ✅ DOT */
+
 .log-item::before {
     content: "●";
     color: #00ff88;
 }
 
-/* ✅ TIME */
+
 .log-time {
     font-weight: bold;
     color: #00ff88;
     font-family: monospace;
 }
 
-/* ✅ ACTION */
+
 .log-action {
     color: rgba(255,255,255,0.9);
 }
 
-/* ✅ HOVER EXTRA */
+
 .profile-page:hover {
     transform: scale(1.01);
     transition: 0.3s;

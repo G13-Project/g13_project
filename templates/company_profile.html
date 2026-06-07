@@ -9,7 +9,7 @@
 
 <body>
 
-<!-- ✅ NAVBAR -->
+<!-- NAVBAR -->
 <div class="navbar">
     <div class="logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" class="logo-img">
@@ -28,15 +28,15 @@
     </div>
 </div>
 
-<!-- ✅ CONTENT -->
-<div class="bg">
+<!-- CONTENT -->
+<div class="bg company-bg">
     <div class="box profile-page">
 
         <div class="section-rect">
 
             <div class="profile-header">
 
-                <!-- ✅ FOTO -->
+                <!-- FOTO -->
                 <div class="profile-photo-wrapper">
 
                     {% if company.photo %}
@@ -52,7 +52,7 @@
 
                 </div>
 
-                <!-- ✅ INFO -->
+                <!-- INFO -->
                 <div class="profile-info">
                     <h1>{{ company.name }}</h1>
 
@@ -63,14 +63,14 @@
 
             </div>
 
-            <!-- ✅ BOTÃO -->
+            <!-- BOTÃO -->
             <a href="/company/edit" class="btn edit-btn">
                 Edit Profile
             </a>
 
         </div>
 
-        <!-- ✅ LOGS -->
+        <!-- LOGS -->
         <div class="admin-logs-inline">
 
             <h3>Recent Activity</h3>
